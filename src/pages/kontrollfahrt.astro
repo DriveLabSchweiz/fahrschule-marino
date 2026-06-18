@@ -1,0 +1,45 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Hero from '@components/Hero.astro';
+import CTASection from '@components/CTASection.astro';
+---
+
+<BaseLayout
+  title="Kontrollfahrt-Vorbereitung | Antonio Marino"
+  description="Vorbereitung auf die Kontrollfahrt für ausländische Führerausweise. Antonio Marino bereitet dich gezielt auf die Schweizer Fahrpraktiken vor."
+>
+  <Hero eyebrow="Kontrollfahrt" title="Ausländischer Ausweis?" titleHighlight="Kein Problem." subtitle="Vorbereitung auf die Kontrollfahrt in der Schweiz. Wir bringen dich sicher durch die Prüfung." backgroundVariant="minimal" />
+
+  <section class="section">
+    <div class="container container-narrow">
+      <p class="eyebrow reveal">Kontrollfahrt</p>
+      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-6);">Dein ausländischer Führerausweis in der Schweiz</h2>
+      <p class="reveal reveal-delay-2" style="font-size: var(--fs-lg); margin-bottom: var(--sp-5); line-height: var(--lh-relaxed);">
+        Hast du einen ausländischen Führerausweis und musst ihn in der Schweiz umschreiben lassen? Dann steht oft eine Kontrollfahrt an. Wir bereiten dich gezielt auf die Schweizer Fahrpraktiken und Verkehrsregeln vor.
+      </p>
+      <p class="reveal reveal-delay-2" style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
+        Du lernst die Schweizer Vortrittsregeln, Geschwindigkeitslimits, Besonderheiten im Schweizer Strassenverkehr und die Routen, die bei Kontrollfahrten typischerweise gefahren werden. Mit Antonio Marino an deiner Seite gehst du sicher in die Prüfung.
+      </p>
+
+      <div class="checklist reveal reveal-delay-3">
+        <h3 style="margin-bottom: var(--sp-4);">Was wir trainieren:</h3>
+        <ul>
+          <li>Schweizer Strassenverkehrsregeln</li>
+          <li>Vortritt und Signalisation</li>
+          <li>Tempolimits und Geschwindigkeitskontrolle</li>
+          <li>Fahrtechnische Manöver (Parkieren, Wenden)</li>
+          <li>Vorausschauendes und defensives Fahren</li>
+          <li>Typische Prüfungsrouten in deiner Region</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <CTASection title="Kontrollfahrt vorbereiten" />
+</BaseLayout>
+
+<style>
+.checklist ul { display: flex; flex-direction: column; gap: var(--sp-3); }
+.checklist li { display: flex; gap: var(--sp-2); color: var(--c-text-muted); }
+.checklist li::before { content: '✓'; color: var(--c-accent); font-weight: bold; }
+</style>

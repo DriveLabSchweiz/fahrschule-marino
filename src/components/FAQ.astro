@@ -1,0 +1,114 @@
+---
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  items: FAQItem[];
+  title?: string;
+  generateSchema?: boolean;
+}
+
+const { items, title = 'Häufige Fragen', generateSchema = true } = Astro.props;
+
+const faqSchema = generateSchema ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map(item => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+} : null;
+---
+
+<section class="faq-section">
+  <div class="container container-narrow">
+    <h2 class="faq-title reveal">{title}</h2>
+    <div class="faq-list">
+      {items.map((item, i) => (
+        <details class="faq-item reveal" style={`transition-delay: ${i * 0.05}s`}>
+          <summary class="faq-question">
+            <span>{item.question}</span>
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <p>{item.answer}</p>
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+{faqSchema && (
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+)}
+
+<style>
+.faq-section {
+  padding-block: clamp(3rem, 6vw, 6rem);
+}
+
+.faq-title {
+  text-align: center;
+  margin-bottom: var(--sp-8);
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.faq-item {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  transition: border-color var(--t-fast);
+}
+
+.faq-item[open] {
+  border-color: var(--c-accent-dim);
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  font-family: var(--font-display);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq-question::-webkit-details-marker {
+  display: none;
+}
+
+.faq-icon {
+  flex-shrink: 0;
+  color: var(--c-accent);
+  transition: transform var(--t-base);
+}
+
+.faq-item[open] .faq-icon {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  padding: 0 var(--sp-5) var(--sp-5);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+</style>

@@ -1,0 +1,55 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { company } from '@data/site';
+---
+
+<BaseLayout title="Impressum" description="Impressum der Fahrschule Antonio Marino." noindex={true}>
+  <section class="section">
+    <div class="container container-narrow">
+      <p class="eyebrow">Rechtliches</p>
+      <h1 style="margin-bottom: var(--sp-8);">Impressum</h1>
+
+      <div class="legal-content">
+        <h2>Angaben gemäss Art. 49 AVG</h2>
+        <p>
+          <strong>{company.name}</strong><br />
+          Inhaber: {company.owner}<br />
+          {company.phone}<br />
+          <a href={`mailto:${company.email}`} style="color: var(--c-accent);">{company.email}</a><br />
+          {company.url}
+        </p>
+
+        <h2>Adresse</h2>
+        <p>
+          Bahnhofplatz 10<br />
+          8853 Lachen<br />
+          Schweiz
+        </p>
+
+        <h2>Weitere Standorte</h2>
+        <ul>
+          <li>Schufelistr. 4, 8863 Buttikon</li>
+          <li>Fabrikstr. 10, 8866 Ziegelbrücke</li>
+          <li>Tessinerplatz 12, 8002 Zürich</li>
+          <li>Gasterstr. 45, 8730 Uznach</li>
+          <li>St. Gallerstr. 29, 8645 Rapperswil-Jona</li>
+        </ul>
+
+        <h2>Haftungsausschluss</h2>
+        <p>Der Autor übernimmt keinerlei Gewähr hinsichtlich der inhaltlichen Richtigkeit, Genauigkeit, Aktualität, Zuverlässigkeit und Vollständigkeit der Informationen.</p>
+        <p>Haftungsansprüche gegen den Autor wegen Schäden materieller oder immaterieller Art, welche aus dem Zugriff oder der Nutzung bzw. Nichtnutzung der veröffentlichten Informationen, durch Missbrauch der Verbindung oder durch technische Störungen entstanden sind, werden ausgeschlossen.</p>
+
+        <h2>Urheberrechte</h2>
+        <p>Die Urheber- und alle anderen Rechte an Inhalten, Bildern, Fotos oder anderen Dateien auf dieser Website gehören ausschliesslich {company.name} oder den speziell genannten Rechteinhabern.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+.legal-content { line-height: var(--lh-relaxed); }
+.legal-content h2 { font-size: var(--fs-xl); margin-top: var(--sp-6); margin-bottom: var(--sp-3); }
+.legal-content p { color: var(--c-text-muted); margin-bottom: var(--sp-3); }
+.legal-content ul { margin-left: var(--sp-5); list-style: disc; color: var(--c-text-muted); }
+.legal-content li { margin-bottom: var(--sp-1); }
+</style>

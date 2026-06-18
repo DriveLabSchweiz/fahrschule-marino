@@ -1,0 +1,51 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Hero from '@components/Hero.astro';
+import CTASection from '@components/CTASection.astro';
+import FAQ from '@components/FAQ.astro';
+import { company } from '@data/site';
+
+const faqItems = [
+  { question: 'Was ist der Nothelferkurs?', answer: 'Ein 10-stündiger Pflichtkurs, der dich in Erster Hilfe am Unfallort ausbildet. Er muss vor dem Lernfahrausweis absolviert werden.' },
+  { question: 'Wie lange ist das Nothelfer-Zertifikat gültig?', answer: 'Das Zertifikat ist 6 Jahre gültig und wird von allen Strassenverkehrsämtern in der Schweiz anerkannt.' },
+  { question: 'Brauche ich den Kurs, wenn ich schon einen Erste-Hilfe-Kurs gemacht habe?', answer: 'Der Nothelferkurs für den Führerausweis muss spezifisch als "Nothilfekurs" zertifiziert sein. Ein allgemeiner Erste-Hilfe-Kurs reicht in der Regel nicht.' },
+];
+---
+
+<BaseLayout
+  title="Nothelferkurs | Fahrschule Antonio Marino"
+  description="Nothelferkurs (Nothilfekurs) bei der Fahrschule Antonio Marino. 10 Stunden Pflichtkurs für den Führerausweis. Zertifiziert, praxisnah, in kleinen Gruppen."
+>
+  <Hero eyebrow="Nothelferkurs" title="Erste Hilfe," titleHighlight="die zählt." subtitle="10 Stunden, die Leben retten können. Pflichtkurs für deinen Führerausweis – praxisnah und intensiv." backgroundVariant="minimal" />
+
+  <section class="section">
+    <div class="container container-narrow">
+      <p class="eyebrow reveal">Nothelferkurs</p>
+      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-6);">Dein erster Schritt zum Führerausweis</h2>
+      <p class="reveal reveal-delay-2" style="font-size: var(--fs-lg); margin-bottom: var(--sp-5); line-height: var(--lh-relaxed);">
+        Bevor du den Lernfahrausweis beantragen kannst, musst du einen Nothelferkurs (auch Nothilfekurs) absolvieren. Dieser 10-stündige Kurs vermittelt dir die Grundlagen der Ersten Hilfe am Unfallort.
+      </p>
+      <p class="reveal reveal-delay-2" style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
+        Du lernst, wie du bei einem Verkehrsunfall richtig reagierst: Absichern, Retten aus der Gefahrenzone, Seitenlage, Herzdruckmassage und den Notruf absetzen. Praxisorientiert, intensiv und mit echten Fallbeispielen.
+      </p>
+
+      <div class="features-grid reveal reveal-delay-3">
+        <div class="feature"><h4>⏱ 10 Stunden</h4><p>Aufgeteilt auf 2-3 Termine</p></div>
+        <div class="feature"><h4>🏆 Zertifiziert</h4><p>Offiziell anerkannt (6 Jahre gültig)</p></div>
+        <div class="feature"><h4>🩺 Praxisnah</h4><p>Übungen an Puppen und Simulatoren</p></div>
+        <div class="feature"><h4>📋 Inklusive</h4><p>Kursunterlagen und Bestätigung</p></div>
+      </div>
+    </div>
+  </section>
+
+  <CTASection title="Nothelferkurs buchen" />
+  <FAQ items={faqItems} />
+</BaseLayout>
+
+<style>
+.features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); margin-top: var(--sp-8); }
+.feature { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-md); padding: var(--sp-5); }
+.feature h4 { font-size: var(--fs-base); margin-bottom: var(--sp-2); }
+.feature p { font-size: var(--fs-sm); color: var(--c-text-muted); }
+@media (max-width: 600px) { .features-grid { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,73 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Hero from '@components/Hero.astro';
+import CTASection from '@components/CTASection.astro';
+import FAQ from '@components/FAQ.astro';
+import { company } from '@data/site';
+
+const faqItems = [
+  { question: 'Was ist der VKU?', answer: 'Der Verkehrskundeunterricht ist ein obligatorischer 8-stündiger Kurs für alle Lernfahrenden der Kategorie B. Er vermittelt grundlegendes Wissen über Verkehrssicherheit, Umweltbewusstsein und Gefahrenerkennung.' },
+  { question: 'Wann muss ich den VKU besuchen?', answer: 'Der VKU muss vor der praktischen Prüfung absolviert werden. Die Bescheinigung ist 2 Jahre gültig.' },
+  { question: 'Wie viel kostet der VKU?', answer: `Den aktuellen Preis erfährst du telefonisch unter ${company.phone}. Wir bieten faire Preise und kleine Gruppen.` },
+];
+---
+
+<BaseLayout
+  title="Verkehrskundeunterricht (VKU) | Antonio Marino"
+  description="Verkehrskundeunterricht (VKU) bei der Fahrschule Antonio Marino. 8 Stunden Pflichtkurs für Lernfahrende. Kleine Gruppen, erfahrene Dozenten. Jetzt anmelden!"
+>
+  <Hero eyebrow="VKU" title="Verkehrskunde-" titleHighlight="unterricht." subtitle="8 Stunden, die dich sicherer machen. Pflichtkurs für alle Lernfahrenden – interaktiv und praxisnah." backgroundVariant="minimal" />
+
+  <section class="section">
+    <div class="container container-narrow">
+      <p class="eyebrow reveal">Verkehrskundeunterricht (VKU)</p>
+      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-6);">Mehr Sicherheit auf der Strasse</h2>
+      <p class="reveal reveal-delay-2" style="font-size: var(--fs-lg); margin-bottom: var(--sp-5); line-height: var(--lh-relaxed);">
+        Der Verkehrskundeunterricht ist ein Pflichtkurs für alle, die den Führerausweis der Kategorie B machen. In 8 Stunden lernst du die wichtigsten Grundlagen der Verkehrssicherheit, des umweltbewussten Fahrens und der Gefahrenerkennung.
+      </p>
+      <p class="reveal reveal-delay-2" style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
+        Bei Antonio Marino gestalten wir den VKU interaktiv und praxisnah. Kein langweiliges Frontalunterrichten – sondern Diskussion, Fallbeispiele und echte Verkehrssituationen aus der Region.
+      </p>
+
+      <div class="vku-features reveal reveal-delay-3">
+        <div class="vku-feature">
+          <h4>📅 Dauer</h4>
+          <p>8 Stunden, meist aufgeteilt auf 4 Abende oder 2 Halbtage</p>
+        </div>
+        <div class="vku-feature">
+          <h4>👥 Gruppengrösse</h4>
+          <p>Kleine Gruppen für maximale Interaktion und Lerneffekt</p>
+        </div>
+        <div class="vku-feature">
+          <h4>✅ Zertifikat</h4>
+          <p>Offizielle VKU-Bestätigung, 2 Jahre gültig</p>
+        </div>
+        <div class="vku-feature">
+          <h4>🌍 Sprachen</h4>
+          <p>VKU in mehreren Sprachen möglich – frag nach</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTASection title="VKU Platz sichern" subtitle="Die VKU-Plätze sind begehrt. Melde dich frühzeitig an." />
+  <FAQ items={faqItems} />
+</BaseLayout>
+
+<style>
+.vku-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-4);
+  margin-top: var(--sp-8);
+}
+.vku-feature {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-5);
+}
+.vku-feature h4 { font-size: var(--fs-base); margin-bottom: var(--sp-2); }
+.vku-feature p { font-size: var(--fs-sm); color: var(--c-text-muted); }
+@media (max-width: 600px) { .vku-features { grid-template-columns: 1fr; } }
+</style>

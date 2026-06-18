@@ -1,0 +1,210 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Hero from '@components/Hero.astro';
+import CTASection from '@components/CTASection.astro';
+import FAQ from '@components/FAQ.astro';
+import { company } from '@data/site';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Fahrstunden',
+  provider: { '@id': `${company.url}/#organization` },
+  areaServed: { '@type': 'Country', name: 'Schweiz' },
+  description: 'Individuelle Fahrstunden für die Kategorie B – mit erfahrenem Fahrlehrer Antonio Marino.',
+};
+
+const faqItems = [
+  { question: 'Wie viele Fahrstunden brauche ich?', answer: 'Im Durchschnitt 20-30 Fahrstunden. Antonio passt den Unterricht an dein individuelles Tempo an.' },
+  { question: 'Wie lange dauert eine Fahrstunde?', answer: 'Eine Standard-Fahrstunde dauert 60 Minuten. Auf Wunsch sind auch Doppelstunden (90 Minuten) möglich.' },
+  { question: 'Werde ich abgeholt?', answer: `Ja! Du wirst an einem unserer Standorte oder einem vereinbarten Treffpunkt abgeholt. Ruf an: ${company.phone}.` },
+  { question: 'In welcher Sprache wird unterrichtet?', answer: `Auf ${company.languages.join(', ')} – in der Sprache, die du verstehst.` },
+];
+---
+
+<BaseLayout
+  title="Fahrstunden in der Schweiz | Antonio Marino"
+  description="Fahrstunden mit erfahrenem Fahrlehrer Antonio Marino. Individueller Unterricht, Abholservice, 5 Sprachen. Flexible Zeiten nach Feierabend und am Wochenende."
+  schema={serviceSchema}
+>
+  <Hero
+    eyebrow="Fahrstunden"
+    title="Fahrstunden, die"
+    titleHighlight="Spass machen."
+    subtitle="Individueller Unterricht mit Antonio Marino – vom ersten Mal Anfahren bis zur sicheren Prüfungsvorbereitung. Abgeholt, flexibel, in deiner Sprache."
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="content-grid">
+        <div class="reveal">
+          <p class="eyebrow">Fahrstunden</p>
+          <h2 style="margin-bottom: var(--sp-6);">
+            Dein Weg vom Anfänger zum sicheren Fahrer
+          </h2>
+          <p style="font-size: var(--fs-lg); line-height: var(--lh-relaxed); margin-bottom: var(--sp-5);">
+            Jeder Mensch lernt anders. Deshalb beginnt jede Fahrstunde bei Antonio Marino dort, wo du stehst – nicht wo ein Lehrplan es vorsieht. Ob du zum ersten Mal hinter dem Lenker sitzt oder kurz vor der Prüfung stehst: wir passen Tempo und Inhalt an dich an.
+          </p>
+          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
+            Wir beginnen mit den Grundlagen: Anfahren, Gangwechsel, sicheres Bremsen und Parkieren. Schritt für Schritt steigern wir die Anforderungen – von einfachen Strecken hin zu anspruchsvollen Fahrten durch Kreisverkehre, kurvige Landstrassen und innerstädtische Bereiche.
+          </p>
+          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
+            Besonderen Wert legen wir auf vorausschauendes Fahren, das richtige Verhalten an vielbefahrenen Kreuzungen und das Navigieren in verkehrsreichen Zonen. Denn das ist es, was dich im Alltag – und in der Prüfung – sicher macht.
+          </p>
+        </div>
+
+        <div class="content-sidebar reveal reveal-delay-1">
+          <div class="sidebar-card">
+            <h4>Was du lernst</h4>
+            <ul class="checklist">
+              <li>Sicheres Anfahren und Anhalten</li>
+              <li>Gangwechsel und Kupplungstechnik</li>
+              <li>Parkieren (Längs, Quer, schräg)</li>
+              <li>Fahren in Kreisverkehren</li>
+              <li>Spurwechsel und Überholen</li>
+              <li>Fahren bei Nacht und schlechtem Wetter</li>
+              <li>Autobahn fahren</li>
+              <li>Vorausschauendes Fahren</li>
+              <li>Prüfungsrouten kennen</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section process-section">
+    <div class="container">
+      <p class="eyebrow reveal">Ablauf</p>
+      <h2 class="reveal reveal-delay-1" style="text-align:center; margin-bottom: var(--sp-10);">
+        So laufen deine Fahrstunden ab
+      </h2>
+      <div class="steps">
+        <div class="step reveal">
+          <div class="step-num">1</div>
+          <h4>Kennenlernen</h4>
+          <p>Wir sprechen über deine Ziele, Erfahrung und Verfügbarkeit. Du buchst deinen ersten Termin.</p>
+        </div>
+        <div class="step reveal reveal-delay-1">
+          <div class="step-num">2</div>
+          <h4>Niveau-Check</h4>
+          <p>In der ersten Fahrstunde sehe ich, wo du stehst. Daraus erstelle ich deinen persönlichen Lernplan.</p>
+        </div>
+        <div class="step reveal reveal-delay-2">
+          <div class="step-num">3</div>
+          <h4>Gezieltes Training</h4>
+          <p>Schritt für Schritt verbessern wir deine Fähigkeiten – immer an deinem Tempo orientiert.</p>
+        </div>
+        <div class="step reveal reveal-delay-3">
+          <div class="step-num">4</div>
+          <h4>Prüfungsvorbereitung</h4>
+          <p>Wir fahren die echten Prüfungsrouten und üben, bis du sicher und selbstbewusst bist.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTASection />
+
+  <FAQ items={faqItems} title="Häufige Fragen zu Fahrstunden" />
+</BaseLayout>
+
+<style>
+.content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--sp-10);
+  align-items: start;
+}
+
+.content-sidebar {
+  position: sticky;
+  top: calc(var(--header-height) + var(--sp-5));
+}
+
+.sidebar-card {
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-6);
+}
+
+.sidebar-card h4 {
+  font-size: var(--fs-lg);
+  margin-bottom: var(--sp-4);
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+
+.checklist li::before {
+  content: '✓';
+  color: var(--c-accent);
+  font-weight: var(--fw-bold);
+  flex-shrink: 0;
+}
+
+.process-section {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-6);
+}
+
+.step {
+  text-align: center;
+}
+
+.step-num {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-bg);
+  border: 2px solid var(--c-accent);
+  border-radius: var(--r-full);
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-accent);
+  margin: 0 auto var(--sp-4);
+}
+
+.step h4 {
+  font-size: var(--fs-base);
+  margin-bottom: var(--sp-2);
+}
+
+.step p {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  .content-sidebar {
+    position: static;
+  }
+  .steps {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

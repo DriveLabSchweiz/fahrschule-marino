@@ -1,0 +1,70 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Hero from '@components/Hero.astro';
+import CTASection from '@components/CTASection.astro';
+import { allLocations, physicalLocations, company } from '@data/site';
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: company.url },
+    { '@type': 'ListItem', position: 2, name: 'Standorte', item: `${company.url}/standorte` },
+  ],
+};
+---
+
+<BaseLayout
+  title="Standorte | Fahrschule Antonio Marino"
+  description="Alle Standorte der Fahrschule Antonio Marino: Lachen, Buttikon, Ziegelbrücke, Zürich, Uznach, Rapperswil-Jona und viele weitere Orte in der Region."
+  schema={breadcrumbSchema}
+>
+  <Hero eyebrow="Standorte" title="Wo wir" titleHighlight="unterrichten." subtitle="6 Hauptstandorte und über 20 weitere Orte in der Region. Finde deine Fahrschule um die Ecke." backgroundVariant="minimal" />
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow reveal">Hauptstandorte</p>
+      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-8);">Mit Adresse bei dir vor Ort</h2>
+      <div class="loc-grid">
+        {physicalLocations.map((loc, i) => (
+          <a href={`/fahrschule-${loc.slug}`} class="loc-card reveal" style={`transition-delay: ${i * 0.05}s`}>
+            <span class="loc-pin">📍</span>
+            <div>
+              <h4>{loc.name}</h4>
+              <p>{loc.address.street}</p>
+              <p class="loc-zip">{loc.address.zip} {loc.address.city}</p>
+            </div>
+            <span class="loc-arrow">→</span>
+          </a>
+        ))}
+      </div>
+
+      <p class="eyebrow reveal" style="margin-top: var(--sp-12);">Erweiterte Standorte</p>
+      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-8);">Mit Abholservice erreichbar</h2>
+      <div class="loc-chips">
+        {allLocations.filter(l => l.tier === 2).map((loc, i) => (
+          <a href={`/fahrschule-${loc.slug}`} class="loc-chip reveal" style={`transition-delay: ${i * 0.03}s`}>
+            {loc.name}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CTASection title="Dein Ort nicht dabei?" subtitle="Wir kommen zu dir! Ruf an und wir vereinbaren einen Abholservice an deinem Wunschort." />
+</BaseLayout>
+
+<style>
+.loc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--sp-4); }
+.loc-card { display: flex; align-items: center; gap: var(--sp-4); background: var(--grad-surface); border: 1px solid var(--c-border); border-radius: var(--r-md); padding: var(--sp-5); transition: all var(--t-base); }
+.loc-card:hover { border-color: var(--c-accent-dim); transform: translateX(4px); }
+.loc-pin { font-size: var(--fs-xl); }
+.loc-card h4 { font-size: var(--fs-base); margin-bottom: 2px; }
+.loc-card p { font-size: var(--fs-sm); color: var(--c-text-muted); }
+.loc-zip { color: var(--c-text-dim) !important; font-size: var(--fs-xs) !important; }
+.loc-arrow { margin-left: auto; color: var(--c-accent); opacity: 0; transform: translateX(-10px); transition: all var(--t-base); }
+.loc-card:hover .loc-arrow { opacity: 1; transform: translateX(0); }
+.loc-chips { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+.loc-chip { padding: var(--sp-2) var(--sp-4); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-full); font-size: var(--fs-sm); color: var(--c-text-muted); transition: all var(--t-fast); }
+.loc-chip:hover { background: var(--c-accent-dim); color: var(--c-accent); border-color: var(--c-accent); }
+</style>

@@ -1,0 +1,39 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Hero from '@components/Hero.astro';
+import CTASection from '@components/CTASection.astro';
+---
+
+<BaseLayout
+  title="Motorradgrundkurs | Antonio Marino"
+  description="Motorradgrundkurs bei der Fahrschule Antonio Marino. 12 Stunden Basis-Fahrtechnik auf geschlossenem Gelände für Motorrad-Lernfahrende."
+>
+  <Hero eyebrow="Motorradgrundkurs" title="Auf zwei Rädern" titleHighlight="unterwegs." subtitle="12 Stunden Basis-Fahrtechnik für Motorrad-Lernfahrende. Der Grundkurs ist Pflicht für die Kategorie A." backgroundVariant="minimal" />
+
+  <section class="section">
+    <div class="container container-narrow">
+      <p class="eyebrow reveal">Motorradgrundkurs</p>
+      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-6);">Die Basis für sicheres Motorradfahren</h2>
+      <p class="reveal reveal-delay-2" style="font-size: var(--fs-lg); margin-bottom: var(--sp-5); line-height: var(--lh-relaxed);">
+        Der Motorradgrundkurs ist ein Pflichtkurs für alle, die den Führerausweis der Kategorie A machen wollen. In 12 Stunden lernst du die Grundlagen der Motorradfahrtechnik auf einem geschlossenen Gelände.
+      </p>
+
+      <div class="moto-grid reveal reveal-delay-3">
+        <div class="moto-item"><h4>🏍️ Bremsen</h4><p>Gefahr- und Standbremsung, kombinierte Bremsung</p></div>
+        <div class="moto-item"><h4>🔄 Kurvenfahren</h4><p>Linienwahl, Schräglage und Geschwindigkeitskontrolle</p></div>
+        <div class="moto-item"><h4>🚦 Anfahren</h4><p>Kontrolliertes Anfahren am Berg und im Gefälle</p></div>
+        <div class="moto-item"><h4>🎯 Ausweichen</h4><p>Ausweichen vor Hindernissen, Slalom</p></div>
+      </div>
+    </div>
+  </section>
+
+  <CTASection title="Motorradgrundkurs anfragen" />
+</BaseLayout>
+
+<style>
+.moto-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); margin-top: var(--sp-8); }
+.moto-item { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-md); padding: var(--sp-5); }
+.moto-item h4 { font-size: var(--fs-base); margin-bottom: var(--sp-2); }
+.moto-item p { font-size: var(--fs-sm); color: var(--c-text-muted); }
+@media (max-width: 600px) { .moto-grid { grid-template-columns: 1fr; } }
+</style>

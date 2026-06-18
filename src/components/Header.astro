@@ -1,0 +1,384 @@
+---
+import { mainNav, company } from '@data/site';
+
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) => {
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+};
+---
+
+<header class="site-header" id="site-header" data-scrolled="false">
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label={`${company.name} — Startseite`}>
+      <span class="logo-mark">AM</span>
+      <span class="logo-text">Antonio Marino</span>
+    </a>
+
+    <nav class="nav-desktop" aria-label="Hauptnavigation">
+      {mainNav.map((item) => (
+        <div class={`nav-item ${item.children ? 'has-dropdown' : ''}`}>
+          <a
+            href={item.href}
+            class={`nav-link ${isActive(item.href) ? 'active' : ''}`}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+            {item.children && <span class="chevron" aria-hidden="true">▾</span>}
+          </a>
+          {item.children && (
+            <div class="dropdown glass">
+              {item.children.map((child) => (
+                <a href={child.href} class="dropdown-link">
+                  {child.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </nav>
+
+    <div class="header-actions">
+      <a href={`tel:${company.phone.replace(/\s/g, '')}`} class="header-phone" aria-label={`Anrufen: ${company.phone}`}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        <span class="phone-text">{company.phone}</span>
+      </a>
+      <a href="/kontakt" class="btn btn-primary btn-sm header-cta">Termin buchen</a>
+    </div>
+
+    <button class="menu-toggle" id="menu-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu glass-strong" id="mobile-menu" data-open="false">
+    <nav aria-label="Mobile Navigation">
+      {mainNav.map((item) => (
+        <div class="mobile-nav-group">
+          <a href={item.href} class="mobile-nav-link">{item.label}</a>
+          {item.children && (
+            <div class="mobile-subnav">
+              {item.children.map((child) => (
+                <a href={child.href} class="mobile-subnav-link">{child.label}</a>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </nav>
+    <div class="mobile-menu-actions">
+      <a href={`tel:${company.phone.replace(/\s/g, '')}`} class="btn btn-ghost btn-lg" style="width:100%">
+        📞 {company.phone}
+      </a>
+      <a href="/kontakt" class="btn btn-primary btn-lg" style="width:100%; margin-top: var(--sp-3);">
+        Termin buchen
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+.site-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: var(--z-header);
+  height: var(--header-height);
+  transition: all var(--t-base);
+}
+
+.site-header[data-scrolled="true"] {
+  height: 60px;
+  background: rgba(10, 14, 23, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--c-border);
+  box-shadow: var(--sh-md);
+}
+
+.header-inner {
+  max-width: var(--container-wide);
+  margin-inline: auto;
+  padding-inline: var(--sp-5);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-family: var(--font-display);
+  font-weight: var(--fw-extrabold);
+  flex-shrink: 0;
+}
+
+.logo-mark {
+  width: 40px;
+  height: 40px;
+  background: var(--grad-accent);
+  color: var(--c-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: -0.05em;
+  box-shadow: var(--sh-glow);
+}
+
+.logo-text {
+  font-size: var(--fs-lg);
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--c-text) 0%, var(--c-text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Desktop Nav */
+.nav-desktop {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-3);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--c-text-muted);
+  border-radius: var(--r-sm);
+  transition: color var(--t-fast), background var(--t-fast);
+  white-space: nowrap;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--c-text);
+  background: var(--c-surface);
+}
+
+.nav-link.active {
+  color: var(--c-accent);
+}
+
+.chevron {
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  min-width: 220px;
+  padding: var(--sp-2);
+  border-radius: var(--r-md);
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--t-base);
+  pointer-events: none;
+  box-shadow: var(--sh-lg);
+}
+
+.nav-item:hover .dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.dropdown-link {
+  display: block;
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  border-radius: var(--r-sm);
+  transition: all var(--t-fast);
+}
+
+.dropdown-link:hover {
+  color: var(--c-accent);
+  background: var(--c-surface-hover);
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-shrink: 0;
+}
+
+.header-phone {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-text);
+  transition: color var(--t-fast);
+}
+
+.header-phone:hover {
+  color: var(--c-accent);
+}
+
+.header-phone svg {
+  color: var(--c-accent);
+}
+
+.btn-sm {
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-sm);
+}
+
+/* Menu Toggle (Hamburger) */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-sm);
+  transition: background var(--t-fast);
+}
+
+.menu-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--c-text);
+  border-radius: var(--r-full);
+  transition: all var(--t-base);
+}
+
+.menu-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.menu-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.menu-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  position: fixed;
+  top: var(--header-height-mobile);
+  left: 0; right: 0;
+  bottom: 0;
+  padding: var(--sp-5);
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform var(--t-base);
+  z-index: var(--z-overlay);
+}
+
+.mobile-menu[data-open="true"] {
+  transform: translateX(0);
+}
+
+.mobile-nav-group {
+  border-bottom: 1px solid var(--c-border);
+}
+
+.mobile-nav-link {
+  display: block;
+  padding: var(--sp-4) 0;
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-lg);
+  color: var(--c-text);
+}
+
+.mobile-subnav {
+  padding-bottom: var(--sp-3);
+}
+
+.mobile-subnav-link {
+  display: block;
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+
+.mobile-menu-actions {
+  margin-top: var(--sp-6);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .nav-desktop { display: none; }
+  .header-actions { display: none; }
+  .menu-toggle { display: flex; }
+  .phone-text { display: none; }
+}
+
+@media (min-width: 1025px) {
+  .mobile-menu { display: none; }
+}
+</style>
+
+<script>
+// Header scroll detection
+const header = document.getElementById('site-header');
+let ticking = false;
+
+function updateHeader() {
+  header?.setAttribute('data-scrolled', window.scrollY > 20 ? 'true' : 'false');
+  ticking = false;
+}
+
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(updateHeader);
+    ticking = true;
+  }
+}, { passive: true });
+
+// Mobile menu toggle
+const toggle = document.getElementById('menu-toggle');
+const menu = document.getElementById('mobile-menu');
+
+toggle?.addEventListener('click', () => {
+  const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+  toggle.setAttribute('aria-expanded', String(!isOpen));
+  menu?.setAttribute('data-open', String(!isOpen));
+  document.body.style.overflow = !isOpen ? 'hidden' : '';
+});
+
+// Close mobile menu on link click
+menu?.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    toggle?.setAttribute('aria-expanded', 'false');
+    menu?.setAttribute('data-open', 'false');
+    document.body.style.overflow = '';
+  });
+});
+</script>

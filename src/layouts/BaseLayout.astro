@@ -1,0 +1,38 @@
+---
+import '@styles/global.css';
+import SEO from '@components/SEO.astro';
+import Header from '@components/Header.astro';
+import Footer from '@components/Footer.astro';
+import StickyMobileCTA from '@components/StickyMobileCTA.astro';
+import ScrollReveal from '@components/ScrollReveal.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  schema?: object | object[];
+}
+
+const { title, description, canonical, ogImage, noindex, schema } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+  <SEO title={title} description={description} canonical={canonical} ogImage={ogImage} noindex={noindex} schema={schema} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+</head>
+<body>
+  <a href="#main" class="skip-link">Zum Inhalt springen</a>
+  <Header />
+  <main id="main">
+    <slot />
+  </main>
+  <Footer />
+  <StickyMobileCTA />
+  <ScrollReveal />
+</body>
+</html>

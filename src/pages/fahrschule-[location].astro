@@ -1,0 +1,378 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Hero from '@components/Hero.astro';
+import CTASection from '@components/CTASection.astro';
+import FAQ from '@components/FAQ.astro';
+import ServiceCard from '@components/ServiceCard.astro';
+import { allLocations, getLocation, services, company, physicalLocations } from '@data/site';
+
+export const getStaticPaths = () => {
+  return allLocations.map(loc => ({
+    params: { location: loc.slug },
+    props: { location: loc },
+  }));
+};
+
+const { location } = Astro.props;
+
+// Generate unique content per location
+const locName = location.name;
+const locShort = location.nameShort;
+const locCanton = location.canton;
+const nearbyLocations = location.nearby
+  .map(slug => getLocation(slug))
+  .filter(Boolean)
+  .slice(0, 4);
+
+// Local-specific FAQ
+const localFAQ = [
+  {
+    question: `Wo finde ich eine Fahrschule in ${locShort}?`,
+    answer: `Die Fahrschule Antonio Marino ist ${location.tier === 1 ? 'mit einer Adresse in ' + locName + ' vertreten' : 'in ' + locName + ' und Umgebung aktiv'}. Ruf an unter ${company.phone} oder schreibe über WhatsApp, um deinen ersten Termin zu vereinbaren.`,
+  },
+  {
+    question: `Welche Leistungen bietet die Fahrschule in ${locShort} an?`,
+    answer: `In ${locShort} bieten wir Fahrstunden, Verkehrskundeunterricht (VKU), Nothelferkurse, Prüfungsvorbereitung und Vorbereitung auf die Kontrollfahrt an. Alle Leistungen kannst du bei Antonio Marino in deiner Sprache buchen – auf Deutsch, Italienisch, Englisch, Französisch oder Spanisch.`,
+  },
+  {
+    question: `Kann ich in ${locShort} abgeholt werden?`,
+    answer: `Ja! Wir bieten einen Abholservice in ${locShort} und Umgebung. Vereinbare einfach einen Treffpunkt, der dir passt – wir kommen zu dir.`,
+  },
+  {
+    question: `Wie lange dauert der Weg zum Führerschein in ${locCanton}?`,
+    answer: `Im Kanton ${locCanton} gilt derselbe Ablauf wie in der ganzen Schweiz: Nothelferkurs, Theorieprüfung, VKU, Fahrstunden und praktische Prüfung. Mit regelmässigen Fahrstunden bist du typischerweise in 3 bis 6 Monaten bereit für die Prüfung.`,
+  },
+];
+
+// Local schema
+const localSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  '@id': `${company.url}/fahrschule-${location.slug}#localbusiness`,
+  name: `Fahrschule Antonio Marino ${locShort}`,
+  parentOrganization: { '@id': `${company.url}/#organization` },
+  telephone: company.phone,
+  email: company.email,
+  url: `${company.url}/fahrschule-${location.slug}`,
+  priceRange: company.priceRange,
+  address: location.address.street ? {
+    '@type': 'PostalAddress',
+    streetAddress: location.address.street,
+    postalCode: location.address.zip,
+    addressLocality: location.address.city,
+    addressRegion: location.canton,
+    addressCountry: 'CH',
+  } : {
+    '@type': 'PostalAddress',
+    postalCode: location.address.zip,
+    addressLocality: location.address.city,
+    addressRegion: location.canton,
+    addressCountry: 'CH',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: location.geo.lat,
+    longitude: location.geo.lng,
+  },
+  areaServed: { '@type': 'City', name: location.address.city },
+  openingHoursSpecification: [{
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    opens: '07:00',
+    closes: '21:00',
+  }],
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: company.url },
+    { '@type': 'ListItem', position: 2, name: 'Standorte', item: `${company.url}/standorte` },
+    { '@type': 'ListItem', position: 3, name: locName, item: `${company.url}/fahrschule-${location.slug}` },
+  ],
+};
+---
+
+<BaseLayout
+  title={`Fahrschule ${locShort} – Fahrstunden & VKU | Antonio Marino`}
+  description={`Fahrschule Antonio Marino in ${locName}: Fahrstunden, VKU, Nothelferkurs und Prüfungsvorbereitung. ${location.tier === 1 ? 'Adresse: ' + location.address.street + ', ' + location.address.zip + ' ' + location.address.city + '.' : 'Lokale Expertise, flexible Zeiten, 5 Sprachen.'} Jetzt anrufen: ${company.phone}.`}
+  schema={[localSchema, breadcrumbSchema]}
+>
+  <Hero
+    eyebrow={`Fahrschule ${locShort}`}
+    title={`Fahren lernen in`}
+    titleHighlight={locName}
+    subtitle={`${location.tier === 1 ? 'Direkt bei dir vor Ort' : 'Mit lokaler Expertise und persönlichem Abholservice'} – erfahrener Fahrlehrer, flexible Zeiten und 5 Sprachen. Dein Weg zum Führerschein beginnt hier.`}
+    backgroundVariant="minimal"
+  />
+
+  <!-- Intro -->
+  <section class="section">
+    <div class="container">
+      <div class="location-intro-grid">
+        <div class="reveal">
+          <p class="eyebrow">{locName}</p>
+          <h2 style="margin-bottom: var(--sp-5);">
+            Willkommen bei der Fahrschule Antonio Marino in {locShort}
+          </h2>
+          <p style="font-size: var(--fs-lg); margin-bottom: var(--sp-4); line-height: var(--lh-relaxed);">
+            {location.tier === 1
+              ? `Unser Standort in ${locName} liegt ${location.address.street ? 'an der ' + location.address.street : 'zentral im Ort'}. Hier starten deine Fahrstunden, besuchst du den Verkehrskundeunterricht und bereitest du dich optimal auf die praktische Prüfung vor.`
+              : `In ${locName} und Umgebung sind wir aktiv mit Abholservice und individueller Betreuung. Ob du das erste Mal hinter dem Lenker sitzt oder dich auf die Kontrollfahrt vorbereitest – wir bringen dich sicher ans Ziel.`}
+          </p>
+          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
+            Als lokale Fahrschule kennen wir die Besonderheiten der Strassen in {locShort} und der Region {location.canton}. Wir wissen, welche Kreuzungen tricky sind, wo du im Verkehr vorausschauend fahren musst und welche Routen im Prüfungsgebiet relevant sind. Dieses Wissen geben wir dir in jeder Fahrstunde weiter.
+          </p>
+          <p style="color: var(--c-text-muted);">
+            Unser Ziel: dich sicher, selbstbewusst und mit Freude zum Führerschein zu führen. Auf Deutsch, Italienisch, Englisch, Französisch oder Spanisch – in der Sprache, die du verstehst.
+          </p>
+
+          <div style="display: flex; gap: var(--sp-3); margin-top: var(--sp-6); flex-wrap: wrap;">
+            <a href={`tel:${company.phone.replace(/\s/g, '')}`} class="btn btn-primary">
+              📞 {company.phone}
+            </a>
+            <a href="/kontakt" class="btn btn-ghost">
+              Anfrage senden
+            </a>
+          </div>
+        </div>
+
+        <div class="location-info-card reveal reveal-delay-1">
+          {location.address.street && (
+            <div class="info-item">
+              <span class="info-label">Adresse</span>
+              <span class="info-value">{location.address.street}, {location.address.zip} {location.address.city}</span>
+            </div>
+          )}
+          <div class="info-item">
+            <span class="info-label">Region</span>
+            <span class="info-value">{location.address.city} ({location.canton})</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Telefon</span>
+            <a href={`tel:${company.phone.replace(/\s/g, '')}`} class="info-value info-link">{company.phone}</a>
+          </div>
+          <div class="info-item">
+            <span class="info-label">E-Mail</span>
+            <a href={`mailto:${company.email}`} class="info-value info-link">{company.email}</a>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Sprachen</span>
+            <span class="info-value">{company.languages.join(', ')}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Öffnungszeiten</span>
+            <span class="info-value">Mo–Sa, 07:00–21:00<br><span style="color: var(--c-text-dim); font-size: var(--fs-sm);">Nach Vereinbarung</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow reveal">Leistungen in {locShort}</p>
+      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-8);">
+        Was wir in {locShort} anbieten
+      </h2>
+      <div class="services-grid">
+        {services.slice(0, 4).map((service, i) => (
+          <div class="reveal" style={`transition-delay: ${i * 0.05}s`}>
+            <ServiceCard service={service} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Why here -->
+  <section class="section why-here-section">
+    <div class="container">
+      <p class="eyebrow reveal">Warum in {locShort}?</p>
+      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-8);">
+        Lokale Expertise, die den Unterschied macht
+      </h2>
+      <div class="why-here-grid">
+        <div class="why-here-card reveal">
+          <h4>🏗️ Strassenkenntnis {locShort}</h4>
+          <p>Wir trainieren auf den Strassen, die für die praktische Prüfung in {locShort} und Umgebung relevant sind. Du lernst die schwierigen Kreuzungen, Tempo-30-Zonen und die typischen Prüfungsrouten kennen.</p>
+        </div>
+        <div class="why-here-card reveal reveal-delay-1">
+          <h4>🚗 Abholservice</h4>
+          <p>Du wirst in {locShort} oder an einem vereinbarten Treffpunkt abgeholt. Kein Stress mit der Anreise – du startest entspannt in deine Fahrstunde.</p>
+        </div>
+        <div class="why-here-card reveal reveal-delay-2">
+          <h4>🌍 5 Sprachen</h4>
+          <p>In {locShort} unterrichten wir auf Deutsch, Italienisch, Englisch, Französisch und Spanisch. Lerne in der Sprache, in der du dich am wohlsten fühlst.</p>
+        </div>
+        <div class="why-here-card reveal reveal-delay-3">
+          <h4>⏰ Flexible Zeiten</h4>
+          <p>Fahrstunden auch nach Feierabend und am Wochenende. Wir passen uns deinem Terminkalender an – nicht umgekehrt.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    title={`Bereit für deine erste Fahrstunde in ${locShort}?`}
+    subtitle={`Ruf Antonio an unter ${company.phone} oder schreibe eine WhatsApp. Du erhältst innerhalb von 24 Stunden eine Antwort.`}
+  />
+
+  <FAQ items={localFAQ} title={`FAQ Fahrschule ${locShort}`} />
+
+  <!-- Nearby -->
+  {nearbyLocations.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <p class="eyebrow reveal">In der Nähe</p>
+        <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-6);">
+          Auch bei dir um die Ecke
+        </h2>
+        <div class="nearby-grid">
+          {nearbyLocations.map(near => (
+            <a href={`/fahrschule-${near!.slug}`} class="nearby-card reveal">
+              <span class="nearby-name">{near!.name}</span>
+              <span class="nearby-arrow">→</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+.location-intro-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+.location-info-card {
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-6);
+  position: sticky;
+  top: calc(var(--header-height) + var(--sp-5));
+}
+
+.info-item {
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  display: block;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--c-text-dim);
+  margin-bottom: 4px;
+}
+
+.info-value {
+  display: block;
+  font-weight: var(--fw-medium);
+}
+
+.info-link {
+  color: var(--c-accent);
+  transition: opacity var(--t-fast);
+}
+
+.info-link:hover {
+  opacity: 0.8;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--sp-5);
+}
+
+.why-here-section {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+}
+
+.why-here-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-5);
+}
+
+.why-here-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-6);
+  transition: all var(--t-base);
+}
+
+.why-here-card:hover {
+  border-color: var(--c-accent-dim);
+  transform: translateY(-2px);
+}
+
+.why-here-card h4 {
+  font-size: var(--fs-lg);
+  margin-bottom: var(--sp-3);
+}
+
+.why-here-card p {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+
+.nearby-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--sp-4);
+}
+
+.nearby-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) var(--sp-5);
+  transition: all var(--t-base);
+}
+
+.nearby-card:hover {
+  border-color: var(--c-accent-dim);
+  transform: translateX(4px);
+}
+
+.nearby-name {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+}
+
+.nearby-arrow {
+  color: var(--c-accent);
+}
+
+@media (max-width: 768px) {
+  .location-intro-grid {
+    grid-template-columns: 1fr;
+  }
+  .location-info-card {
+    position: static;
+  }
+  .why-here-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

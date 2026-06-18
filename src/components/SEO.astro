@@ -1,0 +1,111 @@
+---
+import { company } from '@data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  schema?: object | object[];
+}
+
+const { title, description, canonical, ogImage, noindex = false, schema } = Astro.props;
+
+const siteUrl = company.url;
+const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).href;
+const ogImageUrl = ogImage || `${siteUrl}/og-default.jpg`;
+const fullTitle = title.includes(company.name) ? title : `${title} | ${company.name}`;
+
+// Base schema that goes on every page
+const baseSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${siteUrl}/#website`,
+  url: siteUrl,
+  name: company.name,
+  description: 'Fahrschule in der Region Lachen, Zürich, Rapperswil-Jona und Umgebung',
+  publisher: { '@id': `${siteUrl}/#organization` },
+  inLanguage: 'de-CH',
+};
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'DrivingSchool',
+  '@id': `${siteUrl}/#organization`,
+  name: company.name,
+  legalName: company.legalName,
+  url: siteUrl,
+  telephone: company.phone,
+  email: company.email,
+  priceRange: company.priceRange,
+  image: `${siteUrl}/logo.png`,
+  logo: `${siteUrl}/logo.png`,
+  sameAs: [company.socialMedia.facebook, company.socialMedia.instagram],
+  areaServed: [
+    { '@type': 'City', name: 'Lachen' },
+    { '@type': 'City', name: 'Buttikon' },
+    { '@type': 'City', name: 'Ziegelbrücke' },
+    { '@type': 'City', name: 'Zürich' },
+    { '@type': 'City', name: 'Uznach' },
+    { '@type': 'City', name: 'Rapperswil-Jona' },
+    { '@type': 'City', name: 'Pfäffikon SZ' },
+    { '@type': 'City', name: 'Wollerau' },
+    { '@type': 'City', name: 'Siebnen' },
+    { '@type': 'City', name: 'Glarus' },
+  ],
+  knowsLanguage: ['de', 'en', 'it', 'fr', 'es'],
+  openingHoursSpecification: [{
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    opens: '07:00',
+    closes: '21:00',
+  }],
+};
+
+const allSchemas = [baseSchema, orgSchema];
+if (schema) {
+  if (Array.isArray(schema)) allSchemas.push(...schema);
+  else allSchemas.push(schema);
+}
+---
+
+<!-- Primary Meta -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalUrl} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+{!noindex && <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />}
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="de_CH" />
+<meta property="og:site_name" content={company.name} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:image" content={ogImageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />
+
+<!-- Theme -->
+<meta name="theme-color" content="#0A0E17" />
+<meta name="color-scheme" content="dark" />
+
+<!-- Fonts — preconnect + display swap -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+
+<!-- Structured Data -->
+{allSchemas.map((s) => (
+  <script type="application/ld+json" set:html={JSON.stringify(s)} />
+))}

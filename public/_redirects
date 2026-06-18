@@ -1,0 +1,33 @@
+# Redirects von alten WordPress-URLs auf neue Astro-URLs
+# Format: old-path  new-path  status_code
+
+# Alte Performance-/Content-Seiten
+/fahrunterricht/            /fahrstunden           301
+/elementor-753/             /blog                  301
+/elementor-779/              /blog                  301
+/hallo-welt/                /blog                  301
+
+# Alte Standortseiten — entferne trailing slash
+/fahrschule-buttikon/       /fahrschule-buttikon       301
+/fahrschule-glarus/         /fahrschule-glarus         301
+/fahrschule-lachen/         /fahrschule-lachen         301
+/fahrschule-pfaeffikon-sz/  /fahrschule-pfaeffikon-sz  301
+/fahrschule-rapperswil-jona/ /fahrschule-rapperswil-jona 301
+/fahrschule-siebnen/        /fahrschule-siebnen        301
+/fahrschule-uznach/         /fahrschule-uznach         301
+/fahrschule-wollerau/       /fahrschule-wollerau       301
+/fahrschule-ziegelbruecke/  /fahrschule-ziegelbruecke  301
+/kontakt/                    /kontakt                    301
+
+# Alte WordPress-Standardseiten
+/wp-admin                    /              301
+/wp-login.php                /              301
+/xmlrpc.php                  /              301
+/wp-content/                 /              301
+/wp-includes/                /              301
+
+# Security headers und spezial-routen
+/api/*                       /.netlify/functions/api/:splat 200
+
+# 404 fallback
+/*                          /404.html          404

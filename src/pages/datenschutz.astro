@@ -1,0 +1,59 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { company } from '@data/site';
+---
+
+<BaseLayout title="Datenschutzerklärung" description="Datenschutzerklärung der Fahrschule Antonio Marino." noindex={true}>
+  <section class="section">
+    <div class="container container-narrow">
+      <p class="eyebrow">Rechtliches</p>
+      <h1 style="margin-bottom: var(--sp-8);">Datenschutzerklärung</h1>
+
+      <div class="legal-content">
+        <h2>1. Einleitung</h2>
+        <p>{company.name} nimmt den Schutz Ihrer persönlichen Daten ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften (DSG) sowie dieser Datenschutzerklärung.</p>
+
+        <h2>2. Verantwortliche Stelle</h2>
+        <p>
+          <strong>{company.name}</strong><br />
+          Bahnhofplatz 10, 8853 Lachen<br />
+          {company.phone}<br />
+          <a href={`mailto:${company.email}`} style="color: var(--c-accent);">{company.email}</a>
+        </p>
+
+        <h2>3. Erhebung und Speicherung personenbezogener Daten</h2>
+        <p>Wir erheben personenbezogene Daten, wenn Sie uns diese im Rahmen einer Kontaktaufnahme freiwillig zur Verfügung stellen. Dies betrifft insbesondere:</p>
+        <ul>
+          <li>Name</li>
+          <li>Telefonnummer</li>
+          <li>E-Mail-Adresse</li>
+          <li>gewünschte Leistung und Nachricht</li>
+        </ul>
+        <p>Diese Daten werden ausschliesslich zur Bearbeitung Ihrer Anfrage verwendet.</p>
+
+        <h2>4. Kontaktformular und Spam-Schutz</h2>
+        <p>Unser Kontaktformular ist durch Cloudflare Turnstile vor Spam geschützt. Turnstile ist ein Datenschutz-freundlicher Bot-Schutz, der keine Cookies setzt und keine personenbezogenen Daten speichert. Die Verarbeitung erfolgt gemäss den Bestimmungen von Cloudflare.</p>
+
+        <h2>5. Weitergabe von Daten</h2>
+        <p>Eine Weitergabe Ihrer Daten an Dritte erfolgt nicht ohne Ihre ausdrückliche Einwilligung.</p>
+
+        <h2>6. Ihre Rechte</h2>
+        <p>Sie haben jederzeit das Recht auf Auskunft über Ihre gespeicherten Daten, das Recht auf Berichtigung und das Recht auf Löschung. Kontaktieren Sie uns dafür unter {company.email}.</p>
+
+        <h2>7. Hosting</h2>
+        <p>Diese Website wird über Cloudflare Pages ausgeliefert. Beim Aufruf der Website werden technische Daten (IP-Adresse, Browser-Typ, etc.) von Cloudflare verarbeitet. Weitere Informationen finden Sie in der <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener" style="color: var(--c-accent);">Datenschutzerklärung von Cloudflare</a>.</p>
+
+        <h2>8. Cookies</h2>
+        <p>Diese Website verwendet keine Tracking-Cookies. Notwendige technische Daten werden ausschliesslich für den Betrieb der Website verarbeitet.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+.legal-content { line-height: var(--lh-relaxed); }
+.legal-content h2 { font-size: var(--fs-xl); margin-top: var(--sp-6); margin-bottom: var(--sp-3); }
+.legal-content p { color: var(--c-text-muted); margin-bottom: var(--sp-3); }
+.legal-content ul { margin-left: var(--sp-5); list-style: disc; color: var(--c-text-muted); }
+.legal-content li { margin-bottom: var(--sp-1); }
+</style>

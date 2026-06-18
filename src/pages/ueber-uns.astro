@@ -1,0 +1,59 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Hero from '@components/Hero.astro';
+import CTASection from '@components/CTASection.astro';
+import { company } from '@data/site';
+---
+
+<BaseLayout
+  title="Über Antonio Marino | Fahrschule"
+  description={`Lerne Antonio Marino kennen – deinen Fahrlehrer in der Region Lachen, Zürich und Rapperswil-Jona. ${company.languages.length} Sprachen, persönliche Betreuung, lokale Expertise.`}
+>
+  <Hero eyebrow="Über uns" title="Mehr als nur" titleHighlight="ein Fahrlehrer." subtitle="Lerne Antonio kennen – den Mann, der dich sicher und mit Freude zum Führerschein bringt." backgroundVariant="minimal" />
+
+  <section class="section">
+    <div class="container">
+      <div class="about-grid">
+        <div class="reveal">
+          <p class="eyebrow">Antonio Marino</p>
+          <h2 style="margin-bottom: var(--sp-6);">Dein Fahrlehrer mit Leidenschaft</h2>
+          <p style="font-size: var(--fs-lg); margin-bottom: var(--sp-5); line-height: var(--lh-relaxed);">
+            Schon über 10 Jahre bringt Antonio Marino Menschen in der Region sicher ans Steuer. Was als Leidenschaft fürs Autofahren begann, ist heute eine erfolgreiche Fahrschule mit 6 Standorten und über 20 bedienten Orten geworden.
+          </p>
+          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
+            Antonio glaubt nicht an Frontalunterricht, sondern an individuelle Betreuung. Jeder Fahrschüler ist anders – deshalb beginnt jede Ausbildung mit einem ehrlichen Gespräch über deine Ziele, deine Erfahrungen und deine Bedenken.
+          </p>
+          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
+            Mit 5 Sprachen (Deutsch, Italienisch, Englisch, Französisch, Spanisch) ist Antonio auch für Menschen mit anderer Muttersprache der perfekte Ansprechpartner. Niemand muss sich auf einer Fremdsprache quälen, wenn es um Sicherheit geht.
+          </p>
+
+          <div class="about-stats">
+            <div class="about-stat"><span class="stat-num">10+</span><span class="stat-label">Jahre Erfahrung</span></div>
+            <div class="about-stat"><span class="stat-num">6</span><span class="stat-label">Standorte</span></div>
+            <div class="about-stat"><span class="stat-num">5</span><span class="stat-label">Sprachen</span></div>
+            <div class="about-stat"><span class="stat-num">20+</span><span class="stat-label">Orte bedient</span></div>
+          </div>
+        </div>
+
+        <div class="about-image reveal reveal-delay-1">
+          <div class="image-placeholder">
+            <span>Fahrlehrer Antonio Marino</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTASection />
+</BaseLayout>
+
+<style>
+.about-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--sp-10); align-items: start; }
+.about-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-top: var(--sp-8); }
+.about-stat { text-align: center; }
+.stat-num { display: block; font-family: var(--font-display); font-size: var(--fs-3xl); font-weight: var(--fw-extrabold); color: var(--c-accent); }
+.stat-label { font-size: var(--fs-sm); color: var(--c-text-muted); }
+.about-image { position: sticky; top: calc(var(--header-height) + var(--sp-5)); }
+.image-placeholder { aspect-ratio: 3/4; background: var(--grad-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; color: var(--c-text-dim); font-size: var(--fs-sm); }
+@media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; } .about-stats { grid-template-columns: repeat(2, 1fr); } .about-image { position: static; } }
+</style>

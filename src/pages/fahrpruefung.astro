@@ -1,0 +1,44 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Hero from '@components/Hero.astro';
+import CTASection from '@components/CTASection.astro';
+import { company } from '@data/site';
+---
+
+<BaseLayout
+  title="Prüfungsvorbereitung | Antonio Marino"
+  description="Gezielte Vorbereitung auf die praktische Fahrprüfung mit Antonio Marino. Wir kennen die Prüfungsrouten in Lachen, Zürich, Rapperswil und der ganzen Region."
+>
+  <Hero eyebrow="Prüfungsvorbereitung" title="Besteh die Prüfung." titleHighlight="Beim ersten Mal." subtitle="Gezielte Vorbereitung auf die praktische Fahrprüfung – mit lokaler Routenkenntnis und echtem Prüfungssimulation." backgroundVariant="minimal" />
+
+  <section class="section">
+    <div class="container container-narrow">
+      <p class="eyebrow reveal">Prüfungsvorbereitung</p>
+      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-6);">Sicher zur bestandenen Prüfung</h2>
+      <p class="reveal reveal-delay-2" style="font-size: var(--fs-lg); margin-bottom: var(--sp-5); line-height: var(--lh-relaxed);">
+        Die praktische Fahrprüfung ist der letzte Schritt zum Führerschein. Wir bereiten dich gezielt vor – mit echten Prüfungsrouten, typischen Prüfungssituationen und dem Feedback, das du brauchst, um beim ersten Mal zu bestehen.
+      </p>
+
+      <div class="error-grid reveal reveal-delay-3">
+        <h3 style="margin-bottom: var(--sp-4);">Häufige Prüfungsmängel – und wie wir sie vermeiden</h3>
+        <div class="error-list">
+          <div class="error-item"><span class="error-icon">❌</span><div><strong>Unzureichender Schulterblick</strong><p>Wir üben den Schulterblick bis er zur zweiten Natur wird.</p></div></div>
+          <div class="error-item"><span class="error-icon">❌</span><div><strong>Zu knappes oder zu weites Abstandhalten</strong><p>Wir trainieren das richtige Abstandsgefühl bei allen Geschwindigkeiten.</p></div></div>
+          <div class="error-item"><span class="error-icon">❌</span><div><strong>Übersehen von Vortrittsschildern</strong><p>Wir fahren die Prüfungsrouten mehrmals, bis du jede Vortrittsregel beherrschst.</p></div></div>
+          <div class="error-item"><span class="error-icon">❌</span><div><strong>Unsicheres Anfahren am Berg</strong><p>Wir üben das Berganfahren an echten Steigungen in der Region.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTASection title="Prüfungstraining buchen" />
+</BaseLayout>
+
+<style>
+.error-grid { margin-top: var(--sp-8); }
+.error-list { display: flex; flex-direction: column; gap: var(--sp-4); }
+.error-item { display: flex; gap: var(--sp-4); align-items: flex-start; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-md); padding: var(--sp-5); }
+.error-icon { font-size: var(--fs-xl); flex-shrink: 0; }
+.error-item strong { display: block; margin-bottom: var(--sp-1); }
+.error-item p { font-size: var(--fs-sm); color: var(--c-text-muted); }
+</style>

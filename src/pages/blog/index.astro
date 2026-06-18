@@ -1,0 +1,46 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Hero from '@components/Hero.astro';
+import CTASection from '@components/CTASection.astro';
+
+const posts = [
+  { slug: 'theoriepruefung-tipps', title: 'Theorieprüfung bestehen: 10 Tipps', excerpt: 'Mit diesen Tipps bestehst du die Theorieprüfung beim ersten Mal.', date: '2026-06', readTime: '4 Min' },
+  { slug: 'fahrstunden-kosten-schweiz', title: 'Was kosten Fahrstunden in der Schweiz?', excerpt: 'Eine Übersicht über die Kosten für den Führerschein in der Schweiz.', date: '2026-06', readTime: '5 Min' },
+  { slug: 'vku-alles-was-du-wissen-musst', title: 'VKU: Alles, was du wissen musst', excerpt: 'Was ist der VKU, wann brauchst du ihn und wie läuft er ab?', date: '2026-06', readTime: '3 Min' },
+];
+---
+
+<BaseLayout title="Blog & Ratgeber | Antonio Marino" description="Tipps und Ratgeber rund um den Führerschein: Theorieprüfung, Fahrstunden, VKU, Nothelferkurs und mehr. Von der Fahrschule Antonio Marino.">
+  <Hero eyebrow="Blog" title="Tipps &" titleHighlight="Ratgeber." subtitle="Alles rund um den Führerschein – praktisch, ehrlich und direkt umsetzbar." backgroundVariant="minimal" />
+
+  <section class="section">
+    <div class="container">
+      <div class="blog-grid">
+        {posts.map((post, i) => (
+          <a href={`/blog/${post.slug}`} class="blog-card reveal" style={`transition-delay: ${i * 0.05}s`}>
+            <div class="blog-meta">
+              <span>{post.date}</span>
+              <span>·</span>
+              <span>{post.readTime}</span>
+            </div>
+            <h3>{post.title}</h3>
+            <p>{post.excerpt}</p>
+            <span class="blog-arrow">Weiterlesen →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CTASection variant="compact" />
+</BaseLayout>
+
+<style>
+.blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--sp-5); }
+.blog-card { background: var(--grad-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: var(--sp-6); transition: all var(--t-base); display: flex; flex-direction: column; height: 100%; }
+.blog-card:hover { border-color: var(--c-accent-dim); transform: translateY(-4px); box-shadow: var(--sh-lg); }
+.blog-meta { display: flex; gap: var(--sp-2); font-size: var(--fs-xs); color: var(--c-text-dim); margin-bottom: var(--sp-3); }
+.blog-card h3 { font-size: var(--fs-lg); margin-bottom: var(--sp-2); }
+.blog-card p { font-size: var(--fs-sm); color: var(--c-text-muted); flex: 1; }
+.blog-arrow { color: var(--c-accent); font-size: var(--fs-sm); font-weight: var(--fw-semibold); margin-top: var(--sp-4); }
+</style>
