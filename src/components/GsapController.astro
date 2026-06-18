@@ -1,159 +1,148 @@
 ---
-// GSAP Scroll Controller — drives all scroll animations
-// Loaded once in BaseLayout, controls all [data-animate] elements
+// GSAP + Lenis Scroll Controller — drives all animations
+// Lenis provides buttery smooth scroll, GSAP drives the choreography
 ---
 
 <script>
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from '@studio-freight/lenis';
 
 gsap.registerPlugin(ScrollTrigger);
 
 function initAnimations() {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // --- LENIS SMOOTH SCROLL ---
+  let lenis: Lenis | null = null;
+
+  if (!prefersReducedMotion) {
+    lenis = new Lenis({
+      duration: 1.2,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      touchMultiplier: 2,
+    });
+
+    // Sync Lenis with GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenis?.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+  }
+
   if (prefersReducedMotion) {
     document.querySelectorAll('[data-animate]').forEach(el => {
-      el.style.opacity = '1';
-      el.style.transform = 'none';
+      (el as HTMLElement).style.opacity = '1';
+      (el as HTMLElement).style.transform = 'none';
     });
     return;
   }
 
-  // --- 1. FADE-UP: Generic reveal ---
+  // --- 1. HERO INTRO BOOT SEQUENCE ---
+  const heroElements = document.querySelectorAll('[data-hero-intro]');
+  if (heroElements.length > 0) {
+    const tl = gsap.timeline();
+    heroElements.forEach((el, i) => {
+      const delay = parseFloat(el.getAttribute('data-hero-delay') || '0');
+      tl.fromTo(el,
+        { opacity: 0, y: 40, filter: 'blur(10px)' },
+        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' },
+        delay
+      );
+    });
+  }
+
+  // --- 2. FADE-UP ---
   document.querySelectorAll('[data-animate="fade-up"]').forEach((el) => {
     gsap.fromTo(el,
       { opacity: 0, y: 60 },
-      {
-        opacity: 1, y: 0, duration: 1, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-      }
+      { opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', once: true } }
     );
   });
 
-  // --- 2. FADE-IN: Simple opacity ---
+  // --- 3. FADE-IN ---
   document.querySelectorAll('[data-animate="fade-in"]').forEach((el) => {
     gsap.fromTo(el,
       { opacity: 0 },
-      {
-        opacity: 1, duration: 1.2, ease: 'power2.out',
-        scrollTrigger: { trigger: el, start: 'top 90%', once: true },
-      }
+      { opacity: 1, duration: 1.2, ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', once: true } }
     );
   });
 
-  // --- 3. SLIDE-LEFT / SLIDE-RIGHT ---
+  // --- 4. SLIDE-LEFT / SLIDE-RIGHT ---
   document.querySelectorAll('[data-animate="slide-left"]').forEach((el) => {
     gsap.fromTo(el,
       { opacity: 0, x: -80 },
-      {
-        opacity: 1, x: 0, duration: 1, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-      }
+      { opacity: 1, x: 0, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', once: true } }
     );
   });
 
   document.querySelectorAll('[data-animate="slide-right"]').forEach((el) => {
     gsap.fromTo(el,
       { opacity: 0, x: 80 },
-      {
-        opacity: 1, x: 0, duration: 1, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-      }
+      { opacity: 1, x: 0, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', once: true } }
     );
   });
 
-  // --- 4. SCALE-IN: Scale up from small ---
+  // --- 5. SCALE-IN ---
   document.querySelectorAll('[data-animate="scale-in"]').forEach((el) => {
     gsap.fromTo(el,
       { opacity: 0, scale: 0.85 },
-      {
-        opacity: 1, scale: 1, duration: 1, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-      }
+      { opacity: 1, scale: 1, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', once: true } }
     );
   });
 
-  // --- 5. STAGGER: Animate children sequentially ---
+  // --- 6. CLIP-PATH REVEAL ---
+  document.querySelectorAll('[data-animate="clip-reveal"]').forEach((el) => {
+    gsap.fromTo(el,
+      { clipPath: 'inset(100% 0 0 0)', opacity: 0 },
+      { clipPath: 'inset(0% 0 0 0)', opacity: 1, duration: 1.2, ease: 'power4.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', once: true } }
+    );
+  });
+
+  // --- 7. STAGGER ---
   document.querySelectorAll('[data-animate="stagger"]').forEach((container) => {
     const children = container.querySelectorAll('[data-stagger-item]');
     gsap.fromTo(children,
       { opacity: 0, y: 50 },
-      {
-        opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
-        stagger: 0.12,
-        scrollTrigger: { trigger: container, start: 'top 80%', once: true },
-      }
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.1,
+        scrollTrigger: { trigger: container, start: 'top 80%', once: true } }
     );
   });
 
-  // --- 6. PARALLAX: Background elements move at different speed ---
+  // --- 8. PARALLAX ---
   document.querySelectorAll('[data-parallax]').forEach((el) => {
-    const speed = parseFloat(el.dataset.parallax) || 0.3;
+    const speed = parseFloat(el.getAttribute('data-parallax') || '0.3');
     gsap.to(el, {
       y: () => window.innerHeight * speed * -1,
       ease: 'none',
-      scrollTrigger: {
-        trigger: el,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: 1,
-      },
+      scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 1 }
     });
   });
 
-  // --- 7. PIN: Pin section while scrolling ---
-  document.querySelectorAll('[data-pin]').forEach((el) => {
-    ScrollTrigger.create({
-      trigger: el,
-      start: 'top top',
-      end: 'bottom top',
-      pin: true,
-      pinSpacing: false,
-    });
-  });
-
-  // --- 8. COUNTER: Animate numbers ---
+  // --- 9. COUNTER ---
   document.querySelectorAll('[data-counter]').forEach((el) => {
-    const target = parseFloat(el.dataset.counter) || 0;
+    const target = parseFloat(el.getAttribute('data-counter') || '0');
     const obj = { val: 0 };
     gsap.to(obj, {
-      val: target,
-      duration: 2,
-      ease: 'power2.out',
+      val: target, duration: 2, ease: 'power2.out',
       scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-      onUpdate: () => {
-        el.textContent = Math.floor(obj.val).toLocaleString('de-CH');
-      },
+      onUpdate: () => { el.textContent = Math.floor(obj.val).toLocaleString('de-CH'); }
     });
   });
 
-  // --- 9. HORIZONTAL SCROLL: Horizontal panels ---
-  document.querySelectorAll('[data-horizontal]').forEach((container) => {
-    const panels = container.querySelectorAll('[data-panel]');
-    if (panels.length === 0) return;
-
-    const totalWidth = container.scrollWidth - window.innerWidth;
-
-    gsap.to(container, {
-      x: -totalWidth,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: container.parentElement,
-        start: 'top top',
-        end: () => `+=${totalWidth}`,
-        scrub: 1,
-        pin: true,
-        invalidateOnRefresh: true,
-      },
-    });
-  });
-
-  // --- 10. TEXT REVEAL: Split text into lines and reveal ---
+  // --- 10. TEXT REVEAL (line by line) ---
   document.querySelectorAll('[data-animate="text-reveal"]').forEach((el) => {
     const lines = el.querySelectorAll('[data-line]');
     if (lines.length === 0) {
-      // Fallback: animate whole element
       gsap.fromTo(el,
         { opacity: 0, y: 30 },
         { opacity: 1, y: 0, duration: 1, ease: 'power3.out',
@@ -163,27 +152,46 @@ function initAnimations() {
     }
     gsap.fromTo(lines,
       { opacity: 0, y: 40, rotateX: -20 },
-      { opacity: 1, y: 0, rotateX: 0, duration: 1, ease: 'power3.out',
-        stagger: 0.1,
+      { opacity: 1, y: 0, rotateX: 0, duration: 1, ease: 'power3.out', stagger: 0.1,
         scrollTrigger: { trigger: el, start: 'top 80%', once: true } }
     );
   });
 
-  // --- 11. PROGRESS BAR: Scroll progress indicator ---
+  // --- 11. SCROLL PROGRESS BAR ---
   const progressBar = document.querySelector('[data-scroll-progress]');
   if (progressBar) {
     gsap.to(progressBar, {
-      scaleX: 1,
-      ease: 'none',
-      scrollTrigger: {
-        start: 0,
-        end: 'max',
-        scrub: 0.3,
-      },
+      scaleX: 1, ease: 'none',
+      scrollTrigger: { start: 0, end: 'max', scrub: 0.3 }
     });
   }
 
-  // Refresh on load
+  // --- 12. MAGNETIC BUTTONS ---
+  document.querySelectorAll('.btn-magnetic').forEach((btn) => {
+    btn.addEventListener('mousemove', (e: Event) => {
+      const rect = btn.getBoundingClientRect();
+      const x = (e as MouseEvent).clientX - rect.left - rect.width / 2;
+      const y = (e as MouseEvent).clientY - rect.top - rect.height / 2;
+      btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+    });
+  });
+
+  // --- 13. BUTTON HOVER SWEEP ---
+  document.querySelectorAll('.btn-sweep').forEach((btn) => {
+    btn.addEventListener('mouseenter', () => {
+      const sweep = btn.querySelector('.sweep-effect');
+      if (sweep) {
+        gsap.fromTo(sweep,
+          { x: '-100%' },
+          { x: '100%', duration: 0.6, ease: 'power2.out' }
+        );
+      }
+    });
+  });
+
   ScrollTrigger.refresh();
 }
 
@@ -194,8 +202,7 @@ if (document.readyState === 'loading') {
   initAnimations();
 }
 
-// Refresh on resize
-let resizeTimer;
+let resizeTimer: number;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 250);
