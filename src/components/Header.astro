@@ -11,8 +11,7 @@ const isActive = (href: string) => {
 <header class="site-header" id="site-header" data-scrolled="false">
   <div class="header-inner">
     <a href="/" class="logo" aria-label={`${company.name} — Startseite`}>
-      <span class="logo-mark">AM</span>
-      <span class="logo-text">Antonio Marino</span>
+      <img src="/logo.png" alt={`${company.name} Logo`} width="160" height="37" />
     </a>
 
     <nav class="nav-desktop" aria-label="Hauptnavigation">
@@ -29,9 +28,7 @@ const isActive = (href: string) => {
           {item.children && (
             <div class="dropdown glass">
               {item.children.map((child) => (
-                <a href={child.href} class="dropdown-link">
-                  {child.label}
-                </a>
+                <a href={child.href} class="dropdown-link">{child.label}</a>
               ))}
             </div>
           )}
@@ -41,23 +38,18 @@ const isActive = (href: string) => {
 
     <div class="header-actions">
       <a href={`tel:${company.phone.replace(/\s/g, '')}`} class="header-phone" aria-label={`Anrufen: ${company.phone}`}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-        </svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         <span class="phone-text">{company.phone}</span>
       </a>
       <a href="/kontakt" class="btn btn-primary btn-sm header-cta">Termin buchen</a>
     </div>
 
     <button class="menu-toggle" id="menu-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </button>
   </div>
 
-  <!-- Mobile Menu -->
-  <div class="mobile-menu glass-strong" id="mobile-menu" data-open="false">
+  <div class="mobile-menu glass" id="mobile-menu" data-open="false">
     <nav aria-label="Mobile Navigation">
       {mainNav.map((item) => (
         <div class="mobile-nav-group">
@@ -73,298 +65,101 @@ const isActive = (href: string) => {
       ))}
     </nav>
     <div class="mobile-menu-actions">
-      <a href={`tel:${company.phone.replace(/\s/g, '')}`} class="btn btn-ghost btn-lg" style="width:100%">
-        📞 {company.phone}
-      </a>
-      <a href="/kontakt" class="btn btn-primary btn-lg" style="width:100%; margin-top: var(--sp-3);">
-        Termin buchen
-      </a>
+      <a href={`tel:${company.phone.replace(/\s/g, '')}`} class="btn btn-ghost btn-lg" style="width:100%">📞 {company.phone}</a>
+      <a href="/kontakt" class="btn btn-primary btn-lg" style="width:100%; margin-top: 12px;">Termin buchen</a>
     </div>
   </div>
 </header>
 
 <style>
 .site-header {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: var(--z-header);
-  height: var(--header-height);
-  transition: all var(--t-base);
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100; height: var(--header-h);
+  transition: all 0.3s ease;
 }
-
 .site-header[data-scrolled="true"] {
-  height: 60px;
-  background: rgba(10, 14, 23, 0.85);
+  background: rgba(6, 8, 16, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--c-border);
-  box-shadow: var(--sh-md);
 }
-
 .header-inner {
-  max-width: var(--container-wide);
-  margin-inline: auto;
-  padding-inline: var(--sp-5);
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-4);
+  max-width: 1400px; margin-inline: auto; padding-inline: 24px;
+  height: 100%; display: flex; align-items: center;
+  justify-content: space-between; gap: 16px;
 }
+.logo img { height: 40px; width: auto; }
+.logo { flex-shrink: 0; }
 
-/* Logo */
-.logo {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  font-family: var(--font-display);
-  font-weight: var(--fw-extrabold);
-  flex-shrink: 0;
-}
-
-.logo-mark {
-  width: 40px;
-  height: 40px;
-  background: var(--grad-accent);
-  color: var(--c-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--r-md);
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-extrabold);
-  letter-spacing: -0.05em;
-  box-shadow: var(--sh-glow);
-}
-
-.logo-text {
-  font-size: var(--fs-lg);
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--c-text) 0%, var(--c-text-muted) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Desktop Nav */
-.nav-desktop {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-  flex: 1;
-  justify-content: center;
-}
-
-.nav-item {
-  position: relative;
-}
-
+.nav-desktop { display: flex; align-items: center; gap: 4px; flex: 1; justify-content: center; }
+.nav-item { position: relative; }
 .nav-link {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-  padding: var(--sp-2) var(--sp-3);
-  font-family: var(--font-display);
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
-  color: var(--c-text-muted);
-  border-radius: var(--r-sm);
-  transition: color var(--t-fast), background var(--t-fast);
-  white-space: nowrap;
+  display: flex; align-items: center; gap: 4px;
+  padding: 8px 14px; font-family: var(--font-display);
+  font-size: 0.875rem; font-weight: 600; color: var(--c-text-muted);
+  border-radius: 8px; transition: all 0.2s; white-space: nowrap;
 }
+.nav-link:hover, .nav-link.active { color: var(--c-text); background: rgba(255,255,255,0.05); }
+.nav-link.active { color: var(--c-amber); }
+.chevron { font-size: 0.7em; opacity: 0.7; }
 
-.nav-link:hover, .nav-link.active {
-  color: var(--c-text);
-  background: var(--c-surface);
-}
-
-.nav-link.active {
-  color: var(--c-accent);
-}
-
-.chevron {
-  font-size: 0.7em;
-  opacity: 0.7;
-}
-
-/* Dropdown */
 .dropdown {
-  position: absolute;
-  top: 100%;
-  left: 50%;
+  position: absolute; top: 100%; left: 50%;
   transform: translateX(-50%) translateY(8px);
-  min-width: 220px;
-  padding: var(--sp-2);
-  border-radius: var(--r-md);
-  opacity: 0;
-  visibility: hidden;
-  transition: all var(--t-base);
-  pointer-events: none;
-  box-shadow: var(--sh-lg);
+  min-width: 220px; padding: 8px; border-radius: 14px;
+  opacity: 0; visibility: hidden; transition: all 0.3s;
+  pointer-events: none; box-shadow: var(--sh-card);
 }
+.nav-item:hover .dropdown { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.dropdown-link { display: block; padding: 10px 16px; font-size: 0.85rem; color: var(--c-text-muted); border-radius: 8px; transition: all 0.15s; }
+.dropdown-link:hover { color: var(--c-amber); background: rgba(255,255,255,0.05); }
 
-.nav-item:hover .dropdown {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-  pointer-events: auto;
-}
+.header-actions { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.header-phone { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; color: var(--c-text); transition: color 0.2s; }
+.header-phone:hover { color: var(--c-amber); }
+.header-phone svg { color: var(--c-amber); }
+.btn-sm { padding: 8px 20px; font-size: 0.85rem; }
 
-.dropdown-link {
-  display: block;
-  padding: var(--sp-3) var(--sp-4);
-  font-size: var(--fs-sm);
-  color: var(--c-text-muted);
-  border-radius: var(--r-sm);
-  transition: all var(--t-fast);
-}
+.menu-toggle { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 44px; height: 44px; border-radius: 8px; }
+.menu-toggle span { display: block; width: 24px; height: 2px; background: var(--c-text); border-radius: 99px; transition: all 0.3s; }
+.menu-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.menu-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-.dropdown-link:hover {
-  color: var(--c-accent);
-  background: var(--c-surface-hover);
-}
-
-/* Header Actions */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-4);
-  flex-shrink: 0;
-}
-
-.header-phone {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  font-family: var(--font-display);
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-semibold);
-  color: var(--c-text);
-  transition: color var(--t-fast);
-}
-
-.header-phone:hover {
-  color: var(--c-accent);
-}
-
-.header-phone svg {
-  color: var(--c-accent);
-}
-
-.btn-sm {
-  padding: var(--sp-2) var(--sp-4);
-  font-size: var(--fs-sm);
-}
-
-/* Menu Toggle (Hamburger) */
-.menu-toggle {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--r-sm);
-  transition: background var(--t-fast);
-}
-
-.menu-toggle span {
-  display: block;
-  width: 24px;
-  height: 2px;
-  background: var(--c-text);
-  border-radius: var(--r-full);
-  transition: all var(--t-base);
-}
-
-.menu-toggle[aria-expanded="true"] span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
-}
-.menu-toggle[aria-expanded="true"] span:nth-child(2) {
-  opacity: 0;
-}
-.menu-toggle[aria-expanded="true"] span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
-}
-
-/* Mobile Menu */
 .mobile-menu {
-  position: fixed;
-  top: var(--header-height-mobile);
-  left: 0; right: 0;
-  bottom: 0;
-  padding: var(--sp-5);
-  overflow-y: auto;
-  transform: translateX(100%);
-  transition: transform var(--t-base);
-  z-index: var(--z-overlay);
+  position: fixed; top: 70px; left: 0; right: 0; bottom: 0;
+  padding: 24px; overflow-y: auto;
+  transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
 }
+.mobile-menu[data-open="true"] { transform: translateX(0); }
+.mobile-nav-group { border-bottom: 1px solid var(--c-border); }
+.mobile-nav-link { display: block; padding: 16px 0; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
+.mobile-subnav { padding-bottom: 12px; }
+.mobile-subnav-link { display: block; padding: 8px 16px; font-size: 0.875rem; color: var(--c-text-muted); }
+.mobile-menu-actions { margin-top: 24px; }
 
-.mobile-menu[data-open="true"] {
-  transform: translateX(0);
-}
-
-.mobile-nav-group {
-  border-bottom: 1px solid var(--c-border);
-}
-
-.mobile-nav-link {
-  display: block;
-  padding: var(--sp-4) 0;
-  font-family: var(--font-display);
-  font-weight: var(--fw-semibold);
-  font-size: var(--fs-lg);
-  color: var(--c-text);
-}
-
-.mobile-subnav {
-  padding-bottom: var(--sp-3);
-}
-
-.mobile-subnav-link {
-  display: block;
-  padding: var(--sp-2) var(--sp-4);
-  font-size: var(--fs-sm);
-  color: var(--c-text-muted);
-}
-
-.mobile-menu-actions {
-  margin-top: var(--sp-6);
-}
-
-/* Responsive */
 @media (max-width: 1024px) {
   .nav-desktop { display: none; }
   .header-actions { display: none; }
   .menu-toggle { display: flex; }
-  .phone-text { display: none; }
 }
-
-@media (min-width: 1025px) {
-  .mobile-menu { display: none; }
-}
+@media (min-width: 1025px) { .mobile-menu { display: none; } }
 </style>
 
 <script>
-// Header scroll detection
 const header = document.getElementById('site-header');
+const toggle = document.getElementById('menu-toggle');
+const menu = document.getElementById('mobile-menu');
 let ticking = false;
 
 function updateHeader() {
   header?.setAttribute('data-scrolled', window.scrollY > 20 ? 'true' : 'false');
   ticking = false;
 }
-
 window.addEventListener('scroll', () => {
-  if (!ticking) {
-    requestAnimationFrame(updateHeader);
-    ticking = true;
-  }
+  if (!ticking) { requestAnimationFrame(updateHeader); ticking = true; }
 }, { passive: true });
-
-// Mobile menu toggle
-const toggle = document.getElementById('menu-toggle');
-const menu = document.getElementById('mobile-menu');
 
 toggle?.addEventListener('click', () => {
   const isOpen = toggle.getAttribute('aria-expanded') === 'true';
@@ -372,8 +167,6 @@ toggle?.addEventListener('click', () => {
   menu?.setAttribute('data-open', String(!isOpen));
   document.body.style.overflow = !isOpen ? 'hidden' : '';
 });
-
-// Close mobile menu on link click
 menu?.querySelectorAll('a').forEach(link => {
   link.addEventListener('click', () => {
     toggle?.setAttribute('aria-expanded', 'false');

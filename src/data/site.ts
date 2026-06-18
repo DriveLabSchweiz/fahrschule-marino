@@ -422,58 +422,104 @@ export const footerNav = {
   ],
 } as const;
 
-// Preise (für OfferCatalog Schema und Preisseite)
+// ── PREISE ────────────────────────────────────────────────────────────────
+// Echte Preise (verifiziert via DriveLab-Profil). Swiss-Formatierung:
+// Tausender mit Apostroph (1'350), Rappen mit Punkt (171.60).
+// `price` ist IMMER ein String (z. B. "103", "171.60") OHNE "CHF"-Präfix —
+// das Präfix setzt die View. `priceOnRequest:true` ⇒ price weglassen.
+
 export interface PriceItem {
   name: string;
   description: string;
-  price?: string;
+  price?: string;          // numerischer String ohne Währung, z. B. "171.60"
   priceOnRequest: boolean;
+  duration?: string;       // z. B. "45 Min", "135 Min (3 Lektionen)"
+  unit?: string;           // z. B. "pro Lektion", "einmalig"
+  popular?: boolean;       // hebt die empfohlene Variante hervor
 }
 
+// EINZELLEKTIONEN — die 4 echten Einzel-/Block-Preise.
+// HINWEIS: SEO.astro mappt priceList → OfferCatalog (nutzt name/description).
 export const priceList: PriceItem[] = [
   {
-    name: 'Einzelne Fahrstunde (60 Min)',
-    description: 'Individueller Unterricht mit Antonio Marino, inkl. Abholservice',
-    priceOnRequest: true,
+    name: 'Fahrlektion 45 Min',
+    description: 'Individuelle Fahrstunde mit Antonio Marino, inkl. Abholservice',
+    price: '103',
+    duration: '45 Min',
+    priceOnRequest: false,
   },
   {
-    name: 'Doppelstunde (90 Min)',
-    description: 'Verlängerte Fahrstunde für intensives Training',
-    priceOnRequest: true,
+    name: 'Fahrlektion 75 Min',
+    description: 'Die beliebteste Variante – mehr Zeit, schnellerer Fortschritt',
+    price: '171.60',
+    duration: '75 Min',
+    popular: true,
+    priceOnRequest: false,
   },
+  {
+    name: 'Intensivblock 3 Lektionen',
+    description: 'Drei Lektionen am Stück (135 Min) für intensives Training',
+    price: '282',
+    duration: '135 Min',
+    priceOnRequest: false,
+  },
+  {
+    name: 'Intensivblock 4 Lektionen',
+    description: 'Vier Lektionen am Stück (180 Min) – maximaler Lernfortschritt',
+    price: '369',
+    duration: '180 Min',
+    priceOnRequest: false,
+  },
+];
+
+// ABOS & SPARPAKETE — die 5 echten Pakete/Intensivkurse.
+export interface Abo {
+  name: string;
+  lessons: number;
+  price: string;           // numerischer String ohne Währung, z. B. "1'350"
+  savings: string;         // Ersparnis ohne Währung, z. B. "195"
+  popular?: boolean;
+}
+
+export const abos: Abo[] = [
+  { name: '10er-Abo',        lessons: 10, price: '930',    savings: '100' },
+  { name: '15er-Abo',        lessons: 15, price: "1'350",  savings: '195', popular: true },
+  { name: 'Intensivkurs S',  lessons: 21, price: "1'860",  savings: '303' },
+  { name: 'Intensivkurs M',  lessons: 32, price: "2'880",  savings: '416' },
+  { name: 'Intensivkurs L',  lessons: 44, price: "3'960",  savings: '572' },
+];
+
+// KURSE OHNE ÖFFENTLICHEN PREIS — niemals erfinden! "Preis auf Anfrage".
+// CTA verlinkt auf /kontakt.
+export const onRequestList: PriceItem[] = [
   {
     name: 'Verkehrskundeunterricht (VKU)',
-    description: '8 Stunden Pflichtkurs in kleinen Gruppen, inkl. Materialien',
+    description: 'Pflichtkurs in kleinen Gruppen, inkl. Materialien',
     priceOnRequest: true,
   },
   {
     name: 'Nothelferkurs',
-    description: '10 Stunden zertifizierter Nothilfekurs, inkl. Bestätigung',
-    priceOnRequest: true,
-  },
-  {
-    name: 'Prüfungsvorbereitung',
-    description: 'Gezieltes Training auf den echten Prüfungsrouten',
-    priceOnRequest: true,
-  },
-  {
-    name: 'Kontrollfahrt-Vorbereitung',
-    description: 'Vorbereitung für Inhaber ausländischer Führerausweise',
+    description: 'Zertifizierter Nothilfekurs vor dem Lernfahrausweis, inkl. Bestätigung',
     priceOnRequest: true,
   },
   {
     name: 'Motorradgrundkurs',
-    description: '12 Stunden Basis-Fahrtechnik auf geschlossenem Gelände',
+    description: 'Basis-Fahrtechnik auf geschlossenem Gelände',
     priceOnRequest: true,
   },
 ];
 
-// Bewertungungs-Daten (für AggregateRating Schema)
-// WICHTIG: Nur echte Bewertungen verwenden!
-// Sobald Google Reviews vorhanden, hier aktualisieren
+// Einmalige Administrationsgebühr (ab 2. Buchung).
+export const adminFee = {
+  amount: '130',           // numerischer String ohne Währung
+  note: 'Administrationsgebühr einmalig (ab 2. Buchung).',
+} as const;
+
+// Bewertungs-Daten (für AggregateRating Schema)
+// Quelle: Google-Rating via DriveLab — 4.9/5 aus 63 Bewertungen.
 export const reviews = {
-  ratingValue: '5.0',
-  reviewCount: 1, // Anzahl echter Bewertungen
+  ratingValue: '4.9',
+  reviewCount: 63,
   reviews: [
     {
       author: 'Google Nutzer',

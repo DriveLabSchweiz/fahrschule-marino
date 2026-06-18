@@ -5,69 +5,515 @@ import CTASection from '@components/CTASection.astro';
 import FAQ from '@components/FAQ.astro';
 import { company } from '@data/site';
 
+const phoneLink = company.phone.replace(/\s/g, '');
+
+// ── Kurs-Inhalte: die 4 obligatorischen VKU-Module (8 Std Theorie) ──────────
+const modules = [
+  {
+    num: '01',
+    accent: 'gold',
+    title: 'Der Mensch im Verkehr',
+    desc: 'Wahrnehmung, Reaktionszeit, Aufmerksamkeit und wie Müdigkeit, Stress oder Ablenkung dein Fahren beeinflussen.',
+  },
+  {
+    num: '02',
+    accent: 'teal',
+    title: 'Mensch & Fahrzeug',
+    desc: 'Physikalische Grundlagen: Brems- und Anhalteweg, Fliehkraft in der Kurve, Reifen, Sicherheitssysteme und ihre Grenzen.',
+  },
+  {
+    num: '03',
+    accent: 'red',
+    title: 'Verkehrsumfeld & Partner',
+    desc: 'Partnerschaftlich und vorausschauend unterwegs: Fussgänger, Velos, Kinder und ältere Menschen richtig einschätzen.',
+  },
+  {
+    num: '04',
+    accent: 'gold',
+    title: 'Umwelt & Verantwortung',
+    desc: 'Energieeffizientes, umweltbewusstes Fahren und deine Verantwortung als Lenkerin oder Lenker im Strassenverkehr.',
+  },
+];
+
+const voraussetzungen = [
+  { title: 'Gültiger Lernfahrausweis', desc: 'Du hast deinen Lernfahrausweis der Kategorie B bereits in der Tasche.' },
+  { title: 'Vor der praktischen Prüfung', desc: 'Der VKU muss absolviert sein, bevor du zur praktischen Führerprüfung antrittst.' },
+  { title: 'Keine Vorkenntnisse nötig', desc: 'Wir starten bei null – Theorie und Fallbeispiele aus deiner Region, verständlich erklärt.' },
+];
+
 const faqItems = [
   { question: 'Was ist der VKU?', answer: 'Der Verkehrskundeunterricht ist ein obligatorischer 8-stündiger Kurs für alle Lernfahrenden der Kategorie B. Er vermittelt grundlegendes Wissen über Verkehrssicherheit, Umweltbewusstsein und Gefahrenerkennung.' },
   { question: 'Wann muss ich den VKU besuchen?', answer: 'Der VKU muss vor der praktischen Prüfung absolviert werden. Die Bescheinigung ist 2 Jahre gültig.' },
-  { question: 'Wie viel kostet der VKU?', answer: `Den aktuellen Preis erfährst du telefonisch unter ${company.phone}. Wir bieten faire Preise und kleine Gruppen.` },
+  { question: 'Wie ist der VKU aufgeteilt?', answer: 'Die 8 Stunden werden meist auf vier Lektionen verteilt – oft auf zwei Halbtage oder vier Abende. Antonio Marino bespricht mit dir, welche Variante in deinen Alltag passt.' },
+  { question: 'In welcher Sprache findet der VKU statt?', answer: `Antonio Marino unterrichtet auf ${company.languages.join(', ')}. Frag einfach nach, in welcher Sprache du den Kurs gerne besuchen möchtest.` },
+  { question: 'Wie viel kostet der VKU?', answer: `Den aktuellen Preis erfährst du direkt bei Antonio unter ${company.phone} oder über das Kontaktformular. Wir bieten faire Preise und kleine Gruppen.` },
 ];
+
+// ── JSON-LD ──────────────────────────────────────────────────────────────
+const courseSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'Verkehrskundeunterricht (VKU)',
+  description: 'Obligatorischer 8-stündiger Verkehrskundeunterricht für Lernfahrende der Kategorie B – Verkehrssicherheit, Gefahrenerkennung und umweltbewusstes Fahren in kleinen Gruppen.',
+  provider: { '@id': `${company.url}/#organization` },
+  inLanguage: ['de', 'en', 'it', 'fr', 'es'],
+  hasCourseInstance: {
+    '@type': 'CourseInstance',
+    courseMode: 'onsite',
+    courseWorkload: 'PT8H',
+    location: { '@type': 'Country', name: 'Schweiz' },
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: company.url },
+    { '@type': 'ListItem', position: 2, name: 'Leistungen', item: `${company.url}/leistungen` },
+    { '@type': 'ListItem', position: 3, name: 'Verkehrskundeunterricht', item: `${company.url}/verkehrskundeunterricht` },
+  ],
+};
 ---
 
 <BaseLayout
   title="Verkehrskundeunterricht (VKU) | Antonio Marino"
-  description="Verkehrskundeunterricht (VKU) bei der Fahrschule Antonio Marino. 8 Stunden Pflichtkurs für Lernfahrende. Kleine Gruppen, erfahrene Dozenten. Jetzt anmelden!"
+  description="Verkehrskundeunterricht (VKU) bei der Fahrschule Antonio Marino. 8 Stunden Pflichtkurs für Lernfahrende der Kategorie B. Kleine Gruppen, erfahrene Dozenten, mehrere Sprachen. Jetzt anfragen!"
+  schema={[courseSchema, breadcrumbSchema]}
 >
-  <Hero eyebrow="VKU" title="Verkehrskunde-" titleHighlight="unterricht." subtitle="8 Stunden, die dich sicherer machen. Pflichtkurs für alle Lernfahrenden – interaktiv und praxisnah." backgroundVariant="minimal" />
+  <Hero
+    eyebrow="VKU · 8 Stunden Pflicht"
+    title="Verkehrskunde-"
+    titleHighlight="unterricht."
+    subtitle="8 Stunden, die dich sicherer machen. Der Pflichtkurs für alle Lernfahrenden der Kategorie B – interaktiv, praxisnah und in deiner Sprache."
+    image="/antonio-driving.jpeg"
+    imageAlt="Antonio Marino am Steuer seines Fahrschulautos – erfahrener Dozent für den Verkehrskundeunterricht"
+  />
 
-  <section class="section">
+  <!-- ══ INTRO · Was ist der VKU / für wen ══ -->
+  <section class="section vku-intro" aria-labelledby="intro-heading">
+    <div class="container">
+      <div class="intro-grid">
+        <div class="intro-copy">
+          <p class="eyebrow" data-anim="fade-up">Was ist der VKU?</p>
+          <h2 id="intro-heading" data-anim="fade-up" data-anim-delay="0.08">
+            Mehr Sicherheit, bevor du richtig durchstartest
+          </h2>
+          <p class="intro-lead" data-anim="fade-up" data-anim-delay="0.16">
+            Der Verkehrskundeunterricht ist für alle Pflicht, die den Führerausweis der
+            Kategorie B machen. In <strong>8 Stunden</strong> lernst du die wichtigsten
+            Grundlagen der Verkehrssicherheit, der Gefahrenerkennung und des
+            umweltbewussten Fahrens kennen.
+          </p>
+          <p class="intro-text" data-anim="fade-up" data-anim-delay="0.22">
+            Bei Antonio Marino ist der VKU kein langweiliger Frontalunterricht, sondern
+            Diskussion, echte Fallbeispiele und Verkehrssituationen aus deiner Region.
+            So bleibt hängen, was im Alltag – und in der Prüfung – wirklich zählt.
+          </p>
+
+          <div class="intro-actions" data-anim="fade-up" data-anim-delay="0.28">
+            <a href="/kontakt" class="btn btn-primary btn-lg btn-magnetic">
+              VKU-Platz anfragen
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href={`tel:${phoneLink}`} class="btn btn-ghost btn-lg btn-magnetic">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              {company.phone}
+            </a>
+          </div>
+        </div>
+
+        <!-- Eckdaten-Karten -->
+        <ul class="fact-cards" role="list">
+          <li class="fact-card" data-accent="gold" data-anim="fade-up" data-anim-delay="0.10">
+            <span class="fact-num"><span data-count="8">8</span></span>
+            <span class="fact-label">Stunden Theorie</span>
+            <span class="fact-note">meist auf 4 Lektionen verteilt</span>
+          </li>
+          <li class="fact-card" data-accent="teal" data-anim="fade-up" data-anim-delay="0.18">
+            <span class="fact-num"><span data-count="2">2</span></span>
+            <span class="fact-label">Jahre gültig</span>
+            <span class="fact-note">offizielle VKU-Bestätigung</span>
+          </li>
+          <li class="fact-card" data-accent="red" data-anim="fade-up" data-anim-delay="0.26">
+            <span class="fact-num"><span data-count="5">5</span></span>
+            <span class="fact-label">Sprachen möglich</span>
+            <span class="fact-note">DE · EN · IT · FR · ES</span>
+          </li>
+          <li class="fact-card" data-accent="gold" data-anim="fade-up" data-anim-delay="0.34">
+            <span class="fact-num fact-num-text">Kat. B</span>
+            <span class="fact-label">Pflicht für Lernfahrende</span>
+            <span class="fact-note">vor der praktischen Prüfung</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ INHALTE / ABLAUF · die 4 Module ══ -->
+  <section class="section module-section" aria-labelledby="module-heading">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow" data-anim="fade-up">Inhalte & Ablauf</p>
+        <h2 id="module-heading" data-anim="fade-up" data-anim-delay="0.08">
+          8 Stunden, 4 starke Module
+        </h2>
+        <p class="section-lead" data-anim="fade-up" data-anim-delay="0.16">
+          Der VKU ist gesetzlich in vier Themenblöcke gegliedert. Bei Antonio
+          Marino bauen sie logisch aufeinander auf – vom Menschen über das
+          Fahrzeug bis zur Verantwortung im Verkehr.
+        </p>
+      </div>
+
+      <ol class="module-list" role="list">
+        {modules.map((m, i) => (
+          <li
+            class="module-card"
+            data-accent={m.accent}
+            data-anim="fade-up"
+            data-anim-delay={(0.06 * i).toFixed(2)}
+          >
+            <span class="module-index" aria-hidden="true">{m.num}</span>
+            <div class="module-body">
+              <h3 class="module-title">{m.title}</h3>
+              <p class="module-desc">{m.desc}</p>
+            </div>
+            <span class="module-line" aria-hidden="true"></span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ══ VORAUSSETZUNGEN ══ -->
+  <section class="section req-section" aria-labelledby="req-heading">
+    <div class="container">
+      <div class="req-inner">
+        <div class="req-copy" data-anim="slide-right">
+          <p class="eyebrow">Voraussetzungen</p>
+          <h2 id="req-heading">Bist du bereit für den VKU?</h2>
+          <p class="req-lead">
+            Der VKU ist dein Theorie-Baustein auf dem Weg zum Führerausweis.
+            Du brauchst nur wenig, um loszulegen – den Rest bringen wir dir bei.
+          </p>
+        </div>
+
+        <ul class="req-list" role="list">
+          {voraussetzungen.map((r, i) => (
+            <li class="req-item" data-anim="fade-up" data-anim-delay={(0.08 * i).toFixed(2)}>
+              <span class="req-check" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              <div>
+                <h3 class="req-title">{r.title}</h3>
+                <p class="req-desc">{r.desc}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PREIS AUF ANFRAGE ══ -->
+  <section class="section price-section" aria-labelledby="price-heading">
     <div class="container container-narrow">
-      <p class="eyebrow reveal">Verkehrskundeunterricht (VKU)</p>
-      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-6);">Mehr Sicherheit auf der Strasse</h2>
-      <p class="reveal reveal-delay-2" style="font-size: var(--fs-lg); margin-bottom: var(--sp-5); line-height: var(--lh-relaxed);">
-        Der Verkehrskundeunterricht ist ein Pflichtkurs für alle, die den Führerausweis der Kategorie B machen. In 8 Stunden lernst du die wichtigsten Grundlagen der Verkehrssicherheit, des umweltbewussten Fahrens und der Gefahrenerkennung.
-      </p>
-      <p class="reveal reveal-delay-2" style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
-        Bei Antonio Marino gestalten wir den VKU interaktiv und praxisnah. Kein langweiliges Frontalunterrichten – sondern Diskussion, Fallbeispiele und echte Verkehrssituationen aus der Region.
-      </p>
-
-      <div class="vku-features reveal reveal-delay-3">
-        <div class="vku-feature">
-          <h4>📅 Dauer</h4>
-          <p>8 Stunden, meist aufgeteilt auf 4 Abende oder 2 Halbtage</p>
-        </div>
-        <div class="vku-feature">
-          <h4>👥 Gruppengrösse</h4>
-          <p>Kleine Gruppen für maximale Interaktion und Lerneffekt</p>
-        </div>
-        <div class="vku-feature">
-          <h4>✅ Zertifikat</h4>
-          <p>Offizielle VKU-Bestätigung, 2 Jahre gültig</p>
-        </div>
-        <div class="vku-feature">
-          <h4>🌍 Sprachen</h4>
-          <p>VKU in mehreren Sprachen möglich – frag nach</p>
+      <div class="price-card" data-anim="scale-in">
+        <span class="price-glow" data-parallax data-parallax-speed="0.08" aria-hidden="true"></span>
+        <div class="price-content">
+          <p class="eyebrow">Preis auf Anfrage</p>
+          <h2 id="price-heading">Faire Preise, kleine Gruppen</h2>
+          <p class="price-lead">
+            Für den Verkehrskundeunterricht gilt: Du erhältst deinen persönlichen
+            Preis direkt von Antonio – inklusive aller Kursmaterialien und der
+            offiziellen Bestätigung. Frag jetzt unverbindlich an.
+          </p>
+          <div class="price-actions">
+            <a href="/kontakt" class="btn btn-cta btn-lg btn-magnetic">
+              Jetzt anfragen
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href={`tel:${phoneLink}`} class="btn btn-ghost btn-lg btn-magnetic">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              {company.phone}
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <CTASection title="VKU Platz sichern" subtitle="Die VKU-Plätze sind begehrt. Melde dich frühzeitig an." />
-  <FAQ items={faqItems} />
+  <CTASection
+    title="VKU-Platz sichern"
+    subtitle="Die VKU-Plätze sind begehrt. Melde dich frühzeitig – Antonio antwortet innerhalb von 24 Stunden."
+  />
+
+  <FAQ items={faqItems} title="Häufige Fragen zum VKU" />
 </BaseLayout>
 
 <style>
-.vku-features {
+/* ── Abschnitts-Kopf (gleich wie /leistungen) ────────────────────── */
+.section-head {
+  max-width: 720px;
+  margin: 0 auto var(--sp-12);
+  text-align: center;
+}
+.section-head .eyebrow { justify-content: center; }
+.section-head h2 { margin-bottom: var(--sp-4); }
+.section-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+/* ── INTRO ───────────────────────────────────────────────────────── */
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: var(--sp-12);
+  align-items: center;
+}
+.intro-copy h2 { margin-bottom: var(--sp-4); }
+.intro-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-4);
+}
+.intro-lead strong { color: var(--c-accent); }
+.intro-text {
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-6);
+}
+.intro-actions {
+  display: flex;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+/* Eckdaten-Karten */
+.fact-cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--sp-4);
-  margin-top: var(--sp-8);
 }
-.vku-feature {
-  background: var(--c-surface);
+.fact-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-6) var(--sp-5);
+  background: var(--grad-surface);
   border: 1px solid var(--c-border);
-  border-radius: var(--r-md);
-  padding: var(--sp-5);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: transform var(--t-base), border-color var(--t-base);
 }
-.vku-feature h4 { font-size: var(--fs-base); margin-bottom: var(--sp-2); }
-.vku-feature p { font-size: var(--fs-sm); color: var(--c-text-muted); }
-@media (max-width: 600px) { .vku-features { grid-template-columns: 1fr; } }
+.fact-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--fc-accent);
+}
+.fact-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--fc-border);
+}
+.fact-card[data-accent='gold'] { --fc-accent: var(--c-accent); --fc-border: var(--c-border-gold); --fc-num: var(--c-accent); }
+.fact-card[data-accent='teal'] { --fc-accent: var(--c-teal-bright); --fc-border: rgba(0,168,146,0.30); --fc-num: var(--c-teal-bright); }
+.fact-card[data-accent='red']  { --fc-accent: var(--c-cta); --fc-border: rgba(225,29,42,0.30); --fc-num: var(--c-cta-hover); }
+.fact-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-4xl);
+  font-weight: var(--fw-extrabold);
+  line-height: 1;
+  color: var(--fc-num);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--fc-num) 30%, transparent);
+}
+.fact-num-text { font-size: var(--fs-3xl); }
+.fact-label {
+  font-family: var(--font-display);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--c-text);
+}
+.fact-note { font-size: var(--fs-xs); color: var(--c-text-dim); }
+
+/* ── MODULE / ABLAUF ─────────────────────────────────────────────── */
+.module-section {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+}
+.module-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: 880px;
+  margin-inline: auto;
+}
+.module-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--sp-5);
+  align-items: center;
+  padding: var(--sp-6);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: transform var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
+}
+.module-card[data-accent='gold'] { --mc-accent: var(--c-accent); --mc-border: var(--c-border-gold); }
+.module-card[data-accent='teal'] { --mc-accent: var(--c-teal-bright); --mc-border: rgba(0,168,146,0.30); }
+.module-card[data-accent='red']  { --mc-accent: var(--c-cta-hover); --mc-border: rgba(225,29,42,0.30); }
+.module-card:hover {
+  transform: translateX(6px);
+  border-color: var(--mc-border);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.30);
+}
+.module-line {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--mc-accent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--t-base);
+}
+.module-card:hover .module-line { transform: scaleY(1); }
+.module-index {
+  font-family: var(--font-display);
+  font-size: var(--fs-5xl);
+  font-weight: var(--fw-extrabold);
+  line-height: 1;
+  color: var(--mc-accent);
+  opacity: 0.85;
+  min-width: 1.6em;
+  text-align: center;
+  text-shadow: 0 0 26px color-mix(in srgb, var(--mc-accent) 28%, transparent);
+}
+.module-title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-2);
+}
+.module-desc {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+/* ── VORAUSSETZUNGEN ─────────────────────────────────────────────── */
+.req-inner {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: var(--sp-12);
+  align-items: center;
+}
+.req-copy h2 { margin-bottom: var(--sp-4); }
+.req-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+.req-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.req-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  transition: border-color var(--t-base), transform var(--t-base);
+}
+.req-item:hover {
+  border-color: var(--c-accent-dim);
+  transform: translateY(-3px);
+}
+.req-check {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-full);
+  background: color-mix(in srgb, var(--c-teal-bright) 16%, transparent);
+  color: var(--c-teal-bright);
+}
+.req-title {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-1);
+}
+.req-desc {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+/* ── PREIS AUF ANFRAGE ───────────────────────────────────────────── */
+.price-card {
+  position: relative;
+  background: var(--grad-hero);
+  border: 1px solid var(--c-border-gold);
+  border-radius: var(--r-xl);
+  padding: clamp(2rem, 4vw, 3.5rem);
+  text-align: center;
+  overflow: hidden;
+  box-shadow: var(--sh-lg);
+}
+.price-glow {
+  position: absolute;
+  top: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 540px;
+  max-width: 120%;
+  height: 380px;
+  background: radial-gradient(ellipse at center, var(--c-accent-glow), transparent 68%);
+  pointer-events: none;
+}
+.price-content { position: relative; z-index: 1; }
+.price-content .eyebrow { justify-content: center; }
+.price-content h2 { margin-bottom: var(--sp-4); }
+.price-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  max-width: 560px;
+  margin: 0 auto var(--sp-8);
+}
+.price-actions {
+  display: flex;
+  gap: var(--sp-4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .intro-grid,
+  .req-inner {
+    grid-template-columns: 1fr;
+    gap: var(--sp-8);
+  }
+}
+@media (max-width: 600px) {
+  .fact-cards { grid-template-columns: 1fr; }
+  .module-card { grid-template-columns: 1fr; gap: var(--sp-2); text-align: left; }
+  .module-index { text-align: left; }
+  .intro-actions,
+  .price-actions { flex-direction: column; }
+  .intro-actions .btn,
+  .price-actions .btn { width: 100%; }
+}
 </style>

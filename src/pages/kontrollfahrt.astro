@@ -2,44 +2,486 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Hero from '@components/Hero.astro';
 import CTASection from '@components/CTASection.astro';
+import { company, reviews } from '@data/site';
+
+const phoneLink = company.phone.replace(/\s/g, '');
+
+// ── Ablauf der Vorbereitung ──────────────────────────────────────────────────
+const steps = [
+  {
+    title: 'Erstgespräch & Einschätzung',
+    text: 'Wir klären deinen Ausgangs­punkt: Woher stammt dein Ausweis, wie lange fährst du schon und wo liegen die Unterschiede zum Schweizer Strassen­verkehr.',
+  },
+  {
+    title: 'Schweizer Regeln & Eigenheiten',
+    text: 'Vortritt, Tempolimits, Signalisation und typische Schweizer Verkehrs­situationen – wir bringen dich auf den aktuellen Stand.',
+  },
+  {
+    title: 'Praxis auf typischen Routen',
+    text: 'Wir fahren die Strecken, die bei Kontrollfahrten üblich sind: Innerorts, ausserorts, Autobahn und knifflige Manöver wie Parkieren und Wenden.',
+  },
+  {
+    title: 'Kontrollfahrt mit Sicherheit',
+    text: 'Gut vorbereitet gehst du in die Kontrollfahrt. Auf Wunsch holen wir dich ab und fahren gemeinsam zur Prüfungs­stelle.',
+  },
+];
+
+// ── Was wir trainieren ───────────────────────────────────────────────────────
+const training = [
+  { title: 'Schweizer Verkehrsregeln', text: 'Die wichtigsten Regeln, die sich von deinem Heimatland unterscheiden.' },
+  { title: 'Vortritt & Signalisation', text: 'Rechtsvortritt, Kreisel, Lichtsignale und Markierungen – sicher gelesen.' },
+  { title: 'Tempolimits', text: 'Geschwindigkeits­kontrolle innerorts, ausserorts und auf der Autobahn.' },
+  { title: 'Fahrtechnische Manöver', text: 'Parkieren, Wenden, Rückwärts­fahren – ruhig und kontrolliert.' },
+  { title: 'Vorausschauend fahren', text: 'Defensiv und partnerschaftlich – so, wie es die Kontrollfahrt erwartet.' },
+  { title: 'Typische Prüfungsrouten', text: 'Die Strecken deiner Region, mehrfach geübt, bis sie vertraut sind.' },
+];
+
+// ── Voraussetzungen / was du mitbringst ──────────────────────────────────────
+const requirements = [
+  'Gültiger ausländischer Führerausweis',
+  'Aufgebot zur Kontrollfahrt vom Strassenverkehrsamt (oder in Planung)',
+  'Ausweisdokument / Identitätsnachweis',
+  'Fahrpraxis – wir schätzen deinen Stand in der ersten Lektion ehrlich ein',
+];
+
+// ── JSON-LD ──────────────────────────────────────────────────────────────────
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Kontrollfahrt-Vorbereitung für ausländische Führerausweise',
+  serviceType: 'Kontrollfahrt-Vorbereitung',
+  description:
+    'Vorbereitung auf die Kontrollfahrt für Personen mit ausländischem Führerausweis: Schweizer Verkehrsregeln, Vortritt, typische Prüfungsrouten und individuelles Training mit Antonio Marino.',
+  provider: { '@id': `${company.url}/#organization` },
+  areaServed: { '@type': 'Country', name: 'Schweiz' },
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'CHF',
+    availability: 'https://schema.org/InStock',
+    url: `${company.url}/kontakt`,
+  },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: reviews.ratingValue,
+    reviewCount: reviews.reviewCount,
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: company.url },
+    { '@type': 'ListItem', position: 2, name: 'Leistungen', item: `${company.url}/leistungen` },
+    { '@type': 'ListItem', position: 3, name: 'Kontrollfahrt', item: `${company.url}/kontrollfahrt` },
+  ],
+};
 ---
 
 <BaseLayout
   title="Kontrollfahrt-Vorbereitung | Antonio Marino"
   description="Vorbereitung auf die Kontrollfahrt für ausländische Führerausweise. Antonio Marino bereitet dich gezielt auf die Schweizer Fahrpraktiken vor."
+  schema={[serviceSchema, breadcrumbSchema]}
 >
-  <Hero eyebrow="Kontrollfahrt" title="Ausländischer Ausweis?" titleHighlight="Kein Problem." subtitle="Vorbereitung auf die Kontrollfahrt in der Schweiz. Wir bringen dich sicher durch die Prüfung." backgroundVariant="minimal" />
+  <Hero
+    eyebrow="Kontrollfahrt"
+    title="Ausländischer Ausweis?"
+    titleHighlight="Kein Problem."
+    subtitle="Vorbereitung auf die Kontrollfahrt in der Schweiz – wir bringen dich sicher und entspannt durch die Prüfung, in deiner Sprache."
+    showCTA={false}
+  />
 
-  <section class="section">
-    <div class="container container-narrow">
-      <p class="eyebrow reveal">Kontrollfahrt</p>
-      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-6);">Dein ausländischer Führerausweis in der Schweiz</h2>
-      <p class="reveal reveal-delay-2" style="font-size: var(--fs-lg); margin-bottom: var(--sp-5); line-height: var(--lh-relaxed);">
-        Hast du einen ausländischen Führerausweis und musst ihn in der Schweiz umschreiben lassen? Dann steht oft eine Kontrollfahrt an. Wir bereiten dich gezielt auf die Schweizer Fahrpraktiken und Verkehrsregeln vor.
-      </p>
-      <p class="reveal reveal-delay-2" style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
-        Du lernst die Schweizer Vortrittsregeln, Geschwindigkeitslimits, Besonderheiten im Schweizer Strassenverkehr und die Routen, die bei Kontrollfahrten typischerweise gefahren werden. Mit Antonio Marino an deiner Seite gehst du sicher in die Prüfung.
-      </p>
+  <!-- ══ INTRO ══════════════════════════════════════════════════════════ -->
+  <section class="section intro-section" aria-labelledby="intro-heading">
+    <div class="container">
+      <div class="intro-grid">
+        <div class="intro-copy">
+          <p class="eyebrow" data-anim="fade-up">Dein Ausweis in der Schweiz</p>
+          <h2 id="intro-heading" data-anim="fade-up" data-anim-delay="0.08">
+            Souverän durch die Kontrollfahrt
+          </h2>
+          <p class="intro-lead" data-anim="fade-up" data-anim-delay="0.16">
+            Hast du einen ausländischen Führerausweis und musst ihn in der Schweiz
+            umschreiben lassen? Dann steht oft eine Kontrollfahrt an. Wir bereiten dich
+            gezielt auf die Schweizer Fahrpraktiken und Verkehrsregeln vor – ohne Stress,
+            in deinem Tempo und in der Sprache, die du verstehst.
+          </p>
+          <p class="intro-text" data-anim="fade-up" data-anim-delay="0.22">
+            Du lernst die Schweizer Vortrittsregeln, Tempolimits und Besonderheiten im
+            Strassenverkehr kennen – und fährst die Routen, die bei Kontrollfahrten
+            typischerweise gefahren werden. Mit Antonio an deiner Seite gehst du sicher
+            in die Prüfung.
+          </p>
+        </div>
 
-      <div class="checklist reveal reveal-delay-3">
-        <h3 style="margin-bottom: var(--sp-4);">Was wir trainieren:</h3>
-        <ul>
-          <li>Schweizer Strassenverkehrsregeln</li>
-          <li>Vortritt und Signalisation</li>
-          <li>Tempolimits und Geschwindigkeitskontrolle</li>
-          <li>Fahrtechnische Manöver (Parkieren, Wenden)</li>
-          <li>Vorausschauendes und defensives Fahren</li>
-          <li>Typische Prüfungsrouten in deiner Region</li>
+        <ul class="intro-stats" role="list">
+          <li class="intro-stat" data-anim="fade-up" data-anim-delay="0.10">
+            <span class="is-num" data-count="5">5</span>
+            <span class="is-label">Sprachen: DE · EN · IT · FR · ES</span>
+          </li>
+          <li class="intro-stat" data-anim="fade-up" data-anim-delay="0.16">
+            <span class="is-num" data-count={reviews.ratingValue} data-count-decimals="1" data-count-suffix="/5">{reviews.ratingValue}/5</span>
+            <span class="is-label">Google-Bewertung aus {reviews.reviewCount} Rezensionen</span>
+          </li>
+          <li class="intro-stat" data-anim="fade-up" data-anim-delay="0.22">
+            <span class="is-num" data-count="6">6</span>
+            <span class="is-label">Standorte mit bekannten Routen</span>
+          </li>
         </ul>
       </div>
     </div>
   </section>
 
-  <CTASection title="Kontrollfahrt vorbereiten" />
+  <!-- ══ ABLAUF ═════════════════════════════════════════════════════════ -->
+  <section class="section ablauf-section" aria-labelledby="ablauf-heading">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow" data-anim="fade-up">So bereiten wir dich vor</p>
+        <h2 id="ablauf-heading" data-anim="fade-up" data-anim-delay="0.08">
+          In vier Schritten zur Kontrollfahrt
+        </h2>
+      </div>
+
+      <ol class="steps" role="list">
+        {steps.map((step, i) => (
+          <li class="step" data-anim="fade-up" data-anim-delay={(0.07 * i).toFixed(2)}>
+            <span class="step-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <div class="step-body">
+              <h3 class="step-title">{step.title}</h3>
+              <p class="step-text">{step.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ══ WAS WIR TRAINIEREN ═════════════════════════════════════════════ -->
+  <section class="section training-section" aria-labelledby="training-heading">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow" data-anim="fade-up">Im Training</p>
+        <h2 id="training-heading" data-anim="fade-up" data-anim-delay="0.08">
+          Das üben wir gemeinsam
+        </h2>
+      </div>
+
+      <ul class="training-grid" role="list">
+        {training.map((item, i) => (
+          <li class="training-card" data-anim="fade-up" data-anim-delay={(0.05 * i).toFixed(2)}>
+            <span class="training-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </span>
+            <h3 class="training-title">{item.title}</h3>
+            <p class="training-text">{item.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ VORAUSSETZUNGEN + PREIS AUF ANFRAGE ════════════════════════════ -->
+  <section class="section req-section" aria-labelledby="req-heading">
+    <div class="container">
+      <div class="req-grid">
+        <div class="req-copy" data-anim="slide-right">
+          <p class="eyebrow">Was du mitbringst</p>
+          <h2 id="req-heading">Voraussetzungen</h2>
+          <ul class="req-list" role="list">
+            {requirements.map((r) => (
+              <li class="req-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                <span>{r}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <aside class="price-card glass-strong" data-anim="scale-in" aria-label="Preis auf Anfrage">
+          <span class="pc-glow" aria-hidden="true"></span>
+          <p class="pc-eyebrow">Kontrollfahrt-Vorbereitung</p>
+          <p class="pc-price">Preis auf Anfrage</p>
+          <p class="pc-note">
+            Wie viel Vorbereitung du brauchst, hängt von deiner Fahrpraxis ab.
+            Wir schätzen das ehrlich ein und nennen dir einen fairen Preis –
+            ganz ohne versteckte Kosten.
+          </p>
+          <a href="/kontakt" class="btn btn-cta btn-lg btn-magnetic pc-btn">
+            Jetzt anfragen
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href={`tel:${phoneLink}`} class="pc-phone">{company.phone}</a>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    title="Kontrollfahrt vorbereiten?"
+    subtitle="Schick uns dein Aufgebot oder ruf kurz an – wir besprechen den passenden Weg. Antwort innerhalb von 24 Stunden, in deiner Sprache."
+  />
 </BaseLayout>
 
 <style>
-.checklist ul { display: flex; flex-direction: column; gap: var(--sp-3); }
-.checklist li { display: flex; gap: var(--sp-2); color: var(--c-text-muted); }
-.checklist li::before { content: '✓'; color: var(--c-accent); font-weight: bold; }
+/* ── Abschnitts-Kopf ─────────────────────────────────────────────── */
+.section-head {
+  max-width: 720px;
+  margin: 0 auto var(--sp-12);
+  text-align: center;
+}
+.section-head .eyebrow { justify-content: center; }
+.section-head h2 { margin-bottom: var(--sp-4); }
+
+/* ── Intro ───────────────────────────────────────────────────────── */
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: var(--sp-12);
+  align-items: center;
+}
+.intro-copy h2 { margin-bottom: var(--sp-5); }
+.intro-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-5);
+}
+.intro-text {
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+.intro-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+.intro-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding-left: var(--sp-5);
+  border-left: 2px solid var(--c-border-gold);
+}
+.is-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-accent);
+  line-height: 1;
+}
+.is-label {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-normal);
+}
+
+/* ── Ablauf / Steps ──────────────────────────────────────────────── */
+.ablauf-section {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-5);
+}
+.step {
+  position: relative;
+  display: flex;
+  gap: var(--sp-5);
+  padding: var(--sp-6);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: transform var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
+}
+.step::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--grad-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-base);
+}
+.step:hover {
+  transform: translateY(-5px);
+  border-color: var(--c-border-gold);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+}
+.step:hover::before { transform: scaleX(1); }
+.step-num {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-4xl);
+  font-weight: var(--fw-extrabold);
+  line-height: 1;
+  color: var(--c-accent);
+  opacity: 0.85;
+  text-shadow: 0 0 22px var(--c-accent-dim);
+}
+.step-title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-2);
+}
+.step-text {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+/* ── Training-Grid ───────────────────────────────────────────────── */
+.training-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-5);
+}
+.training-card {
+  position: relative;
+  padding: var(--sp-6);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  transition: transform var(--t-base), border-color var(--t-base);
+}
+.training-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0, 168, 146, 0.30);
+}
+.training-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--c-teal-bright) 14%, transparent);
+  color: var(--c-teal-bright);
+  margin-bottom: var(--sp-4);
+}
+.training-title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-2);
+}
+.training-text {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+/* ── Voraussetzungen + Preis ─────────────────────────────────────── */
+.req-section {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+}
+.req-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--sp-12);
+  align-items: center;
+}
+.req-copy h2 { margin-bottom: var(--sp-6); }
+.req-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.req-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  color: var(--c-text);
+  line-height: var(--lh-normal);
+}
+.req-item svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--c-accent);
+}
+
+.price-card {
+  position: relative;
+  padding: var(--sp-8) var(--sp-7);
+  border: 1px solid var(--c-border-gold);
+  border-radius: var(--r-xl);
+  text-align: center;
+  overflow: hidden;
+  box-shadow: var(--sh-glow);
+}
+.pc-glow {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 440px;
+  max-width: 130%;
+  height: 320px;
+  background: radial-gradient(ellipse at center, var(--c-accent-glow), transparent 68%);
+  pointer-events: none;
+}
+.pc-eyebrow {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+  margin-bottom: var(--sp-3);
+}
+.pc-price {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-text);
+  line-height: 1.1;
+  margin-bottom: var(--sp-4);
+}
+.pc-note {
+  position: relative;
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-6);
+}
+.pc-btn {
+  position: relative;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: var(--sp-3);
+}
+.pc-phone {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  color: var(--c-accent);
+}
+.pc-phone:hover { color: var(--c-accent-bright); }
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .training-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .intro-grid,
+  .req-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-8);
+  }
+  .intro-stats { flex-direction: row; flex-wrap: wrap; }
+  .intro-stat { flex: 1 1 160px; }
+}
+@media (max-width: 680px) {
+  .steps,
+  .training-grid {
+    grid-template-columns: 1fr;
+  }
+  .intro-stats { flex-direction: column; }
+}
 </style>

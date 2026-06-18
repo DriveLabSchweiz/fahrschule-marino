@@ -5,7 +5,7 @@ import Hero from '@components/Hero.astro';
 import CTASection from '@components/CTASection.astro';
 import FAQ from '@components/FAQ.astro';
 import ServiceCard from '@components/ServiceCard.astro';
-import { allLocations, getLocation, services, company, physicalLocations } from '@data/site';
+import { allLocations, getLocation, services, company, physicalLocations, priceList, reviews } from '@data/site';
 
 export const getStaticPaths = () => {
   return allLocations.map(loc => ({
@@ -20,10 +20,14 @@ const { location } = Astro.props;
 const locName = location.name;
 const locShort = location.nameShort;
 const locCanton = location.canton;
+const phoneLink = company.phone.replace(/\s/g, '');
 const nearbyLocations = location.nearby
   .map(slug => getLocation(slug))
   .filter(Boolean)
   .slice(0, 4);
+
+// Preis-Teaser: die beiden Einzellektionen (45/75 Min) aus site.ts.
+const teaserLessons = priceList.filter(p => p.duration === '45 Min' || p.duration === '75 Min');
 
 // Local-specific FAQ
 const localFAQ = [
@@ -105,14 +109,42 @@ const breadcrumbSchema = {
     title={`Fahren lernen in`}
     titleHighlight={locName}
     subtitle={`${location.tier === 1 ? 'Direkt bei dir vor Ort' : 'Mit lokaler Expertise und persönlichem Abholservice'} – erfahrener Fahrlehrer, flexible Zeiten und 5 Sprachen. Dein Weg zum Führerschein beginnt hier.`}
-    backgroundVariant="minimal"
+    image="/antonio-hero.jpeg"
+    imageAlt={`Antonio Marino mit seinem modernen Fahrschulauto – Fahrschule in ${locName}`}
   />
+
+  <!-- Trust-Leiste mit animierten Countern -->
+  <section class="section-sm trust-strip-section">
+    <div class="container">
+      <div class="trust-strip glass reveal">
+        <div class="trust-item">
+          <span class="trust-num" data-count="4.9" data-count-decimals="1" data-count-suffix="/5">4.9/5</span>
+          <span class="trust-label">Google-Bewertung</span>
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num" data-count="63">63</span>
+          <span class="trust-label">Bewertungen</span>
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num" data-count="5">5</span>
+          <span class="trust-label">Sprachen</span>
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num" data-count="10" data-count-suffix="+">10+</span>
+          <span class="trust-label">Jahre Erfahrung</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Intro -->
   <section class="section">
     <div class="container">
       <div class="location-intro-grid">
-        <div class="reveal">
+        <div data-anim="fade-up">
           <p class="eyebrow">{locName}</p>
           <h2 style="margin-bottom: var(--sp-5);">
             Willkommen bei der Fahrschule Antonio Marino in {locShort}
@@ -130,8 +162,9 @@ const breadcrumbSchema = {
           </p>
 
           <div style="display: flex; gap: var(--sp-3); margin-top: var(--sp-6); flex-wrap: wrap;">
-            <a href={`tel:${company.phone.replace(/\s/g, '')}`} class="btn btn-primary">
-              📞 {company.phone}
+            <a href={`tel:${phoneLink}`} class="btn btn-primary btn-magnetic">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              {company.phone}
             </a>
             <a href="/kontakt" class="btn btn-ghost">
               Anfrage senden
@@ -139,7 +172,7 @@ const breadcrumbSchema = {
           </div>
         </div>
 
-        <div class="location-info-card reveal reveal-delay-1">
+        <div class="location-info-card" data-anim="slide-left" data-anim-delay="0.12">
           {location.address.street && (
             <div class="info-item">
               <span class="info-label">Adresse</span>
@@ -152,7 +185,7 @@ const breadcrumbSchema = {
           </div>
           <div class="info-item">
             <span class="info-label">Telefon</span>
-            <a href={`tel:${company.phone.replace(/\s/g, '')}`} class="info-value info-link">{company.phone}</a>
+            <a href={`tel:${phoneLink}`} class="info-value info-link">{company.phone}</a>
           </div>
           <div class="info-item">
             <span class="info-label">E-Mail</span>
@@ -174,42 +207,108 @@ const breadcrumbSchema = {
   <!-- Services -->
   <section class="section">
     <div class="container">
-      <p class="eyebrow reveal">Leistungen in {locShort}</p>
-      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-8);">
-        Was wir in {locShort} anbieten
-      </h2>
+      <header class="section-head">
+        <p class="eyebrow reveal">Leistungen in {locShort}</p>
+        <h2 class="reveal" data-anim-delay="0.05">Was wir in {locShort} anbieten</h2>
+        <p class="section-lead reveal" data-anim-delay="0.1">
+          Von der ersten Fahrstunde bis zur bestandenen Prüfung – alles aus einer Hand,
+          in der Sprache, die du verstehst.
+        </p>
+      </header>
       <div class="services-grid">
-        {services.slice(0, 4).map((service, i) => (
-          <div class="reveal" style={`transition-delay: ${i * 0.05}s`}>
-            <ServiceCard service={service} />
-          </div>
+        {services.map((service, i) => (
+          <ServiceCard service={service} index={i} />
         ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Preis-Teaser -->
+  <section class="section price-teaser-section">
+    <div class="road-line price-teaser-road" aria-hidden="true"></div>
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow reveal">Preise in {locShort}</p>
+        <h2 class="reveal" data-anim-delay="0.05">Faire Preise, keine Überraschungen</h2>
+        <p class="section-lead reveal" data-anim-delay="0.1">
+          Transparente Lektionspreise – inkl. Abholservice in {locShort}. Mit unseren
+          Sparpaketen fährst du pro Lektion noch günstiger.
+        </p>
+      </header>
+
+      <div class="price-teaser-grid">
+        {teaserLessons.map((item, i) => (
+          <article
+            class={`price-teaser-card card ${item.popular ? 'is-popular' : ''} reveal`}
+            data-anim-delay={(i * 0.08).toFixed(2)}
+          >
+            {item.popular && <span class="ribbon ribbon-gold">Beliebteste</span>}
+            <span class="price-teaser-duration">{item.duration}</span>
+            <div class="price-teaser-amount">
+              <span class="price-teaser-cur">CHF</span>
+              <span class="price-teaser-num">{item.price}</span>
+            </div>
+            <p class="price-teaser-desc">{item.description}</p>
+          </article>
+        ))}
+
+        <article class="price-teaser-card price-teaser-cta-card reveal" data-anim-delay="0.16">
+          <h3 class="price-teaser-cta-title">Sparpakete &amp; Intensivkurse</h3>
+          <p class="price-teaser-cta-text">
+            Abos ab <strong>CHF&nbsp;930</strong> – bis zu <strong>CHF&nbsp;572</strong> Ersparnis.
+            VKU, Nothelfer &amp; Motorrad auf Anfrage.
+          </p>
+          <div class="price-teaser-actions">
+            <a href="/preise" class="btn btn-primary btn-magnetic" style="width:100%;">
+              Alle Preise ansehen
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="/kontakt" class="btn btn-ghost" style="width:100%;">Angebot anfragen</a>
+          </div>
+        </article>
       </div>
     </div>
   </section>
 
   <!-- Why here -->
   <section class="section why-here-section">
+    <div class="why-here-glow" aria-hidden="true"></div>
     <div class="container">
-      <p class="eyebrow reveal">Warum in {locShort}?</p>
-      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-8);">
-        Lokale Expertise, die den Unterschied macht
-      </h2>
+      <header class="section-head">
+        <p class="eyebrow reveal">Warum in {locShort}?</p>
+        <h2 class="reveal" data-anim-delay="0.05">Lokale Expertise, die den Unterschied macht</h2>
+        <p class="section-lead reveal" data-anim-delay="0.1">
+          Wir kennen {locShort} und die Region {locCanton} – und geben dir genau dieses
+          Wissen in jeder Fahrstunde mit.
+        </p>
+      </header>
       <div class="why-here-grid">
-        <div class="why-here-card reveal">
-          <h4>🏗️ Strassenkenntnis {locShort}</h4>
+        <div class="why-here-card" data-anim="fade-up">
+          <span class="why-here-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </span>
+          <h4>Strassenkenntnis {locShort}</h4>
           <p>Wir trainieren auf den Strassen, die für die praktische Prüfung in {locShort} und Umgebung relevant sind. Du lernst die schwierigen Kreuzungen, Tempo-30-Zonen und die typischen Prüfungsrouten kennen.</p>
         </div>
-        <div class="why-here-card reveal reveal-delay-1">
-          <h4>🚗 Abholservice</h4>
+        <div class="why-here-card" data-anim="fade-up" data-anim-delay="0.08">
+          <span class="why-here-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+          </span>
+          <h4>Abholservice</h4>
           <p>Du wirst in {locShort} oder an einem vereinbarten Treffpunkt abgeholt. Kein Stress mit der Anreise – du startest entspannt in deine Fahrstunde.</p>
         </div>
-        <div class="why-here-card reveal reveal-delay-2">
-          <h4>🌍 5 Sprachen</h4>
+        <div class="why-here-card" data-anim="fade-up" data-anim-delay="0.16">
+          <span class="why-here-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </span>
+          <h4>5 Sprachen</h4>
           <p>In {locShort} unterrichten wir auf Deutsch, Italienisch, Englisch, Französisch und Spanisch. Lerne in der Sprache, in der du dich am wohlsten fühlst.</p>
         </div>
-        <div class="why-here-card reveal reveal-delay-3">
-          <h4>⏰ Flexible Zeiten</h4>
+        <div class="why-here-card" data-anim="fade-up" data-anim-delay="0.24">
+          <span class="why-here-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </span>
+          <h4>Flexible Zeiten</h4>
           <p>Fahrstunden auch nach Feierabend und am Wochenende. Wir passen uns deinem Terminkalender an – nicht umgekehrt.</p>
         </div>
       </div>
@@ -218,27 +317,44 @@ const breadcrumbSchema = {
 
   <CTASection
     title={`Bereit für deine erste Fahrstunde in ${locShort}?`}
-    subtitle={`Ruf Antonio an unter ${company.phone} oder schreibe eine WhatsApp. Du erhältst innerhalb von 24 Stunden eine Antwort.`}
+    subtitle={`Ruf Antonio an, schreibe eine WhatsApp oder fülle das Formular aus – Antwort innerhalb von 24 Stunden. ${reviews.ratingValue}/5 aus ${reviews.reviewCount} Google-Bewertungen.`}
   />
 
   <FAQ items={localFAQ} title={`FAQ Fahrschule ${locShort}`} />
 
   <!-- Nearby -->
   {nearbyLocations.length > 0 && (
-    <section class="section">
+    <section class="section nearby-section">
       <div class="container">
-        <p class="eyebrow reveal">In der Nähe</p>
-        <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-6);">
-          Auch bei dir um die Ecke
-        </h2>
+        <header class="section-head">
+          <p class="eyebrow reveal">In der Nähe</p>
+          <h2 class="reveal" data-anim-delay="0.05">Auch bei dir um die Ecke</h2>
+          <p class="section-lead reveal" data-anim-delay="0.1">
+            Antonio Marino unterrichtet in der ganzen Region. Finde deinen Standort in der Nähe von {locShort}.
+          </p>
+        </header>
         <div class="nearby-grid">
-          {nearbyLocations.map(near => (
-            <a href={`/fahrschule-${near!.slug}`} class="nearby-card reveal">
-              <span class="nearby-name">{near!.name}</span>
-              <span class="nearby-arrow">→</span>
+          {nearbyLocations.map((near, i) => (
+            <a
+              href={`/fahrschule-${near!.slug}`}
+              class="nearby-card"
+              data-anim="fade-up"
+              data-anim-delay={(i * 0.06).toFixed(2)}
+            >
+              <span class="nearby-pin" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </span>
+              <span class="nearby-text">
+                <span class="nearby-name">{near!.name}</span>
+                <span class="nearby-sub">Fahrschule {near!.nameShort}</span>
+              </span>
+              <span class="nearby-arrow" aria-hidden="true">→</span>
             </a>
           ))}
         </div>
+        <p class="nearby-all reveal" data-anim-delay="0.1">
+          <a href="/standorte" class="text-accent">Alle Standorte ansehen →</a>
+        </p>
       </div>
     </section>
   )}
@@ -293,16 +409,186 @@ const breadcrumbSchema = {
   opacity: 0.8;
 }
 
+/* ── Section-Köpfe (geteiltes Muster mit /preise) ─────────────────── */
+.section-head {
+  max-width: 720px;
+  margin-bottom: var(--sp-8);
+}
+.section-head h2 {
+  font-size: clamp(2rem, 4vw + 1rem, 3rem);
+  margin-bottom: var(--sp-4);
+}
+.section-lead {
+  color: var(--c-text-muted);
+  font-size: var(--fs-lg);
+  line-height: var(--lh-relaxed);
+}
+.section-lead strong { color: var(--c-accent-bright); }
+
+/* ── Trust-Leiste ─────────────────────────────────────────────────── */
+.trust-strip-section { padding-top: 0; }
+.trust-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  padding: var(--sp-5) var(--sp-6);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--c-border-gold);
+}
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sp-1);
+}
+.trust-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-accent);
+  line-height: 1;
+}
+.trust-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-text-muted);
+}
+.trust-divider {
+  width: 1px;
+  align-self: stretch;
+  min-height: 36px;
+  background: var(--c-border-strong);
+}
+
 .services-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--sp-5);
 }
 
+/* ── Preis-Teaser ─────────────────────────────────────────────────── */
+.price-teaser-section { position: relative; overflow: hidden; }
+.price-teaser-road {
+  top: 0;
+  left: -10%;
+  width: 120%;
+  transform: rotate(-1.5deg);
+  opacity: 0.18;
+}
+.price-teaser-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--sp-5);
+}
+.price-teaser-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-6);
+}
+.price-teaser-card.is-popular {
+  border-color: var(--c-accent);
+  box-shadow: var(--sh-glow);
+}
+.price-teaser-duration {
+  align-self: flex-start;
+  padding: 2px var(--sp-3);
+  margin-bottom: var(--sp-4);
+  border-radius: var(--r-full);
+  background: var(--c-accent-dim);
+  color: var(--c-accent-bright);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+}
+.price-teaser-amount {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+.price-teaser-cur {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--c-text-muted);
+}
+.price-teaser-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-4xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-text);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.price-teaser-desc {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-top: auto;
+}
+.price-teaser-cta-card {
+  background: var(--grad-hero);
+  border-color: var(--c-border-gold);
+}
+.price-teaser-cta-title {
+  font-size: var(--fs-xl);
+  margin-bottom: var(--sp-3);
+}
+.price-teaser-cta-text {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-5);
+}
+.price-teaser-cta-text strong { color: var(--c-accent-bright); }
+.price-teaser-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: auto;
+}
+
+/* ── Ribbon (geteilt mit /preise) ─────────────────────────────────── */
+.ribbon {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-full);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  z-index: 2;
+}
+.ribbon-gold {
+  background: var(--grad-accent);
+  color: var(--c-bg);
+  box-shadow: var(--sh-glow-gold);
+}
+
+/* ── Warum hier ───────────────────────────────────────────────────── */
 .why-here-section {
+  position: relative;
   background: var(--c-bg-elevated);
   border-block: 1px solid var(--c-border);
+  overflow: hidden;
 }
+.why-here-glow {
+  position: absolute;
+  top: 0;
+  right: -10%;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle at center, rgba(0, 112, 99, 0.16), transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+.why-here-section .container { position: relative; z-index: 1; }
 
 .why-here-grid {
   display: grid;
@@ -315,12 +601,33 @@ const breadcrumbSchema = {
   border: 1px solid var(--c-border);
   border-radius: var(--r-md);
   padding: var(--sp-6);
-  transition: all var(--t-base);
+  transition: transform var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
 }
 
 .why-here-card:hover {
-  border-color: var(--c-accent-dim);
-  transform: translateY(-2px);
+  border-color: var(--c-border-gold);
+  transform: translateY(-4px);
+  box-shadow: var(--sh-lg);
+}
+
+.why-here-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--c-accent-dim);
+  border: 1px solid var(--c-border-gold);
+  color: var(--c-accent);
+  transition: transform var(--t-base), background var(--t-base), color var(--t-base), box-shadow var(--t-base);
+}
+.why-here-card:hover .why-here-icon {
+  background: var(--grad-accent);
+  color: var(--c-bg);
+  transform: translateY(-2px) scale(1.06) rotate(-3deg);
+  box-shadow: var(--sh-glow-gold);
 }
 
 .why-here-card h4 {
@@ -333,6 +640,7 @@ const breadcrumbSchema = {
   color: var(--c-text-muted);
 }
 
+/* ── In der Nähe ──────────────────────────────────────────────────── */
 .nearby-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -342,26 +650,69 @@ const breadcrumbSchema = {
 .nearby-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--sp-3);
   background: var(--grad-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--r-md);
   padding: var(--sp-4) var(--sp-5);
-  transition: all var(--t-base);
+  transition: transform var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
 }
 
 .nearby-card:hover {
-  border-color: var(--c-accent-dim);
+  border-color: var(--c-border-gold);
   transform: translateX(4px);
+  box-shadow: var(--sh-md);
+}
+
+.nearby-pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: var(--r-md);
+  background: var(--c-accent-dim);
+  border: 1px solid var(--c-border-gold);
+  color: var(--c-accent);
+  transition: background var(--t-base), color var(--t-base);
+}
+.nearby-card:hover .nearby-pin {
+  background: var(--grad-accent);
+  color: var(--c-bg);
+}
+
+.nearby-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .nearby-name {
   font-family: var(--font-display);
   font-weight: var(--fw-semibold);
 }
+.nearby-sub {
+  font-size: var(--fs-xs);
+  color: var(--c-text-dim);
+}
 
 .nearby-arrow {
+  margin-left: auto;
   color: var(--c-accent);
+  font-size: var(--fs-lg);
+  transform: translateX(-4px);
+  opacity: 0.6;
+  transition: transform var(--t-base), opacity var(--t-base);
+}
+.nearby-card:hover .nearby-arrow {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.nearby-all {
+  margin-top: var(--sp-6);
+  font-weight: var(--fw-semibold);
 }
 
 @media (max-width: 768px) {
@@ -374,5 +725,11 @@ const breadcrumbSchema = {
   .why-here-grid {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 600px) {
+  .trust-divider { display: none; }
+  .trust-strip { gap: var(--sp-4); }
+  .trust-item { flex: 1 1 40%; }
 }
 </style>

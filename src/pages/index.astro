@@ -1,263 +1,243 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import Hero from '@components/Hero.astro';
-import ServiceCard from '@components/ServiceCard.astro';
 import CTASection from '@components/CTASection.astro';
 import FAQ from '@components/FAQ.astro';
 import { services, physicalLocations, company, reviews } from '@data/site';
 
 const homeFAQ = [
-  {
-    question: 'Wie viele Fahrstunden brauche ich für den Führerschein?',
-    answer: 'Die Anzahl Fahrstunden hängt von deinem Vorwissen und deiner Lerngeschwindigkeit ab. Im Durchschnitt benötigen Fahrschülerinnen und Fahrschüler etwa 20 bis 30 Fahrstunden. Bei Antonio Marino passe ich den Unterricht individuell an dein Tempo an.',
-  },
-  {
-    question: 'In welchen Sprachen wird unterrichtet?',
-    answer: `Ich unterrichte in ${company.languages.join(', ')}. So kannst du in deiner bevorzugten Sprache lernen und verstehen.`,
-  },
-  {
-    question: 'Bietet ihr einen Abholservice an?',
-    answer: 'Ja! Ich hole dich an deinem Wunschort ab – an einem unserer Standorte oder an einem vereinbarten Treffpunkt in der Region. Flexible Zeiten nach Feierabend und am Wochenende sind möglich.',
-  },
-  {
-    question: 'Was kostet der VKU (Verkehrskundeunterricht)?',
-    answer: 'Der VKU ist ein Pflichtkurs für alle Lernfahrenden und umfasst 8 Stunden. Die aktuellen Preise erfährst du telefonisch unter ' + company.phone + ' oder über das Kontaktformular.',
-  },
-  {
-    question: 'Kann ich mich auf die Kontrollfahrt vorbereiten?',
-    answer: 'Ja, ich biete gezielte Vorbereitung auf die Kontrollfahrt für Personen mit ausländischem Führerausweis an. Wir üben die spezifischen Anforderungen und sorgen dafür, dass du bestens vorbereitet bist.',
-  },
+  { question: 'Wie viele Fahrstunden brauche ich für den Führerschein?', answer: 'Im Durchschnitt 20-30 Fahrstunden. Antonio passt den Unterricht an dein individuelles Tempo an.' },
+  { question: 'In welchen Sprachen wird unterrichtet?', answer: `Auf ${company.languages.join(', ')}.` },
+  { question: 'Bietet ihr einen Abholservice an?', answer: `Ja! Abholung an einem unserer Standorte oder einem vereinbarten Treffpunkt. Ruf an: ${company.phone}.` },
+  { question: 'Was kostet der VKU?', answer: `Den aktuellen Preis erfährst du unter ${company.phone} oder über das Kontaktformular.` },
+  { question: 'Kann ich mich auf die Kontrollfahrt vorbereiten?', answer: 'Ja, ich biete gezielte Vorbereitung auf die Kontrollfahrt für Personen mit ausländischem Führerausweis an.' },
 ];
+
+// What you learn — with proper Swiss terminology
+const learnSkills = [
+  { icon: '🚗', title: 'Anfahren & Bremsen', desc: 'Kupplungstechnik (nur Handschalter), sicheres Anfahren am Berg und controlled braking.' },
+  { icon: '🅿️', title: 'Parkieren', desc: 'Seitwärts parkieren, vorwärts einparkieren, rückwärts parkieren — bis es sitzt.' },
+  { icon: '🔄', title: 'Kreisverkehr', desc: 'Einfahren, ausfahren, richtige Spurwahl im Kreisverkehr — keine Angst mehr vor kreisförmigem Verkehr.' },
+  { icon: '⚙️', title: 'Gangwechsel', desc: 'Flüssige Gangwechsel, richtiges Schalten bergauf und bergab, Motorbremse nutzen.' },
+  { icon: '↔️', title: 'Spurwechsel', desc: 'Schulterblick, Spiegelcheck, sicheres Wechseln auf der Autobahn und im Stadtverkehr.' },
+  { icon: '🛣️', title: 'Vorausschauend fahren', desc: 'Verkehrssituationen lesen, früh reagieren, defensiv und umweltbewusst fahren.' },
+];
+
+// Icons for services
+const serviceIcons: Record<string, string> = {
+  car: '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18.4 11l-2.5-3.3c-.4-.5-1-.7-1.6-.7H7.7c-.6 0-1.2.3-1.6.8L4 11l-1.5.1C1.7 11.3 1 12.1 1 13v3c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
+  book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  'first-aid': '<path d="M8 2v4M4 6h16v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6z"/><path d="M12 10v6M9 13h6"/>',
+  check: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+  globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  motorcycle: '<path d="M3 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm14-4l-4-4M5 13l2-5h4l1 3h5"/><circle cx="19" cy="17" r="2"/><path d="M14 17h3"/><path d="M10 7l1-2h3"/>',
+};
 ---
 
 <BaseLayout
   title={`Fahrschule Antonio Marino | Fahrstunden in Lachen, Zürich & Region`}
   description="Fahrschule Antonio Marino – Fahrstunden, VKU, Nothelferkurs und Prüfungsvorbereitung in Lachen, Zürich, Rapperswil-Jona und Umgebung. Erfahrener Fahrlehrer, 5 Sprachen, flexible Zeiten. Jetzt anrufen: 078 826 10 61."
 >
-  <Hero
-    eyebrow="Fahrschule Antonio Marino"
-    title="Dein Weg zum"
-    titleHighlight="Führerschein."
-    subtitle="Fahrstunden, VKU und Nothelferkurse in der ganzen Region – mit einem Fahrlehrer, der dich persönlich begleitet. Auf Deutsch, Italienisch, Englisch, Französisch oder Spanisch."
-  />
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-grid" data-parallax="0.15"></div>
+      <div class="hero-glow-1"></div>
+      <div class="hero-glow-2"></div>
+    </div>
 
-  <!-- Trust Bar -->
-  <section class="trust-bar">
+    <div class="container hero-content">
+      <p class="hero-eyebrow" data-animate="fade-up">
+        <span class="pulse-dot"></span>
+        Fahrschule Antonio Marino · 6 Standorte · 5 Sprachen
+      </p>
+      <h1 class="hero-title" data-animate="fade-up">
+        Dein Weg zum<br>
+        <span class="gradient-text">Führerschein.</span>
+      </h1>
+      <p class="hero-subtitle" data-animate="fade-up">
+        Fahrstunden, VKU und Nothelferkurse in der ganzen Region — mit einem Fahrlehrer, der dich persönlich begleitet. Sicher, schnell und mit Spass.
+      </p>
+      <div class="hero-actions" data-animate="fade-up">
+        <a href="/kontakt" class="btn btn-primary btn-lg">
+          Termin buchen
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="/leistungen" class="btn btn-ghost btn-lg">Preise ansehen</a>
+      </div>
+
+      <div class="hero-stats" data-animate="stagger">
+        <div class="hero-stat" data-stagger-item>
+          <span class="stat-num" data-counter="10">0</span><span class="stat-plus">+</span>
+          <span class="stat-label">Jahre Erfahrung</span>
+        </div>
+        <div class="hero-stat" data-stagger-item>
+          <span class="stat-num" data-counter="27">0</span>
+          <span class="stat-label">Orte bedient</span>
+        </div>
+        <div class="hero-stat" data-stagger-item>
+          <span class="stat-num" data-counter="5">0</span>
+          <span class="stat-label">Sprachen</span>
+        </div>
+        <div class="hero-stat" data-stagger-item>
+          <span class="stat-num">{reviews.ratingValue}</span><span class="stat-star">★</span>
+          <span class="stat-label">{reviews.reviewCount} Bewertungen</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-hint" aria-hidden="true">
+      <span>Scrollen</span>
+      <div class="scroll-hint-line"></div>
+    </div>
+  </section>
+
+  <!-- ============ THE JOURNEY — Scroll Story ============ -->
+  <section class="journey">
     <div class="container">
-      <div class="trust-content reveal">
-        <div class="trust-rating">
-          <div class="trust-stars">★★★★★</div>
-          <span class="trust-rating-text">
-            <strong>{reviews.ratingValue}/5</strong> · {reviews.reviewCount} Bewertung{reviews.reviewCount !== 1 ? 'en' : ''}
-          </span>
+      <p class="eyebrow" data-animate="fade-up">Deine Reise</p>
+      <h2 data-animate="fade-up" style="margin-bottom: 1rem;">
+        Vom ersten Tag<br>bis zur bestandenen <span class="gradient-text">Prüfung.</span>
+      </h2>
+      <p class="text-muted" data-animate="fade-up" style="font-size: 1.1rem; max-width: 600px; margin-bottom: 4rem;">
+        Scrolle dich durch deine Reise zum Führerschein. Jeder Schritt ist ein Meilenstein.
+      </p>
+    </div>
+
+    <!-- Journey Steps -->
+    <div class="journey-track">
+      <div class="journey-line" data-parallax="-0.1"></div>
+
+      <div class="journey-step" data-animate="slide-right">
+        <div class="journey-marker">
+          <span>1</span>
         </div>
-        <div class="trust-divider"></div>
-        <div class="trust-item">
-          <span class="trust-num">10+</span>
-          <span class="trust-label">Jahre Erfahrung</span>
+        <div class="journey-content">
+          <h3>Nothelferkurs</h3>
+          <p>Der erste Schritt. 10 Stunden Erste Hilfe am Unfallort — Pflicht vor dem Lernfahrausweis. Du lernst, wie du bei einem Unfall richtig reagierst: absichern, retten, den Notruf absetzen.</p>
+          <a href="/nothelferkurs" class="journey-link">Mehr erfahren →</a>
         </div>
-        <div class="trust-divider"></div>
-        <div class="trust-item">
-          <span class="trust-num">{company.languages.length}</span>
-          <span class="trust-label">Sprachen</span>
+      </div>
+
+      <div class="journey-step" data-animate="slide-left">
+        <div class="journey-marker">
+          <span>2</span>
         </div>
-        <div class="trust-divider"></div>
-        <div class="trust-item">
-          <span class="trust-num">27</span>
-          <span class="trust-label">Orte bedient</span>
+        <div class="journey-content">
+          <h3>Theorieprüfung & VKU</h3>
+          <p>Lernen für die Theorieprüfung — Verkehrsregeln, Signale, Gefahrenlehre. Danach: der Verkehrskundeunterricht (VKU), 8 Stunden Pflichtkurs in kleinen Gruppen. Interaktiv und praxisnah.</p>
+          <a href="/verkehrskundeunterricht" class="journey-link">Mehr erfahren →</a>
+        </div>
+      </div>
+
+      <div class="journey-step" data-animate="slide-right">
+        <div class="journey-marker">
+          <span>3</span>
+        </div>
+        <div class="journey-content">
+          <h3>Fahrstunden</h3>
+          <p>Die Praxis. Mit Antonio an deiner Seite lernst du alles — vom ersten Mal Anfahren bis zu komplexen Verkehrssituationen. Individuell, in deinem Tempo, in deiner Sprache. Mit Abholservice.</p>
+          <a href="/fahrstunden" class="journey-link">Mehr erfahren →</a>
+        </div>
+      </div>
+
+      <div class="journey-step" data-animate="slide-left">
+        <div class="journey-marker">
+          <span>4</span>
+        </div>
+        <div class="journey-content">
+          <h3>Prüfung bestehen</h3>
+          <p>Du bist bereit. Wir fahren die echten Prüfungsrouten, üben typische Manöver und du gehst mit Selbstvertrauen in die praktische Prüfung. Und dann? Herzlichen Glückwunsch zum Führerschein! 🎉</p>
+          <a href="/fahrpruefung" class="journey-link">Mehr erfahren →</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Services -->
-  <section class="section" id="leistungen">
+  <!-- ============ WHAT YOU LEARN ============ -->
+  <section class="section learn-section">
     <div class="container">
-      <p class="eyebrow reveal">Leistungen</p>
-      <h2 class="reveal reveal-delay-1" style="max-width: 600px; margin-bottom: var(--sp-2);">
-        Alles aus einer Hand –<br>vom Erstkontakt bis zur Prüfung
+      <p class="eyebrow" data-animate="fade-up">Was du lernst</p>
+      <h2 data-animate="fade-up" style="margin-bottom: 1rem;">
+        Fähigkeiten, die du<br>fürs <span class="gradient-text">Leben</span> brauchst.
       </h2>
-      <p class="text-muted reveal reveal-delay-2" style="font-size: var(--fs-lg); margin-bottom: var(--sp-8); max-width: 600px;">
-        Egal ob du zum ersten Mal hinter dem Lenker sitzt oder die Kontrollfahrt vor dir hast – ich begleite dich auf jedem Schritt.
+      <p class="text-muted" data-animate="fade-up" style="font-size: 1.1rem; max-width: 600px; margin-bottom: 4rem;">
+        Nicht nur für die Prüfung — sondern für ein Leben lang sicheres Fahren.
       </p>
 
-      <div class="services-grid">
-        {services.map((service, i) => (
-          <div class="reveal" style={`transition-delay: ${i * 0.05}s`}>
-            <ServiceCard service={service} />
+      <div class="learn-grid" data-animate="stagger">
+        {learnSkills.map((skill) => (
+          <div class="learn-card" data-stagger-item>
+            <span class="learn-icon">{skill.icon}</span>
+            <h4>{skill.title}</h4>
+            <p>{skill.desc}</p>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- Why Us -->
-  <section class="section why-section">
+  <!-- ============ SERVICES ============ -->
+  <section class="section services-section">
     <div class="container">
-      <div class="why-grid">
-        <div class="why-content reveal">
-          <p class="eyebrow">Warum Antonio Marino?</p>
-          <h2 style="margin-bottom: var(--sp-6);">
-            Mehr als nur Fahrstunden –<br>dein Partner auf dem Weg zur Mobilität
-          </h2>
-          <div class="why-features">
-            <div class="why-feature">
-              <div class="why-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              </div>
-              <div>
-                <h4>Persönliche Betreuung</h4>
-                <p>KeinwechselnderFahrlehrer. Du fährst immer mit Antonio – der dich kennt und deinen Fortschritt verfolgt.</p>
-              </div>
+      <p class="eyebrow" data-animate="fade-up">Leistungen</p>
+      <h2 data-animate="fade-up" style="margin-bottom: 4rem;">
+        Alles aus <span class="gradient-text">einer Hand.</span>
+      </h2>
+      <div class="services-grid" data-animate="stagger">
+        {services.map((service) => (
+          <a href={`/${service.slug}`} class="service-card" data-stagger-item>
+            <div class="service-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={serviceIcons[service.icon] || serviceIcons.car} />
             </div>
-            <div class="why-feature">
-              <div class="why-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              </div>
-              <div>
-                <h4>Flexible Zeiten</h4>
-                <p>Fahrstunden auch nach Feierabend und am Wochenende. Du bestimmst den Rhythmus.</p>
-              </div>
-            </div>
-            <div class="why-feature">
-              <div class="why-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              </div>
-              <div>
-                <h4>Lokale Expertise</h4>
-                <p>Ich kenne die Prüfungsrouten in Lachen, Zürich, Rapperswil und der ganzen Region – und bereite dich gezielt vor.</p>
-              </div>
-            </div>
-            <div class="why-feature">
-              <div class="why-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </div>
-              <div>
-                <h4>Abholservice</h4>
-                <p>Du wirst abgeholt – an einem unserer Standorte oder einem vereinbarten Treffpunkt bei dir.</p>
-              </div>
-            </div>
-            <div class="why-feature">
-              <div class="why-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              </div>
-              <div>
-                <h4>5 Sprachen</h4>
-                <p>Unterricht in Deutsch, Italienisch, Englisch, Französisch und Spanisch. Lerne in deiner Sprache.</p>
-              </div>
-            </div>
-            <div class="why-feature">
-              <div class="why-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-              </div>
-              <div>
-                <h4>Alles aus einer Hand</h4>
-                <p>Fahrstunden, VKU, Nothelferkurs, Prüfungsvorbereitung – ein Ansprechpartner für alles.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Locations -->
-  <section class="section">
-    <div class="container">
-      <p class="eyebrow reveal">Standorte</p>
-      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-2);">6 Standorte in der ganzen Region</h2>
-      <p class="text-muted reveal reveal-delay-2" style="font-size: var(--fs-lg); margin-bottom: var(--sp-8);">
-        Von Lachen bis Zürich, von Ziegelbrücke bis Rapperswil – wir sind in deiner Nähe.
-      </p>
-      <div class="locations-grid">
-        {physicalLocations.map((loc, i) => (
-          <a href={`/fahrschule-${loc.slug}`} class="location-card reveal" style={`transition-delay: ${i * 0.05}s`}>
-            <div class="location-card-inner">
-              <span class="location-pin">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              </span>
-              <div>
-                <h4>{loc.name}</h4>
-                {loc.address.street && <p>{loc.address.street}</p>}
-                <p class="location-zip">{loc.address.zip} {loc.address.city}</p>
-              </div>
-            </div>
-            <span class="location-arrow">→</span>
+            <h3>{service.name}</h3>
+            <p>{service.description}</p>
+            {service.duration && <span class="service-duration">⏱ {service.duration}</span>}
           </a>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- Process -->
-  <section class="section process-section">
+  <!-- ============ LOCATIONS ============ -->
+  <section class="section locations-section">
     <div class="container">
-      <p class="eyebrow reveal">So funktioniert's</p>
-      <h2 class="reveal reveal-delay-1" style="text-align: center; margin-bottom: var(--sp-10);">In 4 Schritten zum Führerschein</h2>
-      <div class="process-steps">
-        <div class="process-step reveal">
-          <div class="process-num">1</div>
-          <h4>Nothelferkurs</h4>
-          <p>Pflicht vor dem Lernfahrausweis. 10 Stunden Erste Hilfe am Unfallort.</p>
-        </div>
-        <div class="process-step reveal reveal-delay-1">
-          <div class="process-num">2</div>
-          <h4>Theorie & VKU</h4>
-          <p>Lernen für die Theorieprüfung und den 8-stündigen Verkehrskundeunterricht.</p>
-        </div>
-        <div class="process-step reveal reveal-delay-2">
-          <div class="process-num">3</div>
-          <h4>Fahrstunden</h4>
-          <p>Praxis mit Antonio – vom ersten Mal Anfahren bis zur Prüfungsvorbereitung.</p>
-        </div>
-        <div class="process-step reveal reveal-delay-3">
-          <div class="process-num">4</div>
-          <h4>Prüfung bestehen</h4>
-          <p>Du bist bereit. Mit lokaler Routenkenntnis und Selbstvertrauen zur praktischen Prüfung.</p>
-        </div>
+      <p class="eyebrow" data-animate="fade-up">Standorte</p>
+      <h2 data-animate="fade-up" style="margin-bottom: 1rem;">
+        6 Standorte.<br><span class="gradient-text">27 Orte.</span> Eine Fahrschule.
+      </h2>
+      <p class="text-muted" data-animate="fade-up" style="font-size: 1.1rem; max-width: 600px; margin-bottom: 3rem;">
+        Von Lachen bis Zürich, von Ziegelbrücke bis Rapperswil — wir sind in deiner Nähe.
+      </p>
+      <div class="locations-grid" data-animate="stagger">
+        {physicalLocations.map((loc) => (
+          <a href={`/fahrschule-${loc.slug}`} class="location-card" data-stagger-item>
+            <span class="location-pin">📍</span>
+            <div>
+              <h4>{loc.name}</h4>
+              <p>{loc.address.street || loc.address.city}</p>
+              <p class="loc-zip">{loc.address.zip} {loc.address.city}</p>
+            </div>
+            <span class="loc-arrow">→</span>
+          </a>
+        ))}
+      </div>
+      <div style="text-align: center; margin-top: 3rem;" data-animate="fade-up">
+        <a href="/standorte" class="btn btn-ghost btn-lg">Alle 27 Standorte ansehen</a>
       </div>
     </div>
   </section>
 
-  <!-- Car Showcase -->
-  <section class="section car-showcase">
+  <!-- ============ LOCAL SEO ============ -->
+  <section class="section local-seo">
     <div class="container">
-      <div class="car-showcase-grid">
-        <div class="reveal">
-          <p class="eyebrow">Dein Fahrlehrer</p>
-          <h2 style="margin-bottom: var(--sp-5);">
-            Antonio Marino<br>bringt dich sicher ans Ziel
-          </h2>
-          <p style="font-size: var(--fs-lg); margin-bottom: var(--sp-4); line-height: var(--lh-relaxed);">
-            Mit über 10 Jahren Erfahrung als Fahrlehrer kennt Antonio die Strassen, die Prüfungsrouten und die typischen Herausforderungen in der Region genau. Er weiss, welche Kreuzungen tricky sind, wo du besonders aufmerksam sein musst und wie du in der Prüfung souverän bleibst.
-          </p>
-          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-6);">
-            Sein Ansatz ist einfach: individueller Unterricht, der dich wirklich weiterbringt. Kein Frontalunterricht, kein Scheme-F. Dafür echtes Lernen in deinem Tempo, in deiner Sprache und mit einem Fahrlehrer, der dich nicht nur auf die Prüfung, sondern aufs Leben vorbereitet.
-          </p>
-          <div style="display: flex; gap: var(--sp-3); flex-wrap: wrap;">
-            <a href="/ueber-uns" class="btn btn-ghost">Mehr über Antonio</a>
-            <a href="/kontakt" class="btn btn-primary">Termin vereinbaren</a>
-          </div>
-        </div>
-        <div class="car-illustration-wrapper reveal reveal-delay-1">
-          <img src="/car-illustration.svg" alt="Fahrschule Antonio Marino — modernes Fahrschulauto" width="600" height="250" loading="lazy" />
-          <div class="car-glow"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Local SEO Content -->
-  <section class="section local-seo-section">
-    <div class="container">
-      <div class="reveal">
-        <h2 style="margin-bottom: var(--sp-5); text-align: center;">
+      <div data-animate="fade-up">
+        <h2 style="margin-bottom: 2rem; text-align: center; font-size: 1.75rem;">
           Fahrschule in der Region Lachen, Zürich und Rapperswil-Jona
         </h2>
-        <p style="color: var(--c-text-muted); max-width: 800px; margin-inline: auto; text-align: center; margin-bottom: var(--sp-6); line-height: var(--lh-relaxed);">
-          Die Fahrschule Antonio Marino ist deine Adresse für Fahrstunden, Verkehrskundeunterricht und Nothelferkurse im Kanton Schwyz, St. Gallen, Glarus und Zürich. Mit 6 Hauptstandorten in Lachen, Buttikon, Ziegelbrücke, Zürich, Uznach und Rapperswil-Jona sowie über 20 weiteren bedienten Orten sind wir immer in deiner Nähe. Ob du in Lachen SZ, Pfäffikon SZ, Wollerau, Siebnen, Schmerikon, Uznach, Benken, Kaltbrunn, Altendorf, Freienbach, Hurden oder Tuggen wohnst – wir holen dich ab und bringen dich sicher zum Führerschein. Auch im Kanton Zürich, in Dübendorf, Uster, Wetzikon oder Rüti, sowie im Glarnerland in Glarus, Niederurnen, Netstal oder Mollis sind wir für dich da. Unser Fahrlehrer Antonio Marino unterrichtet in 5 Sprachen: Deutsch, Italienisch, Englisch, Französisch und Spanisch. Wir kennen die Prüfungsrouten beim Strassenverkehrsamt in Lachen und die Besonderheiten der Straßen im Zürcher Oberland, im Linthgebiet und am Zürichsee. Melde dich an und starte noch heute mit deiner ersten Fahrstunde.
+        <p class="text-muted" style="max-width: 800px; margin-inline: auto; text-align: center; margin-bottom: 2rem; line-height: 1.8;">
+          Die Fahrschule Antonio Marino ist deine Adresse für Fahrstunden, Verkehrskundeunterricht und Nothelferkurse im Kanton Schwyz, St. Gallen, Glarus und Zürich. Mit 6 Hauptstandorten in Lachen, Buttikon, Ziegelbrücke, Zürich, Uznach und Rapperswil-Jona sowie über 20 weiteren bedienten Orten sind wir immer in deiner Nähe. Ob du in Lachen SZ, Pfäffikon SZ, Wollerau, Siebnen, Schmerikon, Uznach, Benken, Kaltbrunn, Altendorf, Freienbach, Hurden oder Tuggen wohnst – wir holen dich ab und bringen dich sicher zum Führerschein. Auch im Kanton Zürich, in Dübendorf, Uster, Wetzikon oder Rüti, sowie im Glarnerland in Glarus, Niederurnen, Netstal oder Mollis sind wir für dich da.
         </p>
-        <div class="seo-location-chips">
+        <div class="seo-chips">
           <a href="/fahrschule-lachen">Fahrschule Lachen</a>
           <a href="/fahrschule-zuerich">Fahrschule Zürich</a>
           <a href="/fahrschule-rapperswil-jona">Fahrschule Rapperswil-Jona</a>
@@ -268,342 +248,134 @@ const homeFAQ = [
           <a href="/fahrschule-wollerau">Fahrschule Wollerau</a>
           <a href="/fahrschule-siebnen">Fahrschule Siebnen</a>
           <a href="/fahrschule-glarus">Fahrschule Glarus</a>
-          <a href="/standorte" class="seo-more">Alle 27 Standorte →</a>
         </div>
       </div>
     </div>
   </section>
 
   <CTASection />
-
   <FAQ items={homeFAQ} title="Häufige Fragen" />
 </BaseLayout>
 
 <style>
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: var(--sp-5);
+/* ============ HERO ============ */
+.hero {
+  position: relative; min-height: 100vh; display: flex;
+  align-items: center; padding-top: var(--header-h); overflow: hidden;
 }
-
-/* Why Section */
-.why-section {
-  background: var(--c-bg-elevated);
-  border-block: 1px solid var(--c-border);
+.hero-bg { position: absolute; inset: 0; z-index: 0; }
+.hero-grid {
+  position: absolute; inset: -10% 0 0 0;
+  background-image:
+    linear-gradient(rgba(230, 57, 70, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(230, 57, 70, 0.04) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
 }
-
-.why-features {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--sp-6);
+.hero-glow-1 {
+  position: absolute; top: 10%; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 500px;
+  background: radial-gradient(ellipse at center, rgba(230, 57, 70, 0.15), transparent 60%);
 }
-
-.why-feature {
-  display: flex;
-  gap: var(--sp-4);
-  align-items: flex-start;
+.hero-glow-2 {
+  position: absolute; bottom: 0; right: 10%;
+  width: 500px; height: 400px;
+  background: radial-gradient(ellipse at center, rgba(255, 182, 39, 0.08), transparent 60%);
 }
-
-.why-icon {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--c-accent-dim);
-  border-radius: var(--r-md);
-  color: var(--c-accent);
-  flex-shrink: 0;
+.hero-content { position: relative; z-index: 1; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--c-text-muted); margin-bottom: 1.5rem;
 }
-
-.why-feature h4 {
-  font-size: var(--fs-base);
-  font-weight: var(--fw-bold);
-  margin-bottom: var(--sp-1);
+.pulse-dot {
+  width: 8px; height: 8px; background: var(--c-red-bright);
+  border-radius: 50%; animation: pulse 2s infinite;
 }
-
-.why-feature p {
-  font-size: var(--fs-sm);
-  color: var(--c-text-muted);
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--c-red-glow); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 8px transparent; }
 }
+.hero-title { font-size: clamp(3rem, 8vw, 6rem); margin-bottom: 1.5rem; }
+.hero-subtitle { font-size: clamp(1rem, 2vw, 1.35rem); color: var(--c-text-muted); max-width: 600px; margin-bottom: 2.5rem; line-height: 1.7; }
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 4rem; }
 
-/* Locations */
-.locations-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--sp-4);
-}
+.hero-stats { display: flex; gap: 3rem; flex-wrap: wrap; }
+.hero-stat { display: flex; flex-direction: column; }
+.stat-num { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; color: var(--c-amber); line-height: 1; }
+.stat-plus { color: var(--c-amber); font-size: 1.5rem; font-weight: 800; margin-left: 2px; display: inline; }
+.stat-star { color: var(--c-amber); font-size: 1.2rem; margin-left: 4px; }
+.stat-label { font-size: 0.85rem; color: var(--c-text-muted); margin-top: 4px; }
 
-.location-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--grad-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-md);
-  padding: var(--sp-5);
-  transition: all var(--t-base);
-}
+.scroll-hint { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.5; }
+.scroll-hint span { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--c-text-muted); }
+.scroll-hint-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--c-amber), transparent); }
 
-.location-card:hover {
-  border-color: var(--c-accent-dim);
-  transform: translateX(4px);
-  background: var(--c-surface-hover);
-}
+/* ============ JOURNEY ============ */
+.journey { padding-block: clamp(4rem, 10vw, 10rem); position: relative; }
+.journey-track { position: relative; max-width: 800px; margin: 0 auto; padding-inline: 24px; }
+.journey-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, var(--c-red), var(--c-amber), transparent); transform: translateX(-50%); opacity: 0.3; }
+.journey-step { display: flex; gap: 2rem; margin-bottom: 5rem; position: relative; }
+.journey-step:nth-child(even) { flex-direction: row-reverse; }
+.journey-marker { flex-shrink: 0; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: var(--c-bg); border: 2px solid var(--c-red); border-radius: 50%; font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--c-red-bright); z-index: 1; position: relative; }
+.journey-step:nth-child(even) .journey-marker { border-color: var(--c-amber); color: var(--c-amber); }
+.journey-content { flex: 1; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: 2rem; }
+.journey-content h3 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+.journey-content p { color: var(--c-text-muted); margin-bottom: 1rem; }
+.journey-link { color: var(--c-amber); font-weight: 700; font-size: 0.9rem; transition: opacity 0.2s; }
+.journey-link:hover { opacity: 0.7; }
 
-.location-card-inner {
-  display: flex;
-  gap: var(--sp-3);
-  align-items: flex-start;
-}
+/* ============ LEARN ============ */
+.learn-section { background: var(--c-bg-2); }
+.learn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.learn-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: 2rem; transition: all 0.3s; }
+.learn-card:hover { border-color: var(--c-amber); transform: translateY(-4px); box-shadow: var(--sh-card); }
+.learn-icon { font-size: 2rem; display: block; margin-bottom: 1rem; }
+.learn-card h4 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.learn-card p { font-size: 0.9rem; color: var(--c-text-muted); }
 
-.location-pin {
-  color: var(--c-accent);
-  margin-top: 2px;
-}
+/* ============ SERVICES ============ */
+.services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.service-card { display: block; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: 2rem; transition: all 0.3s; position: relative; overflow: hidden; height: 100%; }
+.service-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, var(--c-red-glow), transparent 60%); opacity: 0; transition: opacity 0.3s; }
+.service-card:hover { border-color: var(--c-red); transform: translateY(-4px); box-shadow: var(--sh-card); }
+.service-card:hover::before { opacity: 0.5; }
+.service-icon { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: rgba(230, 57, 70, 0.15); border-radius: var(--r-md); color: var(--c-red-bright); margin-bottom: 1.5rem; transition: all 0.3s; }
+.service-card:hover .service-icon { background: var(--c-red); color: white; transform: scale(1.1); }
+.service-card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.service-card p { font-size: 0.9rem; color: var(--c-text-muted); margin-bottom: 1rem; }
+.service-duration { display: inline-block; font-size: 0.75rem; padding: 4px 12px; background: rgba(255,255,255,0.05); border-radius: 99px; color: var(--c-text-dim); }
 
-.location-card h4 {
-  font-size: var(--fs-base);
-  margin-bottom: 2px;
-}
+/* ============ LOCATIONS ============ */
+.locations-section { background: var(--c-bg-2); }
+.locations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+.location-card { display: flex; align-items: center; gap: 1rem; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-md); padding: 1.5rem; transition: all 0.3s; }
+.location-card:hover { border-color: var(--c-amber); transform: translateX(4px); }
+.location-pin { font-size: 1.2rem; }
+.location-card h4 { font-size: 1rem; margin-bottom: 2px; }
+.location-card p { font-size: 0.85rem; color: var(--c-text-muted); }
+.loc-zip { color: var(--c-text-dim) !important; font-size: 0.75rem !important; }
+.loc-arrow { margin-left: auto; color: var(--c-amber); opacity: 0; transform: translateX(-10px); transition: all 0.3s; }
+.location-card:hover .loc-arrow { opacity: 1; transform: translateX(0); }
 
-.location-card p {
-  font-size: var(--fs-sm);
-  color: var(--c-text-muted);
-}
+/* ============ LOCAL SEO ============ */
+.local-seo { background: var(--c-bg-2); border-top: 1px solid var(--c-border); }
+.seo-chips { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 800px; margin-inline: auto; }
+.seo-chips a { padding: 8px 16px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 99px; font-size: 0.85rem; color: var(--c-text-muted); transition: all 0.2s; }
+.seo-chips a:hover { background: rgba(255, 182, 39, 0.1); color: var(--c-amber); border-color: var(--c-amber); }
 
-.location-zip {
-  color: var(--c-text-dim) !important;
-  font-size: var(--fs-xs) !important;
-}
-
-.location-arrow {
-  color: var(--c-accent);
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all var(--t-base);
-}
-
-.location-card:hover .location-arrow {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* Process */
-.process-section {
-  background: var(--c-bg-elevated);
-  border-block: 1px solid var(--c-border);
-}
-
-.process-steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-6);
-  position: relative;
-}
-
-.process-steps::before {
-  content: '';
-  position: absolute;
-  top: 24px;
-  left: 12.5%;
-  right: 12.5%;
-  height: 2px;
-  background: repeating-linear-gradient(90deg, var(--c-accent) 0, var(--c-accent) 20px, transparent 20px, transparent 40px);
-  opacity: 0.2;
-}
-
-.process-step {
-  text-align: center;
-  position: relative;
-}
-
-.process-num {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--c-bg);
-  border: 2px solid var(--c-accent);
-  border-radius: var(--r-full);
-  font-family: var(--font-display);
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-extrabold);
-  color: var(--c-accent);
-  margin: 0 auto var(--sp-4);
-  position: relative;
-  z-index: 1;
-}
-
-.process-step h4 {
-  font-size: var(--fs-base);
-  margin-bottom: var(--sp-2);
-}
-
-.process-step p {
-  font-size: var(--fs-sm);
-  color: var(--c-text-muted);
-}
-
+/* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
-  .why-features {
-    grid-template-columns: 1fr;
-  }
-  .process-steps {
-    grid-template-columns: 1fr;
-    gap: var(--sp-8);
-  }
-  .process-steps::before {
-    display: none;
-  }
-}
-
-/* Trust Bar */
-.trust-bar {
-  padding-block: var(--sp-5);
-  border-bottom: 1px solid var(--c-border);
-  background: var(--c-bg-elevated);
-}
-
-.trust-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-6);
-  flex-wrap: wrap;
-}
-
-.trust-rating {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-}
-
-.trust-stars {
-  color: var(--c-accent);
-  font-size: var(--fs-lg);
-  letter-spacing: 2px;
-}
-
-.trust-rating-text {
-  font-size: var(--fs-sm);
-  color: var(--c-text-muted);
-}
-
-.trust-rating-text strong {
-  color: var(--c-text);
-}
-
-.trust-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.trust-num {
-  font-family: var(--font-display);
-  font-size: var(--fs-2xl);
-  font-weight: var(--fw-extrabold);
-  color: var(--c-accent);
-}
-
-.trust-label {
-  font-size: var(--fs-xs);
-  color: var(--c-text-muted);
-}
-
-.trust-divider {
-  width: 1px;
-  height: 36px;
-  background: var(--c-border-strong);
-}
-
-/* Car Showcase */
-.car-showcase {
-  overflow: hidden;
-}
-
-.car-showcase-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-10);
-  align-items: center;
-}
-
-.car-illustration-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.car-illustration-wrapper img {
-  width: 100%;
-  max-width: 600px;
-  height: auto;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));
-}
-
-.car-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  height: 60%;
-  background: radial-gradient(ellipse at center, var(--c-accent-dim), transparent 70%);
-  filter: blur(40px);
-  z-index: -1;
-}
-
-/* Local SEO Section */
-.local-seo-section {
-  background: var(--c-bg-elevated);
-  border-block: 1px solid var(--c-border);
-}
-
-.seo-location-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-3);
-  justify-content: center;
-  max-width: 800px;
-  margin-inline: auto;
-}
-
-.seo-location-chips a {
-  padding: var(--sp-2) var(--sp-4);
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-full);
-  font-size: var(--fs-sm);
-  color: var(--c-text-muted);
-  transition: all var(--t-fast);
-}
-
-.seo-location-chips a:hover {
-  background: var(--c-accent-dim);
-  color: var(--c-accent);
-  border-color: var(--c-accent);
-}
-
-.seo-more {
-  color: var(--c-accent) !important;
-  font-weight: var(--fw-semibold) !important;
-  background: transparent !important;
-  border: none !important;
-}
-
-@media (max-width: 768px) {
-  .car-showcase-grid {
-    grid-template-columns: 1fr;
-  }
-  .trust-content {
-    gap: var(--sp-4);
-  }
-  .trust-divider {
-    display: none;
-  }
+  .hero-stats { gap: 1.5rem; }
+  .stat-num { font-size: 2rem; }
+  .journey-step { flex-direction: column !important; gap: 1rem; }
+  .journey-line { left: 30px; }
+  .journey-marker { width: 50px; height: 50px; font-size: 1.2rem; }
+  .learn-grid { grid-template-columns: 1fr; }
+  .services-grid { grid-template-columns: 1fr; }
+  .locations-grid { grid-template-columns: 1fr; }
+  .scroll-hint { display: none; }
 }
 </style>

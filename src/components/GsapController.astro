@@ -1,0 +1,203 @@
+---
+// GSAP Scroll Controller — drives all scroll animations
+// Loaded once in BaseLayout, controls all [data-animate] elements
+---
+
+<script>
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+
+function initAnimations() {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (prefersReducedMotion) {
+    document.querySelectorAll('[data-animate]').forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+    });
+    return;
+  }
+
+  // --- 1. FADE-UP: Generic reveal ---
+  document.querySelectorAll('[data-animate="fade-up"]').forEach((el) => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 60 },
+      {
+        opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+      }
+    );
+  });
+
+  // --- 2. FADE-IN: Simple opacity ---
+  document.querySelectorAll('[data-animate="fade-in"]').forEach((el) => {
+    gsap.fromTo(el,
+      { opacity: 0 },
+      {
+        opacity: 1, duration: 1.2, ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+      }
+    );
+  });
+
+  // --- 3. SLIDE-LEFT / SLIDE-RIGHT ---
+  document.querySelectorAll('[data-animate="slide-left"]').forEach((el) => {
+    gsap.fromTo(el,
+      { opacity: 0, x: -80 },
+      {
+        opacity: 1, x: 0, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+      }
+    );
+  });
+
+  document.querySelectorAll('[data-animate="slide-right"]').forEach((el) => {
+    gsap.fromTo(el,
+      { opacity: 0, x: 80 },
+      {
+        opacity: 1, x: 0, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+      }
+    );
+  });
+
+  // --- 4. SCALE-IN: Scale up from small ---
+  document.querySelectorAll('[data-animate="scale-in"]').forEach((el) => {
+    gsap.fromTo(el,
+      { opacity: 0, scale: 0.85 },
+      {
+        opacity: 1, scale: 1, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+      }
+    );
+  });
+
+  // --- 5. STAGGER: Animate children sequentially ---
+  document.querySelectorAll('[data-animate="stagger"]').forEach((container) => {
+    const children = container.querySelectorAll('[data-stagger-item]');
+    gsap.fromTo(children,
+      { opacity: 0, y: 50 },
+      {
+        opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+        stagger: 0.12,
+        scrollTrigger: { trigger: container, start: 'top 80%', once: true },
+      }
+    );
+  });
+
+  // --- 6. PARALLAX: Background elements move at different speed ---
+  document.querySelectorAll('[data-parallax]').forEach((el) => {
+    const speed = parseFloat(el.dataset.parallax) || 0.3;
+    gsap.to(el, {
+      y: () => window.innerHeight * speed * -1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1,
+      },
+    });
+  });
+
+  // --- 7. PIN: Pin section while scrolling ---
+  document.querySelectorAll('[data-pin]').forEach((el) => {
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top top',
+      end: 'bottom top',
+      pin: true,
+      pinSpacing: false,
+    });
+  });
+
+  // --- 8. COUNTER: Animate numbers ---
+  document.querySelectorAll('[data-counter]').forEach((el) => {
+    const target = parseFloat(el.dataset.counter) || 0;
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      val: target,
+      duration: 2,
+      ease: 'power2.out',
+      scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+      onUpdate: () => {
+        el.textContent = Math.floor(obj.val).toLocaleString('de-CH');
+      },
+    });
+  });
+
+  // --- 9. HORIZONTAL SCROLL: Horizontal panels ---
+  document.querySelectorAll('[data-horizontal]').forEach((container) => {
+    const panels = container.querySelectorAll('[data-panel]');
+    if (panels.length === 0) return;
+
+    const totalWidth = container.scrollWidth - window.innerWidth;
+
+    gsap.to(container, {
+      x: -totalWidth,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: container.parentElement,
+        start: 'top top',
+        end: () => `+=${totalWidth}`,
+        scrub: 1,
+        pin: true,
+        invalidateOnRefresh: true,
+      },
+    });
+  });
+
+  // --- 10. TEXT REVEAL: Split text into lines and reveal ---
+  document.querySelectorAll('[data-animate="text-reveal"]').forEach((el) => {
+    const lines = el.querySelectorAll('[data-line]');
+    if (lines.length === 0) {
+      // Fallback: animate whole element
+      gsap.fromTo(el,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 85%', once: true } }
+      );
+      return;
+    }
+    gsap.fromTo(lines,
+      { opacity: 0, y: 40, rotateX: -20 },
+      { opacity: 1, y: 0, rotateX: 0, duration: 1, ease: 'power3.out',
+        stagger: 0.1,
+        scrollTrigger: { trigger: el, start: 'top 80%', once: true } }
+    );
+  });
+
+  // --- 11. PROGRESS BAR: Scroll progress indicator ---
+  const progressBar = document.querySelector('[data-scroll-progress]');
+  if (progressBar) {
+    gsap.to(progressBar, {
+      scaleX: 1,
+      ease: 'none',
+      scrollTrigger: {
+        start: 0,
+        end: 'max',
+        scrub: 0.3,
+      },
+    });
+  }
+
+  // Refresh on load
+  ScrollTrigger.refresh();
+}
+
+// Init
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAnimations);
+} else {
+  initAnimations();
+}
+
+// Refresh on resize
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 250);
+});
+</script>

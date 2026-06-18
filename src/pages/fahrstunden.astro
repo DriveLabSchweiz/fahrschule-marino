@@ -3,7 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import Hero from '@components/Hero.astro';
 import CTASection from '@components/CTASection.astro';
 import FAQ from '@components/FAQ.astro';
-import { company } from '@data/site';
+import { company, priceList, reviews } from '@data/site';
 
 const serviceSchema = {
   '@context': 'https://schema.org',
@@ -14,9 +14,29 @@ const serviceSchema = {
   description: 'Individuelle Fahrstunden für die Kategorie B – mit erfahrenem Fahrlehrer Antonio Marino.',
 };
 
+// Headline-Preise für den Preis-Teaser (keine Hardcodes — aus site.ts).
+const fl45 = priceList.find((p) => p.name === 'Fahrlektion 45 Min');
+const fl75 = priceList.find((p) => p.name === 'Fahrlektion 75 Min');
+const teaserPrices = [
+  {
+    name: fl45?.name ?? 'Fahrlektion 45 Min',
+    price: fl45?.price ?? '103',
+    meta: fl45?.duration ?? '45 Min',
+    note: 'Der flexible Einstieg',
+    popular: false,
+  },
+  {
+    name: fl75?.name ?? 'Fahrlektion 75 Min',
+    price: fl75?.price ?? '171.60',
+    meta: fl75?.duration ?? '75 Min',
+    note: 'Beliebteste Variante',
+    popular: true,
+  },
+];
+
 const faqItems = [
   { question: 'Wie viele Fahrstunden brauche ich?', answer: 'Im Durchschnitt 20-30 Fahrstunden. Antonio passt den Unterricht an dein individuelles Tempo an.' },
-  { question: 'Wie lange dauert eine Fahrstunde?', answer: 'Eine Standard-Fahrstunde dauert 60 Minuten. Auf Wunsch sind auch Doppelstunden (90 Minuten) möglich.' },
+  { question: 'Wie lange dauert eine Fahrstunde?', answer: 'Du wählst zwischen einer Lektion à 45 Minuten oder der beliebten 75-Minuten-Variante. Auch Intensivblöcke mit mehreren Lektionen am Stück sind möglich.' },
   { question: 'Werde ich abgeholt?', answer: `Ja! Du wirst an einem unserer Standorte oder einem vereinbarten Treffpunkt abgeholt. Ruf an: ${company.phone}.` },
   { question: 'In welcher Sprache wird unterrichtet?', answer: `Auf ${company.languages.join(', ')} – in der Sprache, die du verstehst.` },
 ];
@@ -32,8 +52,13 @@ const faqItems = [
     title="Fahrstunden, die"
     titleHighlight="Spass machen."
     subtitle="Individueller Unterricht mit Antonio Marino – vom ersten Mal Anfahren bis zur sicheren Prüfungsvorbereitung. Abgeholt, flexibel, in deiner Sprache."
+    image="/antonio-driving.jpeg"
+    imageAlt="Antonio Marino am Steuer seines modernen Fahrschulautos"
   />
 
+  <!-- ============================================================
+       INTRO + "WAS DU LERNST" — Methodik & Checkliste
+  ============================================================= -->
   <section class="section">
     <div class="container">
       <div class="content-grid">
@@ -48,9 +73,13 @@ const faqItems = [
           <p style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
             Wir beginnen mit den Grundlagen: Anfahren, Gangwechsel, sicheres Bremsen und Parkieren. Schritt für Schritt steigern wir die Anforderungen – von einfachen Strecken hin zu anspruchsvollen Fahrten durch Kreisverkehre, kurvige Landstrassen und innerstädtische Bereiche.
           </p>
-          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
+          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-6);">
             Besonderen Wert legen wir auf vorausschauendes Fahren, das richtige Verhalten an vielbefahrenen Kreuzungen und das Navigieren in verkehrsreichen Zonen. Denn das ist es, was dich im Alltag – und in der Prüfung – sicher macht.
           </p>
+          <div class="intro-actions">
+            <a href="/kontakt" class="btn btn-primary btn-magnetic">Erste Fahrstunde buchen</a>
+            <a href="/preise" class="btn btn-ghost">Preise ansehen</a>
+          </div>
         </div>
 
         <div class="content-sidebar reveal reveal-delay-1">
@@ -73,11 +102,137 @@ const faqItems = [
     </div>
   </section>
 
+  <!-- ============================================================
+       LERNMETHODIK — Ablauf einer Fahrstunde (kinetic timeline)
+  ============================================================= -->
+  <section class="section lesson-section">
+    <div class="lesson-bg" aria-hidden="true"></div>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow" data-anim="fade-up">Lernmethodik</p>
+          <h2 data-anim="fade-up" data-anim-delay="0.06" style="max-width: 540px;">
+            So läuft eine Fahrstunde<br>bei Antonio ab
+          </h2>
+        </div>
+        <a href="/fahrpruefung" class="section-head-link btn btn-ghost btn-magnetic" data-anim="fade-up" data-anim-delay="0.12">
+          Prüfungsvorbereitung
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <p class="text-muted lead" data-anim="fade-up" data-anim-delay="0.1">
+        Keine verlorene Minute: Jede Lektion folgt einem klaren Rhythmus – damit du in jeder Fahrstunde spürbar besser wirst.
+      </p>
+
+      <div class="lesson-steps">
+        <div class="lesson-line" aria-hidden="true"></div>
+        <div class="lesson-step" data-anim="fade-up">
+          <div class="lesson-num">1</div>
+          <h4>Kurzes Briefing</h4>
+          <p>Wir besprechen das Ziel der Lektion und knüpfen an das an, was du beim letzten Mal geübt hast.</p>
+        </div>
+        <div class="lesson-step" data-anim="fade-up" data-anim-delay="0.1">
+          <div class="lesson-num">2</div>
+          <h4>Üben in der Praxis</h4>
+          <p>Du fährst – ich begleite. Neue Manöver erst ruhig, dann im echten Verkehr, immer in deinem Tempo.</p>
+        </div>
+        <div class="lesson-step" data-anim="fade-up" data-anim-delay="0.2">
+          <div class="lesson-num">3</div>
+          <h4>Direktes Feedback</h4>
+          <p>Konkret und verständlich. Du erfährst genau, was schon sitzt und woran wir als Nächstes arbeiten.</p>
+        </div>
+        <div class="lesson-step" data-anim="fade-up" data-anim-delay="0.3">
+          <div class="lesson-num">4</div>
+          <h4>Plan für nächstes Mal</h4>
+          <p>Wir halten deinen Fortschritt fest und setzen dir ein klares Ziel für die kommende Fahrstunde.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       WARUM BEI ANTONIO — Trust-Strip + Fahrfoto
+  ============================================================= -->
+  <section class="section trust-section">
+    <div class="container">
+      <div class="trust-grid">
+        <!-- Foto -->
+        <figure class="trust-photo" data-anim="slide-right">
+          <img
+            src="/antonio-driving.jpeg"
+            alt="Antonio Marino am Steuer – Fahrstunde im modernen Fahrschulauto"
+            width="800"
+            height="600"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption class="trust-photo-badge glass-strong">
+            <span class="trust-photo-star" aria-hidden="true">★</span>
+            <span><strong>{reviews.ratingValue}</strong> / 5 · {reviews.reviewCount} Bewertungen</span>
+          </figcaption>
+        </figure>
+
+        <!-- Vorteile -->
+        <div class="trust-content">
+          <p class="eyebrow" data-anim="fade-up">Warum bei Antonio</p>
+          <h2 data-anim="fade-up" data-anim-delay="0.06" style="margin-bottom: var(--sp-4);">
+            Fahrstunden, bei denen du<br>wirklich vorankommst
+          </h2>
+          <p class="text-muted" data-anim="fade-up" data-anim-delay="0.12" style="margin-bottom: var(--sp-7); max-width: 52ch;">
+            Seit {company.established} bringt Antonio Fahrschülerinnen und Fahrschüler sicher zum Führerschein – persönlich, geduldig und ohne wechselnden Fahrlehrer.
+          </p>
+
+          <div class="trust-features">
+            <div class="trust-feature" data-anim="fade-up" data-anim-delay="0.04">
+              <div class="trust-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/><path d="M19 8v6M22 11h-6"/></svg>
+              </div>
+              <div>
+                <h4>Immer derselbe Fahrlehrer</h4>
+                <p>Du fährst von der ersten bis zur letzten Lektion mit Antonio – er kennt deinen Fortschritt.</p>
+              </div>
+            </div>
+            <div class="trust-feature" data-anim="fade-up" data-anim-delay="0.1">
+              <div class="trust-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div>
+                <h4>Flexible Zeiten</h4>
+                <p>Fahrstunden auch nach Feierabend und am Wochenende. Du bestimmst den Rhythmus.</p>
+              </div>
+            </div>
+            <div class="trust-feature" data-anim="fade-up" data-anim-delay="0.16">
+              <div class="trust-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+              </div>
+              <div>
+                <h4>Abholservice inklusive</h4>
+                <p>Ich hole dich an deinem Wunschort ab – im modernen, gepflegten Fahrzeug.</p>
+              </div>
+            </div>
+            <div class="trust-feature" data-anim="fade-up" data-anim-delay="0.22">
+              <div class="trust-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div>
+                <h4>Lokale Prüfungsrouten</h4>
+                <p>Wir üben dort, wo geprüft wird – und du gehst mit Routine in die Prüfung.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PROZESS — So laufen deine Fahrstunden ab (Gesamtweg)
+  ============================================================= -->
   <section class="section process-section">
     <div class="container">
-      <p class="eyebrow reveal">Ablauf</p>
-      <h2 class="reveal reveal-delay-1" style="text-align:center; margin-bottom: var(--sp-10);">
-        So laufen deine Fahrstunden ab
+      <p class="eyebrow process-eyebrow reveal">Ablauf</p>
+      <h2 class="process-title reveal reveal-delay-1">
+        Vom Kennenlernen bis zur Prüfung
       </h2>
       <div class="steps">
         <div class="step reveal">
@@ -104,17 +259,88 @@ const faqItems = [
     </div>
   </section>
 
+  <!-- ============================================================
+       PREIS-TEASER — Fahrlektion 45 / 75 Min → /preise
+  ============================================================= -->
+  <section class="section price-teaser">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow" data-anim="fade-up">Preise</p>
+          <h2 data-anim="fade-up" data-anim-delay="0.06" style="max-width: 520px;">
+            Faire Preise pro Lektion –<br>ohne versteckte Kosten
+          </h2>
+        </div>
+        <a href="/preise" class="section-head-link btn btn-ghost btn-magnetic" data-anim="fade-up" data-anim-delay="0.12">
+          Alle Preise &amp; Abos
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="price-cards">
+        {teaserPrices.map((p, i) => (
+          <div class={`price-card ${p.popular ? 'price-card-popular' : ''}`} data-anim="fade-up" data-anim-delay={(i * 0.08).toString()}>
+            {p.popular && <span class="price-badge">Empfohlen</span>}
+            <span class="price-card-name">{p.name}</span>
+            <span class="price-card-meta">{p.meta}</span>
+            <span class="price-card-value">
+              <span class="price-cur">CHF</span>
+              <span class="price-amount">{p.price}</span>
+            </span>
+            <span class="price-card-note">{p.note}</span>
+            <a href="/preise" class="price-card-link" aria-label={`${p.name} – Preisdetails ansehen`}>
+              Details
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        ))}
+      </div>
+      <p class="price-foot text-muted" data-anim="fade-in">
+        Lieber im Paket lernen? Abos &amp; Intensivkurse sparen bis zu CHF 572 →
+        <a href="/preise">alle Pakete ansehen</a>.
+      </p>
+    </div>
+  </section>
+
   <CTASection />
 
   <FAQ items={faqItems} title="Häufige Fragen zu Fahrstunden" />
 </BaseLayout>
 
 <style>
+/* ============================================================
+   Shared section header (title + Link)
+============================================================= */
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-3);
+}
+.section-head h2 { margin-bottom: 0; }
+.section-head-link { flex-shrink: 0; white-space: nowrap; }
+
+.lead {
+  font-size: var(--fs-lg);
+  margin-bottom: var(--sp-8);
+  max-width: 640px;
+}
+
+/* ============================================================
+   INTRO + SIDEBAR
+============================================================= */
 .content-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: var(--sp-10);
   align-items: start;
+}
+
+.intro-actions {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
 }
 
 .content-sidebar {
@@ -155,10 +381,204 @@ const faqItems = [
   flex-shrink: 0;
 }
 
+/* ============================================================
+   LERNMETHODIK — kinetic timeline
+============================================================= */
+.lesson-section {
+  position: relative;
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+  overflow: hidden;
+}
+
+.lesson-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 60% at 12% 18%, var(--c-accent-dim), transparent 70%),
+    radial-gradient(ellipse 55% 55% at 92% 88%, color-mix(in srgb, var(--c-teal) 16%, transparent), transparent 70%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.lesson-section > .container { position: relative; z-index: 1; }
+
+.lesson-steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-6);
+  margin-top: var(--sp-8);
+}
+
+.lesson-line {
+  position: absolute;
+  top: 28px;
+  left: 12.5%;
+  right: 12.5%;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--c-accent) 0, var(--c-accent) 14px, transparent 14px, transparent 30px);
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.lesson-step {
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+.lesson-num {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--sp-4);
+  background: var(--c-bg);
+  border: 2px solid var(--c-accent);
+  border-radius: var(--r-full);
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-accent);
+  box-shadow: 0 0 0 6px var(--c-bg-elevated), var(--sh-glow);
+  transition: transform var(--t-base), box-shadow var(--t-base);
+}
+
+.lesson-step:hover .lesson-num {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 0 0 6px var(--c-bg-elevated), var(--sh-glow-gold);
+}
+
+.lesson-step h4 {
+  font-size: var(--fs-lg);
+  margin-bottom: var(--sp-2);
+}
+
+.lesson-step p {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  max-width: 28ch;
+  margin-inline: auto;
+}
+
+/* ============================================================
+   WARUM BEI ANTONIO — Trust-Strip
+============================================================= */
+.trust-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(2.5rem, 5vw, 5rem);
+  align-items: center;
+}
+
+.trust-photo {
+  position: relative;
+  margin: 0;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  border: 1px solid var(--c-border-gold);
+  box-shadow: var(--sh-lg), 0 0 56px rgba(0, 112, 99, 0.22);
+}
+
+.trust-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  transition: transform var(--t-slow);
+}
+
+.trust-photo:hover img { transform: scale(1.05); }
+
+.trust-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 52%, rgba(11, 15, 14, 0.55) 100%);
+  pointer-events: none;
+}
+
+.trust-photo-badge {
+  position: absolute;
+  left: var(--sp-4);
+  bottom: var(--sp-4);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--c-border-gold);
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+  color: var(--c-text);
+}
+
+.trust-photo-badge strong {
+  color: var(--c-accent);
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+}
+
+.trust-photo-star { color: var(--c-accent-bright); }
+
+.trust-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-5) var(--sp-6);
+}
+
+.trust-feature {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: flex-start;
+}
+
+.trust-icon {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-accent-dim);
+  border: 1px solid var(--c-border-gold);
+  border-radius: var(--r-md);
+  color: var(--c-accent);
+  flex-shrink: 0;
+  transition: transform var(--t-base), box-shadow var(--t-base);
+}
+
+.trust-feature:hover .trust-icon {
+  transform: translateY(-3px);
+  box-shadow: var(--sh-glow);
+}
+
+.trust-feature h4 {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-1);
+}
+
+.trust-feature p {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-normal);
+}
+
+/* ============================================================
+   PROZESS (Gesamtweg)
+============================================================= */
 .process-section {
   background: var(--c-bg-elevated);
   border-block: 1px solid var(--c-border);
 }
+
+.process-eyebrow,
+.process-title { text-align: center; }
+.process-eyebrow { justify-content: center; }
+.process-title { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
 
 .steps {
   display: grid;
@@ -166,9 +586,7 @@ const faqItems = [
   gap: var(--sp-6);
 }
 
-.step {
-  text-align: center;
-}
+.step { text-align: center; }
 
 .step-num {
   width: 48px;
@@ -184,6 +602,12 @@ const faqItems = [
   font-weight: var(--fw-extrabold);
   color: var(--c-accent);
   margin: 0 auto var(--sp-4);
+  transition: transform var(--t-base), box-shadow var(--t-base);
+}
+
+.step:hover .step-num {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: var(--sh-glow-gold);
 }
 
 .step h4 {
@@ -196,15 +620,160 @@ const faqItems = [
   color: var(--c-text-muted);
 }
 
+/* ============================================================
+   PREIS-TEASER
+============================================================= */
+.price-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-5);
+  margin-top: var(--sp-8);
+  max-width: 720px;
+}
+
+.price-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-7) var(--sp-6) var(--sp-6);
+  transition: transform var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
+}
+
+.price-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--c-border-gold);
+  box-shadow: var(--sh-lg);
+}
+
+.price-card-popular {
+  border-color: var(--c-accent);
+  box-shadow: var(--sh-glow-gold);
+  background:
+    radial-gradient(circle at 50% 0%, var(--c-accent-dim), transparent 65%),
+    var(--grad-surface);
+}
+
+.price-card-popular:hover { border-color: var(--c-accent-bright); }
+
+.price-badge {
+  position: absolute;
+  top: calc(var(--sp-3) * -1);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--sp-1) var(--sp-3);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-bg);
+  background: var(--grad-accent);
+  border-radius: var(--r-full);
+  box-shadow: var(--sh-glow-gold);
+}
+
+.price-card-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--c-text);
+}
+
+.price-card-meta {
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+}
+
+.price-card-value {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  margin-bottom: var(--sp-1);
+}
+
+.price-cur {
+  font-family: var(--font-display);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--c-text-muted);
+}
+
+.price-amount {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: var(--fw-extrabold);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.price-card-note {
+  font-size: var(--fs-sm);
+  color: var(--c-accent);
+  font-weight: var(--fw-medium);
+}
+
+.price-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  margin-top: var(--sp-5);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-text-muted);
+  transition: color var(--t-fast), gap var(--t-fast);
+}
+
+.price-card-link svg { transition: transform var(--t-fast); }
+.price-card:hover .price-card-link { color: var(--c-accent); gap: var(--sp-2); }
+.price-card:hover .price-card-link svg { transform: translateX(2px); }
+
+.price-foot {
+  margin-top: var(--sp-6);
+  font-size: var(--fs-sm);
+}
+
+.price-foot a {
+  color: var(--c-accent);
+  font-weight: var(--fw-semibold);
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================= */
+@media (max-width: 960px) {
+  .trust-grid { grid-template-columns: 1fr; }
+  .trust-photo { max-width: 520px; margin-inline: auto; }
+}
+
 @media (max-width: 768px) {
-  .content-grid {
-    grid-template-columns: 1fr;
+  .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-4);
   }
-  .content-sidebar {
-    position: static;
-  }
-  .steps {
-    grid-template-columns: 1fr;
-  }
+  .content-grid { grid-template-columns: 1fr; }
+  .content-sidebar { position: static; }
+  .lesson-steps { grid-template-columns: 1fr; gap: var(--sp-8); }
+  .lesson-line { display: none; }
+  .trust-features { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .price-cards { grid-template-columns: 1fr; max-width: 100%; }
+}
+
+/* ============================================================
+   REDUCED MOTION
+============================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .trust-photo:hover img { transform: none; }
 }
 </style>

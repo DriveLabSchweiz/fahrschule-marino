@@ -2,8 +2,38 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Hero from '@components/Hero.astro';
 import CTASection from '@components/CTASection.astro';
-import { allLocations, physicalLocations, company } from '@data/site';
+import {
+  allLocations,
+  physicalLocations,
+  extendedLocations,
+  company,
+} from '@data/site';
 
+// ── Akzent-Rotation (Gold → Teal → Rot) für Tiefe in den Standort-Karten ──
+const accents = ['gold', 'teal', 'red'] as const;
+
+// ── Kanton-Namen ausschreiben (für Gruppierung & Untertitel) ──
+const cantonNames: Record<string, string> = {
+  SZ: 'Schwyz',
+  SG: 'St. Gallen',
+  GL: 'Glarus',
+  ZH: 'Zürich',
+};
+
+// ── Erweiterte Standorte nach Kanton gruppieren (für die Chip-Sektion) ──
+const cantonOrder = ['SZ', 'SG', 'GL', 'ZH'];
+const extendedByCanton = cantonOrder
+  .map((canton) => ({
+    canton,
+    name: cantonNames[canton] ?? canton,
+    locations: extendedLocations.filter((l) => l.canton === canton),
+  }))
+  .filter((g) => g.locations.length > 0);
+
+// Anzahl Kantone (für Counter) — distinct über alle Standorte
+const cantonCount = new Set(allLocations.map((l) => l.canton)).size;
+
+// ── JSON-LD ──────────────────────────────────────────────────────────────────
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -12,59 +42,775 @@ const breadcrumbSchema = {
     { '@type': 'ListItem', position: 2, name: 'Standorte', item: `${company.url}/standorte` },
   ],
 };
+
+// ItemList aller Standorte (Haupt- + erweiterte) für Rich Results
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Standorte der Fahrschule Antonio Marino',
+  itemListElement: allLocations.map((loc, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: `Fahrschule ${loc.name}`,
+    url: `${company.url}/fahrschule-${loc.slug}`,
+  })),
+};
+
+// Place-Schema je Hauptstandort (mit echter Adresse aus site.ts)
+const placeSchemas = physicalLocations.map((loc) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Place',
+  name: `Fahrschule Antonio Marino – ${loc.name}`,
+  url: `${company.url}/fahrschule-${loc.slug}`,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: loc.address.street,
+    postalCode: loc.address.zip,
+    addressLocality: loc.address.city,
+    addressRegion: loc.canton,
+    addressCountry: 'CH',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: loc.geo.lat,
+    longitude: loc.geo.lng,
+  },
+}));
 ---
 
 <BaseLayout
   title="Standorte | Fahrschule Antonio Marino"
-  description="Alle Standorte der Fahrschule Antonio Marino: Lachen, Buttikon, Ziegelbrücke, Zürich, Uznach, Rapperswil-Jona und viele weitere Orte in der Region."
-  schema={breadcrumbSchema}
+  description="Alle Standorte der Fahrschule Antonio Marino: Lachen, Buttikon, Ziegelbrücke, Zürich, Uznach, Rapperswil-Jona und über 20 weitere Orte in den Kantonen SZ, SG, GL & ZH – mit Abholservice in der ganzen Region."
+  schema={[breadcrumbSchema, itemListSchema, ...placeSchemas]}
 >
-  <Hero eyebrow="Standorte" title="Wo wir" titleHighlight="unterrichten." subtitle="6 Hauptstandorte und über 20 weitere Orte in der Region. Finde deine Fahrschule um die Ecke." backgroundVariant="minimal" />
+  <Hero
+    eyebrow="Standorte"
+    title="Wo wir"
+    titleHighlight="unterrichten."
+    subtitle="6 Hauptstandorte mit fester Adresse und über 20 weitere Orte in den Kantonen Schwyz, St. Gallen, Glarus und Zürich. Finde deine Fahrschule um die Ecke – oder lass dich abholen."
+    backgroundVariant="minimal"
+    showCTA={false}
+  />
 
-  <section class="section">
+  <!-- ══ STATS-STREIFEN ══════════════════════════════════════════════ -->
+  <section class="stats-strip" aria-label="Standorte auf einen Blick">
     <div class="container">
-      <p class="eyebrow reveal">Hauptstandorte</p>
-      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-8);">Mit Adresse bei dir vor Ort</h2>
-      <div class="loc-grid">
-        {physicalLocations.map((loc, i) => (
-          <a href={`/fahrschule-${loc.slug}`} class="loc-card reveal" style={`transition-delay: ${i * 0.05}s`}>
-            <span class="loc-pin">📍</span>
-            <div>
-              <h4>{loc.name}</h4>
-              <p>{loc.address.street}</p>
-              <p class="loc-zip">{loc.address.zip} {loc.address.city}</p>
-            </div>
-            <span class="loc-arrow">→</span>
-          </a>
-        ))}
+      <ul class="stats-row" role="list">
+        <li class="stat" data-anim="fade-up">
+          <span class="stat-num" data-count={physicalLocations.length}>{physicalLocations.length}</span>
+          <span class="stat-label">Hauptstandorte</span>
+        </li>
+        <li class="stat" data-anim="fade-up" data-anim-delay="0.08">
+          <span class="stat-num" data-count={cantonCount}>{cantonCount}</span>
+          <span class="stat-label">Kantone</span>
+        </li>
+        <li class="stat" data-anim="fade-up" data-anim-delay="0.16">
+          <span class="stat-num" data-count={allLocations.length} data-count-suffix="+">{allLocations.length}+</span>
+          <span class="stat-label">Bediente Orte</span>
+        </li>
+        <li class="stat" data-anim="fade-up" data-anim-delay="0.24">
+          <span class="stat-num stat-num-word">Abholservice</span>
+          <span class="stat-label">in der ganzen Region</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ HAUPTSTANDORTE ══════════════════════════════════════════════ -->
+  <section class="section main-loc-section" aria-labelledby="main-loc-heading">
+    <div class="loc-bg" aria-hidden="true"></div>
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow" data-anim="fade-up">Hauptstandorte</p>
+        <h2 id="main-loc-heading" data-anim="fade-up" data-anim-delay="0.08">
+          Mit fester Adresse bei dir vor Ort
+        </h2>
+        <p class="section-lead" data-anim="fade-up" data-anim-delay="0.16">
+          An diesen sechs Orten triffst du Antonio direkt – tippe auf einen Standort
+          für alle Details, Prüfungsrouten und die nächste Probelektion.
+        </p>
       </div>
 
-      <p class="eyebrow reveal" style="margin-top: var(--sp-12);">Erweiterte Standorte</p>
-      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-8);">Mit Abholservice erreichbar</h2>
-      <div class="loc-chips">
-        {allLocations.filter(l => l.tier === 2).map((loc, i) => (
-          <a href={`/fahrschule-${loc.slug}`} class="loc-chip reveal" style={`transition-delay: ${i * 0.03}s`}>
-            {loc.name}
-          </a>
-        ))}
+      <ul class="main-loc-grid" role="list">
+        {physicalLocations.map((loc, i) => {
+          const accent = accents[i % accents.length];
+          const num = String(i + 1).padStart(2, '0');
+          return (
+            <li
+              class="loc-card"
+              data-accent={accent}
+              data-anim="fade-up"
+              data-anim-delay={(0.06 * i).toFixed(2)}
+            >
+              <a
+                href={`/fahrschule-${loc.slug}`}
+                class="loc-link"
+                aria-label={`Fahrschule ${loc.name} – Standort ansehen`}
+              >
+                <span class="loc-index" aria-hidden="true">{num}</span>
+                <span class="loc-canton" aria-hidden="true">{loc.canton}</span>
+
+                <span class="loc-pin" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                </span>
+
+                <h3 class="loc-name">{loc.name}</h3>
+                <p class="loc-street">{loc.address.street}</p>
+                <p class="loc-zip">{loc.address.zip} {loc.address.city} · Kanton {cantonNames[loc.canton] ?? loc.canton}</p>
+
+                <span class="loc-more">
+                  Standort ansehen
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ ABHOLSERVICE-BAND (Foto + Note) ═════════════════════════════ -->
+  <section class="section pickup-section" aria-labelledby="pickup-heading">
+    <div class="container">
+      <div class="pickup-inner">
+        <figure class="pickup-media" data-anim="slide-right">
+          <img
+            src="/antonio-hero-alt.jpeg"
+            alt="Antonio Marino mit seinem modernen, gepflegten Fahrschulauto in der Region"
+            width="800"
+            height="600"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="pickup-media-shine" aria-hidden="true"></span>
+          <figcaption class="pickup-badge glass-strong">
+            <span class="pickup-badge-dot" aria-hidden="true"></span>
+            Abholung an deinem Wunschort
+          </figcaption>
+        </figure>
+
+        <div class="pickup-copy">
+          <p class="eyebrow" data-anim="fade-up">Abholservice</p>
+          <h2 id="pickup-heading" data-anim="fade-up" data-anim-delay="0.08">
+            Wir kommen zu dir –<br>in der ganzen Region
+          </h2>
+          <p class="pickup-lead" data-anim="fade-up" data-anim-delay="0.16">
+            Auch ohne festen Standort vor der Haustür bist du dabei: Antonio holt dich
+            zu Hause, beim Bahnhof oder am Arbeitsplatz ab – an einem unserer
+            Standorte oder an einem vereinbarten Treffpunkt. Flexibel nach Feierabend
+            und am Wochenende.
+          </p>
+
+          <ul class="pickup-points" role="list">
+            <li class="pickup-point" data-anim="fade-up" data-anim-delay="0.04">
+              <span class="pp-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              <span><strong>Treffpunkt frei wählbar</strong> – zu Hause, am Bahnhof oder bei der Arbeit.</span>
+            </li>
+            <li class="pickup-point" data-anim="fade-up" data-anim-delay="0.10">
+              <span class="pp-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              <span><strong>Modernes, gepflegtes Fahrzeug</strong> – komfortabel und sicher.</span>
+            </li>
+            <li class="pickup-point" data-anim="fade-up" data-anim-delay="0.16">
+              <span class="pp-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              <span><strong>In {company.languages.length} Sprachen</strong> – DE · EN · IT · FR · ES.</span>
+            </li>
+          </ul>
+
+          <div class="pickup-actions" data-anim="fade-up" data-anim-delay="0.22">
+            <a href="/kontakt" class="btn btn-primary btn-lg btn-magnetic">
+              Treffpunkt vereinbaren
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="/preise" class="btn btn-ghost btn-lg">
+              Preise ansehen
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <CTASection title="Dein Ort nicht dabei?" subtitle="Wir kommen zu dir! Ruf an und wir vereinbaren einen Abholservice an deinem Wunschort." />
+  <!-- ══ ERWEITERTE STANDORTE (Chips, nach Kanton) ═══════════════════ -->
+  <section class="section ext-section" aria-labelledby="ext-heading">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow" data-anim="fade-up">Erweiterte Region</p>
+        <h2 id="ext-heading" data-anim="fade-up" data-anim-delay="0.08">
+          Über {extendedLocations.length} weitere Orte mit Abholservice
+        </h2>
+        <p class="section-lead" data-anim="fade-up" data-anim-delay="0.16">
+          Kein eigener Standort, aber genauso nah dran: In all diesen Orten holen
+          wir dich ab. Tippe auf deinen Ort für die passende Fahrschul-Seite.
+        </p>
+      </div>
+
+      <div class="ext-cantons">
+        {extendedByCanton.map((group, gi) => (
+          <div class="ext-canton" data-anim="fade-up" data-anim-delay={(0.06 * gi).toFixed(2)}>
+            <h3 class="ext-canton-title">
+              <span class="ext-canton-badge" aria-hidden="true">{group.canton}</span>
+              Kanton {group.name}
+              <span class="ext-canton-count">{group.locations.length} Orte</span>
+            </h3>
+            <ul class="loc-chips" role="list">
+              {group.locations.map((loc) => (
+                <li>
+                  <a href={`/fahrschule-${loc.slug}`} class="loc-chip">
+                    <span class="chip-pin" aria-hidden="true">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </span>
+                    {loc.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <!-- Endlos-Laufband aller Orte für extra Kinetik -->
+      <div class="loc-marquee" aria-hidden="true">
+        <div class="marquee-track">
+          {allLocations.map((loc) => (
+            <span class="marquee-item">{loc.nameShort}<span class="marquee-dot">◆</span></span>
+          ))}
+          {allLocations.map((loc) => (
+            <span class="marquee-item">{loc.nameShort}<span class="marquee-dot">◆</span></span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    title="Dein Ort nicht dabei?"
+    subtitle="Kein Problem – wir kommen zu dir! Ruf an oder schreib uns und wir vereinbaren einen Abholservice an deinem Wunschort."
+  />
 </BaseLayout>
 
 <style>
-.loc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--sp-4); }
-.loc-card { display: flex; align-items: center; gap: var(--sp-4); background: var(--grad-surface); border: 1px solid var(--c-border); border-radius: var(--r-md); padding: var(--sp-5); transition: all var(--t-base); }
-.loc-card:hover { border-color: var(--c-accent-dim); transform: translateX(4px); }
-.loc-pin { font-size: var(--fs-xl); }
-.loc-card h4 { font-size: var(--fs-base); margin-bottom: 2px; }
-.loc-card p { font-size: var(--fs-sm); color: var(--c-text-muted); }
-.loc-zip { color: var(--c-text-dim) !important; font-size: var(--fs-xs) !important; }
-.loc-arrow { margin-left: auto; color: var(--c-accent); opacity: 0; transform: translateX(-10px); transition: all var(--t-base); }
-.loc-card:hover .loc-arrow { opacity: 1; transform: translateX(0); }
-.loc-chips { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
-.loc-chip { padding: var(--sp-2) var(--sp-4); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-full); font-size: var(--fs-sm); color: var(--c-text-muted); transition: all var(--t-fast); }
-.loc-chip:hover { background: var(--c-accent-dim); color: var(--c-accent); border-color: var(--c-accent); }
+/* ── Abschnitts-Kopf (zentriert) ───────────────────────────────────── */
+.section-head {
+  max-width: 720px;
+  margin: 0 auto var(--sp-12);
+  text-align: center;
+}
+.section-head .eyebrow { justify-content: center; }
+.section-head h2 { margin-bottom: var(--sp-4); }
+.section-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+/* ── Stats-Streifen ────────────────────────────────────────────────── */
+.stats-strip {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+  padding-block: clamp(1.75rem, 4vw, 2.75rem);
+  overflow: hidden;
+}
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-4);
+  text-align: center;
+}
+.stat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-1);
+}
+.stat::after {
+  content: '';
+  position: absolute;
+  top: 12%;
+  right: calc(var(--sp-2) * -1);
+  height: 72%;
+  width: 1px;
+  background: var(--c-border-strong);
+}
+.stat:last-child::after { display: none; }
+.stat-num {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-weight: var(--fw-extrabold);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--c-accent);
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.stat-num-word {
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+}
+.stat-label {
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Hauptstandorte ────────────────────────────────────────────────── */
+.main-loc-section {
+  position: relative;
+  overflow: hidden;
+}
+.loc-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 45% at 12% 18%, var(--c-accent-dim), transparent 70%),
+    radial-gradient(ellipse 50% 55% at 92% 88%, color-mix(in srgb, var(--c-teal) 16%, transparent), transparent 70%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+.main-loc-section .container { position: relative; }
+
+.main-loc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-5);
+}
+.loc-card { height: 100%; }
+
+.loc-link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--sp-7) var(--sp-6) var(--sp-6);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
+}
+/* Akzent-Top-Lineal + Glow */
+.loc-link::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--loc-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-base);
+  z-index: 2;
+}
+.loc-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 85% 0%, var(--loc-glow), transparent 60%);
+  opacity: 0;
+  transition: opacity var(--t-base);
+  pointer-events: none;
+  z-index: 0;
+}
+.loc-link:hover,
+.loc-link:focus-visible {
+  transform: translateY(-6px);
+  border-color: var(--loc-border);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--loc-border);
+}
+.loc-link:hover::before,
+.loc-link:focus-visible::before { transform: scaleX(1); }
+.loc-link:hover::after,
+.loc-link:focus-visible::after { opacity: 1; }
+.loc-link:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 3px;
+}
+
+/* Akzent-Varianten (Tokens) */
+.loc-card[data-accent='gold'] {
+  --loc-accent: var(--c-accent);
+  --loc-glow: var(--c-accent-dim);
+  --loc-border: var(--c-border-gold);
+  --loc-icon: var(--c-accent);
+}
+.loc-card[data-accent='teal'] {
+  --loc-accent: var(--c-teal-bright);
+  --loc-glow: rgba(0, 168, 146, 0.16);
+  --loc-border: rgba(0, 168, 146, 0.30);
+  --loc-icon: var(--c-teal-bright);
+}
+.loc-card[data-accent='red'] {
+  --loc-accent: var(--c-cta);
+  --loc-glow: rgba(225, 29, 42, 0.14);
+  --loc-border: rgba(225, 29, 42, 0.30);
+  --loc-icon: var(--c-cta-hover);
+}
+
+.loc-index {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-5);
+  font-family: var(--font-display);
+  font-size: var(--fs-5xl);
+  font-weight: var(--fw-extrabold);
+  line-height: 1;
+  color: var(--loc-accent);
+  opacity: 0.12;
+  z-index: 1;
+  transition: opacity var(--t-base), transform var(--t-base);
+}
+.loc-link:hover .loc-index,
+.loc-link:focus-visible .loc-index {
+  opacity: 0.22;
+  transform: translateY(-2px);
+}
+
+.loc-canton {
+  position: absolute;
+  top: var(--sp-5);
+  left: var(--sp-6);
+  z-index: 1;
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+  color: var(--loc-icon);
+  padding: 2px var(--sp-2);
+  border: 1px solid var(--loc-border);
+  border-radius: var(--r-full);
+  background: color-mix(in srgb, var(--loc-accent) 10%, transparent);
+}
+
+.loc-pin {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-top: var(--sp-7);
+  margin-bottom: var(--sp-5);
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--loc-accent) 14%, transparent);
+  color: var(--loc-icon);
+  transition: transform var(--t-base), background var(--t-base), color var(--t-base);
+}
+.loc-link:hover .loc-pin,
+.loc-link:focus-visible .loc-pin {
+  transform: scale(1.08) rotate(-3deg);
+  background: var(--loc-accent);
+  color: var(--c-bg);
+}
+
+.loc-name {
+  position: relative;
+  z-index: 1;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-1);
+}
+.loc-street {
+  position: relative;
+  z-index: 1;
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+.loc-zip {
+  position: relative;
+  z-index: 1;
+  font-size: var(--fs-xs);
+  color: var(--c-text-dim);
+  margin-bottom: var(--sp-5);
+}
+.loc-more {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--c-border);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--loc-accent);
+}
+.loc-more svg { transition: transform var(--t-base); }
+.loc-link:hover .loc-more svg,
+.loc-link:focus-visible .loc-more svg { transform: translateX(4px); }
+
+/* ── Abholservice-Band ─────────────────────────────────────────────── */
+.pickup-section {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+}
+.pickup-inner {
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  gap: clamp(2.5rem, 5vw, 5rem);
+  align-items: center;
+}
+.pickup-media {
+  position: relative;
+  margin: 0;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  border: 1px solid var(--c-border-gold);
+  background: var(--c-surface);
+  box-shadow: var(--sh-lg), 0 0 56px rgba(0, 112, 99, 0.22);
+}
+.pickup-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.pickup-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 52%, rgba(11, 15, 14, 0.55) 100%);
+  pointer-events: none;
+}
+.pickup-media-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 174, 53, 0.18) 50%, transparent 58%);
+  transform: translateX(-100%);
+  animation: pickupShine 6s ease-in-out 1.4s infinite;
+  pointer-events: none;
+}
+@keyframes pickupShine {
+  0%, 45%  { transform: translateX(-100%); }
+  70%, 100% { transform: translateX(100%); }
+}
+.pickup-badge {
+  position: absolute;
+  left: var(--sp-4);
+  bottom: var(--sp-4);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--r-full);
+  border: 1px solid var(--c-border-gold);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-text);
+}
+.pickup-badge-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--r-full);
+  background: var(--c-teal-bright);
+  box-shadow: 0 0 0 0 rgba(0, 168, 146, 0.6);
+  animation: pickupPulse 2.2s ease-out infinite;
+}
+@keyframes pickupPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(0, 168, 146, 0.5); }
+  70%  { box-shadow: 0 0 0 9px rgba(0, 168, 146, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 168, 146, 0); }
+}
+
+.pickup-copy h2 { margin-bottom: var(--sp-4); }
+.pickup-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-6);
+  max-width: 56ch;
+}
+.pickup-points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-7);
+}
+.pickup-point {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  font-size: var(--fs-base);
+  color: var(--c-text-muted);
+  line-height: var(--lh-normal);
+}
+.pickup-point strong { color: var(--c-text); }
+.pp-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-full);
+  background: var(--c-accent-dim);
+  border: 1px solid var(--c-border-gold);
+  color: var(--c-accent);
+}
+.pickup-actions {
+  display: flex;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+/* ── Erweiterte Standorte (Chips nach Kanton) ──────────────────────── */
+.ext-cantons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-6);
+}
+.ext-canton {
+  padding: var(--sp-6);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  transition: border-color var(--t-base);
+}
+.ext-canton:hover { border-color: var(--c-accent-dim); }
+.ext-canton-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-5);
+}
+.ext-canton-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 28px;
+  padding: 0 var(--sp-2);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: 0.04em;
+  color: var(--c-bg);
+  background: var(--grad-accent);
+  border-radius: var(--r-sm);
+  box-shadow: var(--sh-glow-gold);
+}
+.ext-canton-count {
+  margin-left: auto;
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-text-dim);
+}
+.loc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.loc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
+}
+.chip-pin {
+  display: inline-flex;
+  color: var(--c-text-dim);
+  transition: color var(--t-fast);
+}
+.loc-chip:hover,
+.loc-chip:focus-visible {
+  background: var(--c-accent-dim);
+  color: var(--c-accent);
+  border-color: var(--c-accent);
+  transform: translateY(-2px);
+}
+.loc-chip:hover .chip-pin,
+.loc-chip:focus-visible .chip-pin { color: var(--c-accent); }
+.loc-chip:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+/* ── Endlos-Laufband aller Orte ────────────────────────────────────── */
+.loc-marquee {
+  position: relative;
+  width: 100%;
+  margin-top: var(--sp-10);
+  padding-block: var(--sp-3);
+  border-block: 1px solid var(--c-border);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-6);
+  white-space: nowrap;
+  will-change: transform;
+  animation: locMarquee 48s linear infinite;
+}
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-6);
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-base);
+  letter-spacing: -0.01em;
+  color: var(--c-text-muted);
+}
+.marquee-dot {
+  color: var(--c-accent);
+  font-size: 0.5em;
+  transform: translateY(-1px);
+}
+@keyframes locMarquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .main-loc-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .pickup-inner { grid-template-columns: 1fr; gap: var(--sp-8); }
+  .pickup-media { max-width: 520px; margin-inline: auto; }
+  .ext-cantons { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); gap: var(--sp-6) var(--sp-4); }
+  .stat:nth-child(2)::after { display: none; }
+}
+@media (max-width: 600px) {
+  .main-loc-grid { grid-template-columns: 1fr; }
+  .pickup-actions { flex-direction: column; }
+  .pickup-actions .btn { width: 100%; }
+}
+
+/* ── Reduced Motion ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; transform: none; }
+  .pickup-media-shine { animation: none; }
+  .pickup-badge-dot { animation: none; }
+}
 </style>

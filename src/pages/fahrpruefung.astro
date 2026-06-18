@@ -2,43 +2,498 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Hero from '@components/Hero.astro';
 import CTASection from '@components/CTASection.astro';
-import { company } from '@data/site';
+import { company, reviews } from '@data/site';
+
+const phoneLink = company.phone.replace(/\s/g, '');
+
+// ── Ablauf: vom Stand heute bis zur bestandenen Prüfung ──────────────────────
+const steps = [
+  {
+    title: 'Standort­bestimmung',
+    text: 'Eine Probelektion auf einer echten Prüfungsroute zeigt, wo du stehst – ehrlich und ohne Druck. Du weisst danach genau, was noch fehlt.',
+  },
+  {
+    title: 'Gezieltes Routen­training',
+    text: 'Wir fahren die typischen Prüfungsstrecken deiner Region mehrmals ab – Kreisel, Spuren­wechsel, Vortritts­situationen, bis jeder Handgriff sitzt.',
+  },
+  {
+    title: 'Prüfungs­simulation',
+    text: 'Eine komplette Prüfung unter echten Bedingungen: 45 Minuten, stiller Beobachter, danach ein klares Feedback zu jedem Punkt.',
+  },
+  {
+    title: 'Prüfungstag',
+    text: 'Ausgeruht, vorbereitet und mit Routine im Gepäck. Auf Wunsch holen wir dich ab und fahren dich gemeinsam zur Prüfungs­stelle.',
+  },
+];
+
+// ── Häufige Prüfungsmängel – und wie wir sie vermeiden ───────────────────────
+const errors = [
+  {
+    title: 'Unzureichender Schulterblick',
+    text: 'Wir üben den Schulterblick, bis er zur zweiten Natur wird – bei jedem Spurwechsel und Abbiegen.',
+  },
+  {
+    title: 'Falsches Abstands­gefühl',
+    text: 'Zu knapp oder zu weit? Wir trainieren den richtigen Abstand bei allen Geschwindigkeiten.',
+  },
+  {
+    title: 'Übersehene Vortritts­schilder',
+    text: 'Wir fahren die Prüfungsrouten mehrmals, bis du jede Vortrittsregel sicher beherrschst.',
+  },
+  {
+    title: 'Unsicheres Anfahren am Berg',
+    text: 'An echten Steigungen in der Region üben wir das Berganfahren, bis es absolut zuverlässig klappt.',
+  },
+];
+
+// ── Voraussetzungen / was du mitbringst ──────────────────────────────────────
+const requirements = [
+  'Gültiger Lernfahrausweis (Kategorie B)',
+  'Absolvierter VKU (Verkehrskunde­unterricht)',
+  'Ausreichend Fahrpraxis – wir prüfen das ehrlich in der ersten Lektion',
+  'Ein angemeldeter Prüfungstermin (oder wir besprechen den Zeitpunkt)',
+];
+
+// ── JSON-LD ──────────────────────────────────────────────────────────────────
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Prüfungsvorbereitung – praktische Fahrprüfung',
+  serviceType: 'Prüfungsvorbereitung Fahrprüfung',
+  description:
+    'Gezielte Vorbereitung auf die praktische Fahrprüfung mit Antonio Marino: lokale Routenkenntnis, Prüfungssimulation und individuelles Feedback in der Region Lachen, Zürich, Rapperswil und Umgebung.',
+  provider: { '@id': `${company.url}/#organization` },
+  areaServed: { '@type': 'Country', name: 'Schweiz' },
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'CHF',
+    availability: 'https://schema.org/InStock',
+    url: `${company.url}/kontakt`,
+  },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: reviews.ratingValue,
+    reviewCount: reviews.reviewCount,
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: company.url },
+    { '@type': 'ListItem', position: 2, name: 'Leistungen', item: `${company.url}/leistungen` },
+    { '@type': 'ListItem', position: 3, name: 'Prüfungsvorbereitung', item: `${company.url}/fahrpruefung` },
+  ],
+};
 ---
 
 <BaseLayout
   title="Prüfungsvorbereitung | Antonio Marino"
   description="Gezielte Vorbereitung auf die praktische Fahrprüfung mit Antonio Marino. Wir kennen die Prüfungsrouten in Lachen, Zürich, Rapperswil und der ganzen Region."
+  schema={[serviceSchema, breadcrumbSchema]}
 >
-  <Hero eyebrow="Prüfungsvorbereitung" title="Besteh die Prüfung." titleHighlight="Beim ersten Mal." subtitle="Gezielte Vorbereitung auf die praktische Fahrprüfung – mit lokaler Routenkenntnis und echtem Prüfungssimulation." backgroundVariant="minimal" />
+  <Hero
+    eyebrow="Prüfungsvorbereitung"
+    title="Besteh die Prüfung."
+    titleHighlight="Beim ersten Mal."
+    subtitle="Gezielte Vorbereitung auf die praktische Fahrprüfung – mit lokaler Routenkenntnis, echter Prüfungssimulation und dem Feedback, das dich sicher macht."
+    image="/antonio-driving.jpeg"
+    imageAlt="Antonio Marino am Steuer seines Fahrschulautos – konzentriert auf der Prüfungsroute"
+    showCTA={false}
+  />
 
-  <section class="section">
-    <div class="container container-narrow">
-      <p class="eyebrow reveal">Prüfungsvorbereitung</p>
-      <h2 class="reveal reveal-delay-1" style="margin-bottom: var(--sp-6);">Sicher zur bestandenen Prüfung</h2>
-      <p class="reveal reveal-delay-2" style="font-size: var(--fs-lg); margin-bottom: var(--sp-5); line-height: var(--lh-relaxed);">
-        Die praktische Fahrprüfung ist der letzte Schritt zum Führerschein. Wir bereiten dich gezielt vor – mit echten Prüfungsrouten, typischen Prüfungssituationen und dem Feedback, das du brauchst, um beim ersten Mal zu bestehen.
-      </p>
-
-      <div class="error-grid reveal reveal-delay-3">
-        <h3 style="margin-bottom: var(--sp-4);">Häufige Prüfungsmängel – und wie wir sie vermeiden</h3>
-        <div class="error-list">
-          <div class="error-item"><span class="error-icon">❌</span><div><strong>Unzureichender Schulterblick</strong><p>Wir üben den Schulterblick bis er zur zweiten Natur wird.</p></div></div>
-          <div class="error-item"><span class="error-icon">❌</span><div><strong>Zu knappes oder zu weites Abstandhalten</strong><p>Wir trainieren das richtige Abstandsgefühl bei allen Geschwindigkeiten.</p></div></div>
-          <div class="error-item"><span class="error-icon">❌</span><div><strong>Übersehen von Vortrittsschildern</strong><p>Wir fahren die Prüfungsrouten mehrmals, bis du jede Vortrittsregel beherrschst.</p></div></div>
-          <div class="error-item"><span class="error-icon">❌</span><div><strong>Unsicheres Anfahren am Berg</strong><p>Wir üben das Berganfahren an echten Steigungen in der Region.</p></div></div>
+  <!-- ══ INTRO ══════════════════════════════════════════════════════════ -->
+  <section class="section intro-section" aria-labelledby="intro-heading">
+    <div class="container">
+      <div class="intro-grid">
+        <div class="intro-copy">
+          <p class="eyebrow" data-anim="fade-up">Der letzte Schritt</p>
+          <h2 id="intro-heading" data-anim="fade-up" data-anim-delay="0.08">
+            Sicher zur bestandenen Prüfung
+          </h2>
+          <p class="intro-lead" data-anim="fade-up" data-anim-delay="0.16">
+            Die praktische Fahrprüfung ist der letzte Schritt zum Führerschein – und
+            der, vor dem die meisten Respekt haben. Wir bereiten dich gezielt darauf
+            vor: mit echten Prüfungsrouten, typischen Prüfungssituationen und ehrlichem
+            Feedback, das dir die Sicherheit gibt, beim ersten Mal zu bestehen.
+          </p>
+          <p class="intro-text" data-anim="fade-up" data-anim-delay="0.22">
+            Antonio kennt die Prüfungsstrecken in der ganzen Region – von Lachen über
+            Zürich bis Rapperswil. Kein Raten, kein böses Erwachen am Prüfungstag.
+          </p>
         </div>
+
+        <ul class="intro-stats" role="list">
+          <li class="intro-stat" data-anim="fade-up" data-anim-delay="0.10">
+            <span class="is-num" data-count={reviews.ratingValue} data-count-decimals="1" data-count-suffix="/5">{reviews.ratingValue}/5</span>
+            <span class="is-label">Google-Bewertung aus {reviews.reviewCount} Rezensionen</span>
+          </li>
+          <li class="intro-stat" data-anim="fade-up" data-anim-delay="0.16">
+            <span class="is-num" data-count="6">6</span>
+            <span class="is-label">Standorte mit bekannten Prüfungsrouten</span>
+          </li>
+          <li class="intro-stat" data-anim="fade-up" data-anim-delay="0.22">
+            <span class="is-num" data-count="10" data-count-suffix="+">10+</span>
+            <span class="is-label">Jahre Erfahrung mit Prüfungs­begleitung</span>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <CTASection title="Prüfungstraining buchen" />
+  <!-- ══ ABLAUF ═════════════════════════════════════════════════════════ -->
+  <section class="section ablauf-section" aria-labelledby="ablauf-heading">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow" data-anim="fade-up">So läuft's ab</p>
+        <h2 id="ablauf-heading" data-anim="fade-up" data-anim-delay="0.08">
+          Dein Weg zur Prüfung – in vier Schritten
+        </h2>
+      </div>
+
+      <ol class="steps" role="list">
+        {steps.map((step, i) => (
+          <li class="step" data-anim="fade-up" data-anim-delay={(0.07 * i).toFixed(2)}>
+            <span class="step-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <div class="step-body">
+              <h3 class="step-title">{step.title}</h3>
+              <p class="step-text">{step.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ══ PRÜFUNGSMÄNGEL ═════════════════════════════════════════════════ -->
+  <section class="section errors-section" aria-labelledby="errors-heading">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow" data-anim="fade-up">Kein Durchfallgrund</p>
+        <h2 id="errors-heading" data-anim="fade-up" data-anim-delay="0.08">
+          Häufige Prüfungsmängel – und wie wir sie vermeiden
+        </h2>
+      </div>
+
+      <ul class="error-grid" role="list">
+        {errors.map((err, i) => (
+          <li class="error-card" data-anim="fade-up" data-anim-delay={(0.06 * i).toFixed(2)}>
+            <span class="error-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </span>
+            <div>
+              <h3 class="error-title">{err.title}</h3>
+              <p class="error-text">{err.text}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ VORAUSSETZUNGEN + PREIS AUF ANFRAGE ════════════════════════════ -->
+  <section class="section req-section" aria-labelledby="req-heading">
+    <div class="container">
+      <div class="req-grid">
+        <div class="req-copy" data-anim="slide-right">
+          <p class="eyebrow">Was du mitbringst</p>
+          <h2 id="req-heading">Voraussetzungen</h2>
+          <ul class="req-list" role="list">
+            {requirements.map((r) => (
+              <li class="req-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                <span>{r}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <aside class="price-card glass-strong" data-anim="scale-in" aria-label="Preis auf Anfrage">
+          <span class="pc-glow" aria-hidden="true"></span>
+          <p class="pc-eyebrow">Prüfungstraining</p>
+          <p class="pc-price">Preis auf Anfrage</p>
+          <p class="pc-note">
+            Der Umfang richtet sich nach deinem Stand. Wir besprechen ehrlich,
+            wie viele Lektionen du wirklich brauchst – und nennen dir einen
+            fairen Preis ohne Überraschungen.
+          </p>
+          <a href="/kontakt" class="btn btn-cta btn-lg btn-magnetic pc-btn">
+            Jetzt anfragen
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href={`tel:${phoneLink}`} class="pc-phone">{company.phone}</a>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    title="Bereit für die Prüfung?"
+    subtitle="Sag uns, wann dein Prüfungstermin ist – wir bauen das passende Training drumherum. Antwort innerhalb von 24 Stunden."
+  />
 </BaseLayout>
 
 <style>
-.error-grid { margin-top: var(--sp-8); }
-.error-list { display: flex; flex-direction: column; gap: var(--sp-4); }
-.error-item { display: flex; gap: var(--sp-4); align-items: flex-start; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-md); padding: var(--sp-5); }
-.error-icon { font-size: var(--fs-xl); flex-shrink: 0; }
-.error-item strong { display: block; margin-bottom: var(--sp-1); }
-.error-item p { font-size: var(--fs-sm); color: var(--c-text-muted); }
+/* ── Abschnitts-Kopf ─────────────────────────────────────────────── */
+.section-head {
+  max-width: 720px;
+  margin: 0 auto var(--sp-12);
+  text-align: center;
+}
+.section-head .eyebrow { justify-content: center; }
+.section-head h2 { margin-bottom: var(--sp-4); }
+
+/* ── Intro ───────────────────────────────────────────────────────── */
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: var(--sp-12);
+  align-items: center;
+}
+.intro-copy h2 { margin-bottom: var(--sp-5); }
+.intro-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-5);
+}
+.intro-text {
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+.intro-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+.intro-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding-left: var(--sp-5);
+  border-left: 2px solid var(--c-border-gold);
+}
+.is-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-accent);
+  line-height: 1;
+}
+.is-label {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-normal);
+}
+
+/* ── Ablauf / Steps ──────────────────────────────────────────────── */
+.ablauf-section {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-5);
+  counter-reset: step;
+}
+.step {
+  position: relative;
+  display: flex;
+  gap: var(--sp-5);
+  padding: var(--sp-6);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: transform var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
+}
+.step::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--grad-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-base);
+}
+.step:hover {
+  transform: translateY(-5px);
+  border-color: var(--c-border-gold);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+}
+.step:hover::before { transform: scaleX(1); }
+.step-num {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-4xl);
+  font-weight: var(--fw-extrabold);
+  line-height: 1;
+  color: var(--c-accent);
+  opacity: 0.85;
+  text-shadow: 0 0 22px var(--c-accent-dim);
+}
+.step-title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-2);
+}
+.step-text {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+/* ── Prüfungsmängel ──────────────────────────────────────────────── */
+.error-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-5);
+}
+.error-card {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: flex-start;
+  padding: var(--sp-6);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  transition: transform var(--t-base), border-color var(--t-base);
+}
+.error-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 168, 146, 0.30);
+}
+.error-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--c-teal-bright) 14%, transparent);
+  color: var(--c-teal-bright);
+}
+.error-title {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-1);
+}
+.error-text {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+/* ── Voraussetzungen + Preis ─────────────────────────────────────── */
+.req-section {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+}
+.req-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--sp-12);
+  align-items: center;
+}
+.req-copy h2 { margin-bottom: var(--sp-6); }
+.req-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.req-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  color: var(--c-text);
+  line-height: var(--lh-normal);
+}
+.req-item svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--c-accent);
+}
+
+.price-card {
+  position: relative;
+  padding: var(--sp-8) var(--sp-7);
+  border: 1px solid var(--c-border-gold);
+  border-radius: var(--r-xl);
+  text-align: center;
+  overflow: hidden;
+  box-shadow: var(--sh-glow);
+}
+.pc-glow {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 440px;
+  max-width: 130%;
+  height: 320px;
+  background: radial-gradient(ellipse at center, var(--c-accent-glow), transparent 68%);
+  pointer-events: none;
+}
+.pc-eyebrow {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+  margin-bottom: var(--sp-3);
+}
+.pc-price {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-text);
+  line-height: 1.1;
+  margin-bottom: var(--sp-4);
+}
+.pc-note {
+  position: relative;
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-6);
+}
+.pc-btn {
+  position: relative;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: var(--sp-3);
+}
+.pc-phone {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  color: var(--c-accent);
+}
+.pc-phone:hover { color: var(--c-accent-bright); }
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .intro-grid,
+  .req-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-8);
+  }
+  .intro-stats { flex-direction: row; flex-wrap: wrap; }
+  .intro-stat { flex: 1 1 160px; }
+}
+@media (max-width: 680px) {
+  .steps,
+  .error-grid {
+    grid-template-columns: 1fr;
+  }
+  .intro-stats { flex-direction: column; }
+}
 </style>

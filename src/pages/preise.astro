@@ -2,81 +2,532 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Hero from '@components/Hero.astro';
 import CTASection from '@components/CTASection.astro';
-import { company } from '@data/site';
+import {
+  company,
+  priceList,
+  abos,
+  onRequestList,
+  adminFee,
+  reviews,
+} from '@data/site';
+
+const phoneLink = company.phone.replace(/\s/g, '');
+
+// Swiss-Formatierung: "CHF 1'350" / "CHF 171.60". `price` aus site.ts trägt
+// die Tausender-Apostrophe bereits; hier nur das "CHF "-Präfix setzen.
+const chf = (v: string) => `CHF ${v}`;
+
+// Beste Sparvariante (höchste Ersparnis) markieren wir als "Empfohlen".
+const toNumber = (s: string) => Number(s.replace(/'/g, ''));
+const bestSavings = Math.max(...abos.map((a) => toNumber(a.savings)));
+
+// ── JSON-LD: OfferCatalog mit den ECHTEN CHF-Preisen ──────────────────────
+// Einzellektionen → Offer mit PriceSpecification (CHF). Apostroph-Tausender
+// müssen für schema.org-`price` entfernt werden (numerisch).
+const numericPrice = (s: string) => s.replace(/'/g, '');
+
+const lessonOffers = priceList
+  .filter((p) => !p.priceOnRequest && p.price)
+  .map((p) => ({
+    '@type': 'Offer',
+    name: p.name,
+    description: p.description,
+    priceCurrency: 'CHF',
+    price: numericPrice(p.price!),
+    priceSpecification: {
+      '@type': 'PriceSpecification',
+      priceCurrency: 'CHF',
+      price: numericPrice(p.price!),
+    },
+    availability: 'https://schema.org/InStock',
+    seller: { '@id': `${company.url}/#organization` },
+  }));
+
+const aboOffers = abos.map((a) => ({
+  '@type': 'Offer',
+  name: `${a.name} (${a.lessons} Lektionen)`,
+  priceCurrency: 'CHF',
+  price: numericPrice(a.price),
+  priceSpecification: {
+    '@type': 'PriceSpecification',
+    priceCurrency: 'CHF',
+    price: numericPrice(a.price),
+  },
+  availability: 'https://schema.org/InStock',
+  seller: { '@id': `${company.url}/#organization` },
+}));
+
+const requestOffers = onRequestList.map((p) => ({
+  '@type': 'Offer',
+  name: p.name,
+  description: p.description,
+  priceCurrency: 'CHF',
+  availability: 'https://schema.org/InStock',
+  seller: { '@id': `${company.url}/#organization` },
+}));
+
+const priceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'OfferCatalog',
+  name: `Preise & Pakete – ${company.name}`,
+  url: `${company.url}/preise`,
+  provider: { '@id': `${company.url}/#organization` },
+  itemListElement: [...lessonOffers, ...aboOffers, ...requestOffers],
+};
 ---
 
 <BaseLayout
   title="Preise & Pakete | Antonio Marino"
-  description={`Preise und Pakete der Fahrschule Antonio Marino. Transparente Kosten für Fahrstunden, VKU und Nothelferkurs. Jetzt anfragen: ${company.phone}.`}
+  description={`Transparente Preise der Fahrschule Antonio Marino: Fahrlektion ab CHF 103, 75-Min-Lektion CHF 171.60, Sparpakete bis CHF 3'960. VKU, Nothelfer & Motorradgrundkurs auf Anfrage. Jetzt anfragen: ${company.phone}.`}
+  schema={priceSchema}
 >
-  <Hero eyebrow="Preise" title="Faire Preise," titleHighlight="klare Pakete." subtitle="Transparente Kosten ohne versteckte Gebühren. Frag uns nach deinem persönlichen Paket." backgroundVariant="minimal" />
+  <Hero
+    eyebrow="Preise & Pakete"
+    title="Faire Preise,"
+    titleHighlight="echte Zahlen."
+    subtitle="Keine versteckten Gebühren, keine Überraschungen. Hier siehst du genau, was deine Fahrausbildung bei Antonio Marino kostet – und wie viel du mit einem Paket sparst."
+    backgroundVariant="minimal"
+    showCTA={false}
+  />
 
-  <section class="section">
+  <!-- Vertrauens-Leiste mit animierten Countern -->
+  <section class="section-sm trust-strip-section">
     <div class="container">
-      <div class="price-grid">
-        <div class="price-card reveal">
-          <h3>Fahrstunde (60 Min)</h3>
-          <p class="price-note">Individueller Unterricht mit Antonio</p>
-          <p class="price-on-request">Auf Anfrage</p>
-          <ul class="price-features">
-            <li>60 oder 90 Minuten</li>
-            <li>Abholservice inklusive</li>
-            <li>5 Sprachen zur Auswahl</li>
-            <li>Prüfungsrouten-Training</li>
-          </ul>
-          <a href="/kontakt" class="btn btn-ghost" style="width:100%;">Anfragen</a>
+      <div class="trust-strip glass reveal">
+        <div class="trust-item">
+          <span class="trust-num" data-count="4.9" data-count-decimals="1" data-count-suffix="/5">4.9/5</span>
+          <span class="trust-label">Google-Bewertung</span>
         </div>
-
-        <div class="price-card price-featured reveal reveal-delay-1">
-          <div class="price-badge">Beliebt</div>
-          <h3>Anfänger-Paket</h3>
-          <p class="price-note">Nothelferkurs + VKU + erste Fahrstunden</p>
-          <p class="price-on-request">Auf Anfrage</p>
-          <ul class="price-features">
-            <li>10 Std Nothelferkurs</li>
-            <li>8 Std Verkehrskundeunterricht</li>
-            <li>5 Fahrstunden (á 60 Min)</li>
-            <li>Persönliche Betreuung</li>
-            <li>Alle Materialien inklusive</li>
-          </ul>
-          <a href="/kontakt" class="btn btn-primary" style="width:100%;">Paket buchen</a>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num" data-count="63" data-count-suffix="">63</span>
+          <span class="trust-label">Bewertungen</span>
         </div>
-
-        <div class="price-card reveal reveal-delay-2">
-          <h3>Prüfungsvorbereitung</h3>
-          <p class="price-note">Gezieltes Training vor der Prüfung</p>
-          <p class="price-on-request">Auf Anfrage</p>
-          <ul class="price-features">
-            <li>Prüfungsrouten fahren</li>
-            <li>Simulation der Prüfung</li>
-            <li>Feedback & Tipps</li>
-            <li>Bis du bereit bist</li>
-          </ul>
-          <a href="/kontakt" class="btn btn-ghost" style="width:100%;">Anfragen</a>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num" data-count="103" data-count-prefix="CHF " data-count-suffix="">CHF 103</span>
+          <span class="trust-label">ab pro Lektion</span>
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num">0%</span>
+          <span class="trust-label">versteckte Kosten</span>
         </div>
       </div>
+    </div>
+  </section>
 
-      <p class="price-disclaimer reveal reveal-delay-3">
-        Alle Preise auf Anfrage. Ruf an unter <a href={`tel:${company.phone.replace(/\s/g, '')}`} class="text-accent">{company.phone}</a> oder schreibe uns über das <a href="/kontakt" class="text-accent">Kontaktformular</a>.
+  <!-- ── 1) EINZELLEKTIONEN ─────────────────────────────────────────── -->
+  <section class="section lessons-section">
+    <div class="road-line lessons-road" aria-hidden="true"></div>
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow reveal">Einzellektionen</p>
+        <h2 class="reveal" data-anim-delay="0.05">Lektionen, die zu dir passen</h2>
+        <p class="section-lead reveal" data-anim-delay="0.1">
+          Ob kurze Lektion oder Intensivblock am Stück – du entscheidest, wie schnell du
+          vorankommst. Jede Lektion individuell mit Antonio, inkl. Abholservice.
+        </p>
+      </header>
+
+      <div class="lesson-grid">
+        {priceList.map((item, i) => (
+          <article
+            class={`lesson-card card ${item.popular ? 'is-popular' : ''} reveal`}
+            data-anim-delay={(i * 0.08).toFixed(2)}
+          >
+            {item.popular && <span class="ribbon ribbon-gold">Beliebteste</span>}
+            <div class="lesson-top">
+              <h3>{item.name}</h3>
+              {item.duration && <span class="lesson-duration">{item.duration}</span>}
+            </div>
+            <p class="lesson-desc">{item.description}</p>
+            <div class="price-block">
+              <span class="price-amount">{chf(item.price!)}</span>
+            </div>
+            <a
+              href="/kontakt"
+              class={`btn ${item.popular ? 'btn-primary btn-magnetic' : 'btn-ghost'}`}
+              style="width:100%;"
+            >
+              {item.popular ? 'Jetzt sichern' : 'Anfragen'}
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2) ABOS & SPARPAKETE ───────────────────────────────────────── -->
+  <section class="section abos-section">
+    <div class="abos-glow" aria-hidden="true"></div>
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow reveal">Abos &amp; Sparpakete</p>
+        <h2 class="reveal" data-anim-delay="0.05">Mehr Lektionen, weniger zahlen</h2>
+        <p class="section-lead reveal" data-anim-delay="0.1">
+          Wer mehr lernt, spart mehr. Mit unseren Abos und Intensivkursen bezahlst du pro
+          Lektion deutlich weniger – bis zu <strong>CHF&nbsp;572</strong> Ersparnis.
+        </p>
+      </header>
+
+      <div class="abo-grid">
+        {abos.map((abo, i) => {
+          const isBest = toNumber(abo.savings) === bestSavings;
+          const perLesson = (toNumber(abo.price) / abo.lessons).toFixed(0);
+          return (
+            <article
+              class={`abo-card card ${isBest ? 'is-best' : ''} reveal`}
+              data-anim-delay={(i * 0.06).toFixed(2)}
+            >
+              {isBest && <span class="ribbon ribbon-best">Empfohlen</span>}
+              <div class="abo-head">
+                <h3>{abo.name}</h3>
+                <span class="abo-lessons">{abo.lessons} Lektionen</span>
+              </div>
+              <div class="price-block">
+                <span class="price-amount">{chf(abo.price)}</span>
+                <span class="price-per">≈ CHF {perLesson} / Lektion</span>
+              </div>
+              <span class="save-badge">spare CHF {abo.savings}</span>
+              <a
+                href="/kontakt"
+                class={`btn ${isBest ? 'btn-cta btn-magnetic' : 'btn-ghost'}`}
+                style="width:100%; margin-top:auto;"
+              >
+                {isBest ? 'Bestes Paket anfragen' : 'Paket anfragen'}
+              </a>
+            </article>
+          );
+        })}
+      </div>
+
+      <p class="admin-note reveal" data-anim-delay="0.1">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>Administrationsgebühr <strong>CHF&nbsp;{adminFee.amount}</strong> einmalig (ab 2. Buchung).</span>
       </p>
     </div>
   </section>
 
-  <CTASection />
+  <!-- ── 3) WEITERE KURSE (Preis auf Anfrage) ───────────────────────── -->
+  <section class="section courses-section">
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow reveal">Weitere Kurse</p>
+        <h2 class="reveal" data-anim-delay="0.05">Pflichtkurse &amp; Spezialangebote</h2>
+        <p class="section-lead reveal" data-anim-delay="0.1">
+          Diese Kurse stellen wir individuell zusammen. Du erhältst auf Anfrage ein
+          persönliches, faires Angebot – schnell und unverbindlich.
+        </p>
+      </header>
+
+      <div class="course-grid">
+        {onRequestList.map((course, i) => (
+          <article class="course-card card reveal" data-anim-delay={(i * 0.08).toFixed(2)}>
+            <div class="course-mark" aria-hidden="true">
+              <span class="road-line-vertical course-road"></span>
+            </div>
+            <h3>{course.name}</h3>
+            <p class="course-desc">{course.description}</p>
+            <div class="price-block">
+              <span class="price-on-request">Preis auf Anfrage</span>
+            </div>
+            <a href="/kontakt" class="btn btn-ghost" style="width:100%; margin-top:auto;">
+              Jetzt anfragen
+            </a>
+          </article>
+        ))}
+      </div>
+
+      <p class="courses-hint reveal" data-anim-delay="0.1">
+        Lieber direkt sprechen? Ruf Antonio an unter
+        <a href={`tel:${phoneLink}`} class="text-accent">{company.phone}</a>
+        oder schreib uns über das <a href="/kontakt" class="text-accent">Kontaktformular</a>.
+      </p>
+    </div>
+  </section>
+
+  <CTASection
+    title="Bereit, durchzustarten?"
+    subtitle={`Hol dir dein persönliches Angebot. Antonio meldet sich innerhalb von 24 Stunden – ${reviews.ratingValue}/5 aus ${reviews.reviewCount} Bewertungen.`}
+  />
 </BaseLayout>
 
 <style>
-.price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); max-width: 1000px; margin-inline: auto; }
-.price-card { background: var(--grad-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: var(--sp-6); position: relative; transition: all var(--t-base); }
-.price-card:hover { border-color: var(--c-accent-dim); transform: translateY(-4px); }
-.price-featured { border-color: var(--c-accent); box-shadow: var(--sh-glow); }
-.price-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--grad-accent); color: var(--c-bg); padding: var(--sp-1) var(--sp-4); border-radius: var(--r-full); font-size: var(--fs-xs); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: 0.1em; }
-.price-card h3 { font-size: var(--fs-xl); margin-bottom: var(--sp-1); }
-.price-note { font-size: var(--fs-sm); color: var(--c-text-muted); margin-bottom: var(--sp-4); }
-.price-on-request { font-family: var(--font-display); font-size: var(--fs-3xl); font-weight: var(--fw-extrabold); color: var(--c-accent); margin-bottom: var(--sp-5); }
-.price-features { display: flex; flex-direction: column; gap: var(--sp-3); margin-bottom: var(--sp-6); }
-.price-features li { display: flex; gap: var(--sp-2); font-size: var(--fs-sm); color: var(--c-text-muted); }
-.price-features li::before { content: '✓'; color: var(--c-accent); font-weight: bold; }
-.price-disclaimer { text-align: center; margin-top: var(--sp-8); color: var(--c-text-muted); }
-@media (max-width: 768px) { .price-grid { grid-template-columns: 1fr; } }
+/* ── Section-Köpfe ───────────────────────────────────────────────── */
+.section-head {
+  max-width: 720px;
+  margin-bottom: var(--sp-8);
+}
+.section-head h2 {
+  font-size: clamp(2rem, 4vw + 1rem, 3rem);
+  margin-bottom: var(--sp-4);
+}
+.section-lead {
+  color: var(--c-text-muted);
+  font-size: var(--fs-lg);
+  line-height: var(--lh-relaxed);
+}
+.section-lead strong { color: var(--c-accent-bright); }
+
+/* ── Vertrauens-Leiste ───────────────────────────────────────────── */
+.trust-strip-section { padding-top: 0; }
+.trust-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  padding: var(--sp-5) var(--sp-6);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--c-border-gold);
+}
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sp-1);
+}
+.trust-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-accent);
+  line-height: 1;
+}
+.trust-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-text-muted);
+}
+.trust-divider {
+  width: 1px;
+  align-self: stretch;
+  min-height: 36px;
+  background: var(--c-border-strong);
+}
+
+/* ── Generischer Preis-Block ─────────────────────────────────────── */
+.price-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-5);
+}
+.price-amount {
+  font-family: var(--font-display);
+  font-size: var(--fs-4xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-text);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.price-per {
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+}
+.price-on-request {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  color: var(--c-accent);
+  line-height: 1.1;
+}
+
+/* ── Ribbons (Eck-Banner) ────────────────────────────────────────── */
+.ribbon {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-full);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  z-index: 2;
+}
+.ribbon-gold {
+  background: var(--grad-accent);
+  color: var(--c-bg);
+  box-shadow: var(--sh-glow-gold);
+}
+.ribbon-best {
+  background: var(--c-cta);
+  color: var(--c-text);
+  box-shadow: var(--sh-cta);
+}
+
+/* ── 1) Einzellektionen ──────────────────────────────────────────── */
+.lessons-section { position: relative; overflow: hidden; }
+.lessons-road {
+  top: 0;
+  left: -10%;
+  width: 120%;
+  transform: rotate(-1.5deg);
+  opacity: 0.18;
+}
+.lesson-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--sp-5);
+}
+.lesson-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-6);
+}
+.lesson-card.is-popular {
+  border-color: var(--c-accent);
+  box-shadow: var(--sh-glow);
+}
+.lesson-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+.lesson-top h3 { font-size: var(--fs-xl); }
+.lesson-duration {
+  align-self: flex-start;
+  padding: 2px var(--sp-3);
+  border-radius: var(--r-full);
+  background: var(--c-accent-dim);
+  color: var(--c-accent-bright);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+}
+.lesson-desc {
+  color: var(--c-text-muted);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-5);
+  flex-grow: 1;
+}
+
+/* ── 2) Abos & Sparpakete ────────────────────────────────────────── */
+.abos-section { position: relative; overflow: hidden; }
+.abos-glow {
+  position: absolute;
+  top: 10%;
+  right: -10%;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle at center, rgba(0, 112, 99, 0.18), transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+.abos-section .container { position: relative; z-index: 1; }
+.abo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-5);
+}
+.abo-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-6);
+}
+.abo-card.is-best {
+  border-color: var(--c-cta);
+  box-shadow: var(--sh-cta);
+}
+.abo-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-4);
+}
+.abo-head h3 { font-size: var(--fs-xl); }
+.abo-lessons {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+.save-badge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-3);
+  margin-bottom: var(--sp-5);
+  border-radius: var(--r-full);
+  background: var(--grad-teal);
+  color: var(--c-text);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+}
+.abo-card.is-best .save-badge {
+  background: var(--grad-accent);
+  color: var(--c-bg);
+}
+
+.admin-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-6);
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-muted);
+  font-size: var(--fs-sm);
+}
+.admin-note svg { color: var(--c-accent); flex-shrink: 0; }
+.admin-note strong { color: var(--c-text); }
+
+/* ── 3) Weitere Kurse ────────────────────────────────────────────── */
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--sp-5);
+}
+.course-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-6);
+  padding-left: var(--sp-8);
+}
+.course-mark {
+  position: absolute;
+  top: var(--sp-6);
+  bottom: var(--sp-6);
+  left: var(--sp-5);
+  width: 2px;
+}
+.course-road {
+  position: absolute;
+  inset: 0;
+  width: 2px;
+  opacity: 0.45;
+}
+.course-card h3 {
+  font-size: var(--fs-xl);
+  margin-bottom: var(--sp-2);
+}
+.course-desc {
+  color: var(--c-text-muted);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-5);
+  flex-grow: 1;
+}
+.courses-hint {
+  margin-top: var(--sp-8);
+  text-align: center;
+  color: var(--c-text-muted);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .trust-divider { display: none; }
+  .trust-strip { gap: var(--sp-4); }
+  .trust-item { flex: 1 1 40%; }
+  .price-amount { font-size: var(--fs-3xl); }
+}
 </style>

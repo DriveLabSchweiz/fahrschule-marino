@@ -2,58 +2,768 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Hero from '@components/Hero.astro';
 import CTASection from '@components/CTASection.astro';
-import { company } from '@data/site';
+import { company, reviews, physicalLocations } from '@data/site';
+
+const phoneLink = company.phone.replace(/\s/g, '');
+
+// Sprachen mit Flaggen-Kürzel (rein dekorativ, aria-hidden)
+const languages = [
+  { name: 'Deutsch', code: 'DE' },
+  { name: 'Englisch', code: 'EN' },
+  { name: 'Italienisch', code: 'IT' },
+  { name: 'Französisch', code: 'FR' },
+  { name: 'Spanisch', code: 'ES' },
+];
+
+// Werte / USP-Karten — Gold · Teal · Rot rotieren für Tiefe
+const values = [
+  {
+    accent: 'gold',
+    title: 'Persönliche Betreuung',
+    text: 'Kein Massenbetrieb, keine wechselnden Lehrer. Bei jeder Lektion sitzt derselbe vertraute Fahrlehrer neben dir – vom ersten Tag bis zur bestandenen Prüfung.',
+    icon: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  },
+  {
+    accent: 'teal',
+    title: 'Fünf Sprachen',
+    text: 'Deutsch, Englisch, Italienisch, Französisch oder Spanisch – du lernst in der Sprache, in der du dich sicher fühlst. Denn bei Sicherheit darf nichts verloren gehen.',
+    icon: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  },
+  {
+    accent: 'red',
+    title: 'Lokale Expertise',
+    text: 'Antonio kennt jede Prüfungsroute, jeden Kreisel und jede knifflige Kreuzung in der Region – damit du am Prüfungstag genau weisst, was auf dich zukommt.',
+    icon: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  },
+  {
+    accent: 'gold',
+    title: 'Flexibel & abgeholt',
+    text: 'Antonio holt dich an deinem Wunschort ab – zuhause, bei der Arbeit oder am Bahnhof. Termine, die in dein Leben passen, nicht umgekehrt.',
+    icon: '<rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>',
+  },
+  {
+    accent: 'teal',
+    title: 'DriveLab-Partner',
+    text: 'Als Teil des DriveLab-Netzwerks profitierst du von moderner Buchung, transparenten Preisen und einem geprüften Qualitätsstandard.',
+    icon: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>',
+  },
+  {
+    accent: 'red',
+    title: 'Geduld & Freude',
+    text: 'Autofahren lernen soll Spass machen, nicht Angst. Antonio nimmt dir die Nervosität – mit Ruhe, Humor und ehrlichem Feedback nach jeder Fahrt.',
+    icon: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+  },
+];
+
+const yearsExperience = new Date().getFullYear() - Number(company.established);
+
+// ── JSON-LD ────────────────────────────────────────────────────────────────
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${company.url}/ueber-uns#antonio`,
+  name: company.owner,
+  jobTitle: 'Fahrlehrer & Inhaber',
+  knowsLanguage: company.languages,
+  image: `${company.url}/antonio-portrait.jpeg`,
+  worksFor: { '@id': `${company.url}/#organization` },
+  telephone: company.phoneRaw,
+  email: company.email,
+  url: `${company.url}/ueber-uns`,
+};
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'DrivingSchool',
+  '@id': `${company.url}/#organization`,
+  name: company.name,
+  url: company.url,
+  telephone: company.phoneRaw,
+  email: company.email,
+  founder: { '@id': `${company.url}/ueber-uns#antonio` },
+  foundingDate: company.established,
+  knowsLanguage: company.languages,
+  areaServed: physicalLocations.map((l) => ({
+    '@type': 'City',
+    name: l.name,
+  })),
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: reviews.ratingValue,
+    reviewCount: reviews.reviewCount,
+    bestRating: '5',
+    worstRating: '1',
+  },
+  sameAs: [company.socialMedia.facebook, company.socialMedia.instagram],
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: company.url },
+    { '@type': 'ListItem', position: 2, name: 'Über uns', item: `${company.url}/ueber-uns` },
+  ],
+};
 ---
 
 <BaseLayout
-  title="Über Antonio Marino | Fahrschule"
-  description={`Lerne Antonio Marino kennen – deinen Fahrlehrer in der Region Lachen, Zürich und Rapperswil-Jona. ${company.languages.length} Sprachen, persönliche Betreuung, lokale Expertise.`}
+  title="Über Antonio Marino | Dein Fahrlehrer in der Region"
+  description={`Lerne Antonio Marino kennen – seit ${company.established} dein Fahrlehrer in Lachen, Zürich, Rapperswil-Jona und Umgebung. ${company.languages.length} Sprachen, persönliche Betreuung, ${reviews.ratingValue}★ aus ${reviews.reviewCount} Google-Bewertungen.`}
+  schema={[personSchema, organizationSchema, breadcrumbSchema]}
 >
-  <Hero eyebrow="Über uns" title="Mehr als nur" titleHighlight="ein Fahrlehrer." subtitle="Lerne Antonio kennen – den Mann, der dich sicher und mit Freude zum Führerschein bringt." backgroundVariant="minimal" />
+  <Hero
+    eyebrow="Über uns"
+    title="Mehr als nur"
+    titleHighlight="ein Fahrlehrer."
+    subtitle={`Lerne Antonio kennen – den Mann, der dich seit ${company.established} sicher, geduldig und mit echter Freude zum Führerschein bringt.`}
+    image="/antonio-portrait.jpeg"
+    imageAlt="Antonio Marino, Fahrlehrer und Inhaber, freundlich lächelnd im Fahrschulauto"
+    showCTA={false}
+  />
 
-  <section class="section">
+  <!-- ══ STORY ══ -->
+  <section class="section story-section" aria-labelledby="story-heading">
     <div class="container">
-      <div class="about-grid">
-        <div class="reveal">
-          <p class="eyebrow">Antonio Marino</p>
-          <h2 style="margin-bottom: var(--sp-6);">Dein Fahrlehrer mit Leidenschaft</h2>
-          <p style="font-size: var(--fs-lg); margin-bottom: var(--sp-5); line-height: var(--lh-relaxed);">
-            Schon über 10 Jahre bringt Antonio Marino Menschen in der Region sicher ans Steuer. Was als Leidenschaft fürs Autofahren begann, ist heute eine erfolgreiche Fahrschule mit 6 Standorten und über 20 bedienten Orten geworden.
+      <div class="story-inner">
+        <div class="story-copy">
+          <p class="eyebrow" data-anim="fade-up">Antonio Marino</p>
+          <h2 id="story-heading" data-anim="fade-up" data-anim-delay="0.08">
+            Dein Fahrlehrer mit Leidenschaft
+          </h2>
+          <p class="story-lead" data-anim="fade-up" data-anim-delay="0.16">
+            Schon über {yearsExperience} Jahre bringt Antonio Marino Menschen in der
+            Region sicher ans Steuer. Was als pure Leidenschaft fürs Autofahren
+            begann, ist heute eine Fahrschule mit <strong>6 Standorten</strong> und
+            über 20 bedienten Orten in SZ, SG, GL und ZH.
           </p>
-          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
-            Antonio glaubt nicht an Frontalunterricht, sondern an individuelle Betreuung. Jeder Fahrschüler ist anders – deshalb beginnt jede Ausbildung mit einem ehrlichen Gespräch über deine Ziele, deine Erfahrungen und deine Bedenken.
+          <p class="story-text" data-anim="fade-up" data-anim-delay="0.22">
+            Antonio glaubt nicht an Frontalunterricht, sondern an individuelle
+            Betreuung. Jeder Fahrschüler ist anders – deshalb beginnt jede
+            Ausbildung mit einem ehrlichen Gespräch über deine Ziele, deine
+            Erfahrungen und deine Bedenken. Erst dann setzt ihr euch ins Auto.
           </p>
-          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-4);">
-            Mit 5 Sprachen (Deutsch, Italienisch, Englisch, Französisch, Spanisch) ist Antonio auch für Menschen mit anderer Muttersprache der perfekte Ansprechpartner. Niemand muss sich auf einer Fremdsprache quälen, wenn es um Sicherheit geht.
+          <p class="story-text" data-anim="fade-up" data-anim-delay="0.28">
+            Mit <strong>5 Sprachen</strong> ist Antonio auch für Menschen mit
+            anderer Muttersprache der perfekte Ansprechpartner. Niemand muss sich
+            auf einer Fremdsprache quälen, wenn es um Sicherheit geht.
           </p>
 
-          <div class="about-stats">
-            <div class="about-stat"><span class="stat-num">10+</span><span class="stat-label">Jahre Erfahrung</span></div>
-            <div class="about-stat"><span class="stat-num">6</span><span class="stat-label">Standorte</span></div>
-            <div class="about-stat"><span class="stat-num">5</span><span class="stat-label">Sprachen</span></div>
-            <div class="about-stat"><span class="stat-num">20+</span><span class="stat-label">Orte bedient</span></div>
+          <div class="story-signature" data-anim="fade-up" data-anim-delay="0.34">
+            <img
+              src="/logo-marino-emblem.png"
+              alt=""
+              width="56"
+              height="43"
+              decoding="async"
+              loading="lazy"
+              aria-hidden="true"
+            />
+            <div>
+              <span class="sig-name">{company.owner}</span>
+              <span class="sig-role">Inhaber & Fahrlehrer · seit {company.established}</span>
+            </div>
           </div>
         </div>
 
-        <div class="about-image reveal reveal-delay-1">
-          <div class="image-placeholder">
-            <span>Fahrlehrer Antonio Marino</span>
+        <div class="story-media" data-anim="scale-in" data-anim-delay="0.1">
+          <div class="story-frame" data-parallax data-parallax-speed="0.06">
+            <img
+              src="/antonio-portrait-2.jpeg"
+              alt="Antonio Marino, warmes Porträt im Fahrschulauto"
+              width="520"
+              height="650"
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="story-frame-shine" aria-hidden="true"></span>
+          </div>
+          <div class="story-badge glass-strong" aria-hidden="true">
+            <span class="sb-star">★</span>
+            <span class="sb-text"><strong>{reviews.ratingValue}</strong> / 5 · {reviews.reviewCount} Bewertungen</span>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <CTASection />
+  <!-- ══ TRUST-STREIFEN (Counter) ══ -->
+  <section class="trust-strip" aria-label="Antonio Marino in Zahlen">
+    <div class="container">
+      <ul class="trust-grid" role="list">
+        <li class="trust-stat" data-anim="fade-up">
+          <span class="ts-num">
+            <span data-count={reviews.ratingValue} data-count-decimals="1">{reviews.ratingValue}</span><span class="ts-star" aria-hidden="true">★</span>
+          </span>
+          <span class="ts-label">Google-Bewertung aus {reviews.reviewCount} Rezensionen</span>
+        </li>
+        <li class="trust-stat" data-anim="fade-up" data-anim-delay="0.08">
+          <span class="ts-num"><span data-count={yearsExperience} data-count-suffix="+">{yearsExperience}+</span></span>
+          <span class="ts-label">Jahre Erfahrung am Steuer</span>
+        </li>
+        <li class="trust-stat" data-anim="fade-up" data-anim-delay="0.16">
+          <span class="ts-num"><span data-count="6">6</span></span>
+          <span class="ts-label">Standorte in 4 Kantonen</span>
+        </li>
+        <li class="trust-stat" data-anim="fade-up" data-anim-delay="0.24">
+          <span class="ts-num"><span data-count="5">5</span></span>
+          <span class="ts-label">Sprachen für deinen Unterricht</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ WERTE / USP ══ -->
+  <section class="section values-section" aria-labelledby="values-heading">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow" data-anim="fade-up">Wofür Antonio steht</p>
+        <h2 id="values-heading" data-anim="fade-up" data-anim-delay="0.08">
+          Sechs Versprechen, ein vertrautes Gesicht
+        </h2>
+        <p class="section-lead" data-anim="fade-up" data-anim-delay="0.16">
+          Diese Werte spürst du in jeder Lektion – nicht als Marketing, sondern
+          als die Art, wie Antonio seit {company.established} arbeitet.
+        </p>
+      </div>
+
+      <ul class="values-grid" role="list">
+        {values.map((v, i) => (
+          <li
+            class="value-card"
+            data-accent={v.accent}
+            data-anim="fade-up"
+            data-anim-delay={(0.06 * i).toFixed(2)}
+          >
+            <span class="value-icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={v.icon} />
+            </span>
+            <h3 class="value-title">{v.title}</h3>
+            <p class="value-text">{v.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ SPRACHEN ══ -->
+  <section class="section languages-section" aria-labelledby="lang-heading">
+    <div class="container">
+      <div class="lang-inner">
+        <div class="lang-copy" data-anim="slide-right">
+          <p class="eyebrow">In deiner Sprache</p>
+          <h2 id="lang-heading">Lernen ohne Sprachbarriere</h2>
+          <p class="lang-lead">
+            Sicherheit kennt keine Sprachgrenze. Antonio unterrichtet fliessend in
+            fünf Sprachen – so verstehst du jede Anweisung, jede Regel und jeden
+            Tipp genau so, wie er gemeint ist.
+          </p>
+        </div>
+        <ul class="lang-list" role="list">
+          {languages.map((l, i) => (
+            <li class="lang-chip" data-anim="scale-in" data-anim-delay={(0.06 * i).toFixed(2)}>
+              <span class="lang-code" aria-hidden="true">{l.code}</span>
+              <span class="lang-name">{l.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ MODERNES FAHRSCHULAUTO (Mini-Strip) ══ -->
+  <section class="section car-section" aria-labelledby="car-heading">
+    <div class="container">
+      <div class="car-inner">
+        <div class="car-media" data-anim="slide-right">
+          <div class="car-frame">
+            <img
+              src="/antonio-driving.jpeg"
+              alt="Antonio Marino am Steuer seines modernen Fahrschulautos"
+              width="640"
+              height="480"
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="car-frame-shine" aria-hidden="true"></span>
+          </div>
+        </div>
+        <div class="car-copy" data-anim="slide-left">
+          <p class="eyebrow">Lernen im modernen Fahrschulauto</p>
+          <h2 id="car-heading">Ein gepflegtes Fahrzeug, das dir Sicherheit gibt</h2>
+          <p class="car-lead">
+            Du lernst in einem modernen, gepflegten Fahrschulauto mit Doppelpedal –
+            sauber, sicher und mit allem, was eine entspannte Fahrstunde ausmacht.
+            Auf Wunsch holt dich Antonio direkt an deinem Standort ab.
+          </p>
+          <ul class="car-points" role="list">
+            <li class="car-point">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+              Modernes, gepflegtes Fahrzeug mit Doppelpedal
+            </li>
+            <li class="car-point">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+              Optionaler Abholservice an deinem Wunschort
+            </li>
+            <li class="car-point">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+              Ruhige, vertraute Lernumgebung – Stunde für Stunde
+            </li>
+          </ul>
+          <div class="car-actions">
+            <a href="/preise" class="btn btn-primary btn-magnetic">
+              Preise ansehen
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href={`tel:${phoneLink}`} class="btn btn-ghost btn-magnetic">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              {company.phone}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    title="Lust, Antonio kennenzulernen?"
+    subtitle="Ein kurzer Anruf, eine Nachricht – und du weisst, ob die Chemie stimmt. Antwort innerhalb von 24 Stunden."
+  />
 </BaseLayout>
 
 <style>
-.about-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--sp-10); align-items: start; }
-.about-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-top: var(--sp-8); }
-.about-stat { text-align: center; }
-.stat-num { display: block; font-family: var(--font-display); font-size: var(--fs-3xl); font-weight: var(--fw-extrabold); color: var(--c-accent); }
-.stat-label { font-size: var(--fs-sm); color: var(--c-text-muted); }
-.about-image { position: sticky; top: calc(var(--header-height) + var(--sp-5)); }
-.image-placeholder { aspect-ratio: 3/4; background: var(--grad-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; color: var(--c-text-dim); font-size: var(--fs-sm); }
-@media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; } .about-stats { grid-template-columns: repeat(2, 1fr); } .about-image { position: static; } }
+/* ── Abschnitts-Kopf ─────────────────────────────────────────────── */
+.section-head {
+  max-width: 720px;
+  margin: 0 auto var(--sp-12);
+  text-align: center;
+}
+.section-head .eyebrow { justify-content: center; }
+.section-head h2 { margin-bottom: var(--sp-4); }
+.section-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+/* ── STORY ───────────────────────────────────────────────────────── */
+.story-inner {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: var(--sp-12);
+  align-items: center;
+}
+.story-copy h2 { margin-bottom: var(--sp-5); }
+.story-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-5);
+}
+.story-lead strong { color: var(--c-accent); font-weight: var(--fw-bold); }
+.story-text {
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-4);
+}
+.story-text strong { color: var(--c-text); }
+
+.story-signature {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--c-border);
+}
+.story-signature img {
+  filter: drop-shadow(0 0 12px var(--c-accent-glow));
+  flex-shrink: 0;
+}
+.sig-name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--c-text);
+}
+.sig-role {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--c-accent);
+  letter-spacing: 0.02em;
+}
+
+/* Story-Bild mit Gold-Rahmen */
+.story-media {
+  position: relative;
+  justify-self: end;
+  width: 100%;
+  max-width: 480px;
+}
+.story-frame {
+  position: relative;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  border: 1px solid var(--c-border-gold);
+  background: var(--c-surface);
+  box-shadow: var(--sh-lg), 0 0 60px rgba(0, 112, 99, 0.22), 0 0 22px var(--c-accent-dim);
+}
+.story-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+.story-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(11, 15, 14, 0.55) 100%);
+  pointer-events: none;
+}
+.story-frame-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 174, 53, 0.18) 50%, transparent 58%);
+  transform: translateX(-100%);
+  animation: storyShine 7s ease-in-out 1.4s infinite;
+  z-index: 1;
+}
+@keyframes storyShine {
+  0%, 50%  { transform: translateX(-100%); }
+  75%, 100% { transform: translateX(100%); }
+}
+
+.story-badge {
+  position: absolute;
+  left: var(--sp-4);
+  bottom: var(--sp-4);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--c-border-gold);
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+  color: var(--c-text);
+  box-shadow: var(--sh-md);
+}
+.story-badge .sb-star { color: var(--c-accent-bright); font-size: 1.05em; }
+.story-badge strong { color: var(--c-accent); font-family: var(--font-display); font-size: var(--fs-lg); }
+
+/* ── TRUST-STREIFEN ──────────────────────────────────────────────── */
+.trust-strip {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+  padding-block: clamp(2.5rem, 5vw, 4rem);
+}
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-6);
+}
+.trust-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  text-align: center;
+  padding-inline: var(--sp-4);
+  position: relative;
+}
+.trust-stat:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: calc(var(--sp-6) / -2);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 48px;
+  background: var(--c-border-strong);
+}
+.ts-num {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 2vw + 1.4rem, 3rem);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 24px var(--c-accent-dim);
+  font-variant-numeric: tabular-nums;
+}
+.ts-star { color: var(--c-accent-bright); font-size: 0.55em; margin-left: 0.08em; }
+.ts-label {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-normal);
+  max-width: 22ch;
+}
+
+/* ── WERTE / USP ─────────────────────────────────────────────────── */
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-5);
+}
+.value-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--sp-7) var(--sp-6) var(--sp-6);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: transform var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
+  isolation: isolate;
+}
+.value-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--v-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-base);
+  z-index: 2;
+}
+.value-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 85% 0%, var(--v-glow), transparent 60%);
+  opacity: 0;
+  transition: opacity var(--t-base);
+  pointer-events: none;
+  z-index: 0;
+}
+.value-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--v-border);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--v-border);
+}
+.value-card:hover::before { transform: scaleX(1); }
+.value-card:hover::after { opacity: 1; }
+
+/* Akzent-Varianten (Tokens) */
+.value-card[data-accent='gold'] {
+  --v-accent: var(--c-accent);
+  --v-glow: var(--c-accent-dim);
+  --v-border: var(--c-border-gold);
+  --v-icon: var(--c-accent);
+}
+.value-card[data-accent='teal'] {
+  --v-accent: var(--c-teal-bright);
+  --v-glow: rgba(0, 168, 146, 0.16);
+  --v-border: rgba(0, 168, 146, 0.30);
+  --v-icon: var(--c-teal-bright);
+}
+.value-card[data-accent='red'] {
+  --v-accent: var(--c-cta);
+  --v-glow: rgba(225, 29, 42, 0.14);
+  --v-border: rgba(225, 29, 42, 0.30);
+  --v-icon: var(--c-cta-hover);
+}
+
+.value-icon {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--v-accent) 14%, transparent);
+  color: var(--v-icon);
+  margin-bottom: var(--sp-5);
+  transition: transform var(--t-base), background var(--t-base), color var(--t-base);
+}
+.value-card:hover .value-icon {
+  transform: scale(1.08) rotate(-3deg);
+  background: var(--v-accent);
+  color: var(--c-bg);
+}
+.value-title {
+  position: relative;
+  z-index: 1;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-3);
+}
+.value-text {
+  position: relative;
+  z-index: 1;
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+/* ── SPRACHEN ────────────────────────────────────────────────────── */
+.languages-section {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+}
+.lang-inner {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: var(--sp-12);
+  align-items: center;
+}
+.lang-copy h2 { margin-bottom: var(--sp-4); }
+.lang-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+}
+.lang-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--sp-4);
+}
+.lang-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--grad-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  transition: transform var(--t-base), border-color var(--t-base);
+}
+.lang-chip:hover {
+  transform: translateY(-4px);
+  border-color: var(--c-border-gold);
+}
+.lang-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: var(--c-accent-dim);
+  color: var(--c-accent);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.04em;
+}
+.lang-name {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  color: var(--c-text);
+}
+
+/* ── MODERNES FAHRSCHULAUTO ──────────────────────────────────────── */
+.car-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-12);
+  align-items: center;
+}
+.car-media {
+  position: relative;
+  width: 100%;
+}
+.car-frame {
+  position: relative;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  border: 1px solid var(--c-border-gold);
+  background: var(--c-surface);
+  box-shadow: var(--sh-lg), 0 0 56px rgba(0, 112, 99, 0.22);
+}
+.car-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.car-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 58%, rgba(11, 15, 14, 0.5) 100%);
+  pointer-events: none;
+}
+.car-frame-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 174, 53, 0.16) 50%, transparent 58%);
+  transform: translateX(-100%);
+  animation: storyShine 8s ease-in-out 2s infinite;
+  z-index: 1;
+}
+.car-copy h2 { margin-bottom: var(--sp-4); }
+.car-lead {
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-6);
+}
+.car-points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-8);
+}
+.car-point {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  color: var(--c-text);
+  line-height: var(--lh-snug);
+}
+.car-point svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--c-teal-bright);
+}
+.car-actions {
+  display: flex;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .values-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .story-inner,
+  .lang-inner,
+  .car-inner {
+    grid-template-columns: 1fr;
+    gap: var(--sp-8);
+  }
+  .story-media { max-width: 440px; margin-inline: auto; justify-self: center; }
+  .car-media { order: -1; }
+  .trust-grid { grid-template-columns: repeat(2, 1fr); gap: var(--sp-8); }
+  .trust-stat:nth-child(2)::after { display: none; }
+}
+@media (max-width: 640px) {
+  .values-grid { grid-template-columns: 1fr; }
+  .trust-grid { grid-template-columns: 1fr; }
+  .trust-stat:not(:last-child)::after {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: calc(var(--sp-8) / -2);
+    transform: translateX(-50%);
+    width: 48px;
+    height: 1px;
+  }
+  .car-actions { flex-direction: column; }
+  .car-actions .btn { width: 100%; }
+}
 </style>
