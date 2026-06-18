@@ -422,6 +422,67 @@ export const footerNav = {
   ],
 } as const;
 
+// Preise (für OfferCatalog Schema und Preisseite)
+export interface PriceItem {
+  name: string;
+  description: string;
+  price?: string;
+  priceOnRequest: boolean;
+}
+
+export const priceList: PriceItem[] = [
+  {
+    name: 'Einzelne Fahrstunde (60 Min)',
+    description: 'Individueller Unterricht mit Antonio Marino, inkl. Abholservice',
+    priceOnRequest: true,
+  },
+  {
+    name: 'Doppelstunde (90 Min)',
+    description: 'Verlängerte Fahrstunde für intensives Training',
+    priceOnRequest: true,
+  },
+  {
+    name: 'Verkehrskundeunterricht (VKU)',
+    description: '8 Stunden Pflichtkurs in kleinen Gruppen, inkl. Materialien',
+    priceOnRequest: true,
+  },
+  {
+    name: 'Nothelferkurs',
+    description: '10 Stunden zertifizierter Nothilfekurs, inkl. Bestätigung',
+    priceOnRequest: true,
+  },
+  {
+    name: 'Prüfungsvorbereitung',
+    description: 'Gezieltes Training auf den echten Prüfungsrouten',
+    priceOnRequest: true,
+  },
+  {
+    name: 'Kontrollfahrt-Vorbereitung',
+    description: 'Vorbereitung für Inhaber ausländischer Führerausweise',
+    priceOnRequest: true,
+  },
+  {
+    name: 'Motorradgrundkurs',
+    description: '12 Stunden Basis-Fahrtechnik auf geschlossenem Gelände',
+    priceOnRequest: true,
+  },
+];
+
+// Bewertungungs-Daten (für AggregateRating Schema)
+// WICHTIG: Nur echte Bewertungen verwenden!
+// Sobald Google Reviews vorhanden, hier aktualisieren
+export const reviews = {
+  ratingValue: '5.0',
+  reviewCount: 1, // Anzahl echter Bewertungen
+  reviews: [
+    {
+      author: 'Google Nutzer',
+      rating: 5,
+      text: 'Sehr kompetente und geduldige Fahrschule. Empfehlenswert!',
+    },
+  ],
+};
+
 // Hilfsfunktion: Standort per Slug finden
 export function getLocation(slug: string): Location | undefined {
   return allLocations.find(l => l.slug === slug);

@@ -4,7 +4,7 @@ import Hero from '@components/Hero.astro';
 import ServiceCard from '@components/ServiceCard.astro';
 import CTASection from '@components/CTASection.astro';
 import FAQ from '@components/FAQ.astro';
-import { services, physicalLocations, company } from '@data/site';
+import { services, physicalLocations, company, reviews } from '@data/site';
 
 const homeFAQ = [
   {
@@ -40,6 +40,35 @@ const homeFAQ = [
     titleHighlight="Führerschein."
     subtitle="Fahrstunden, VKU und Nothelferkurse in der ganzen Region – mit einem Fahrlehrer, der dich persönlich begleitet. Auf Deutsch, Italienisch, Englisch, Französisch oder Spanisch."
   />
+
+  <!-- Trust Bar -->
+  <section class="trust-bar">
+    <div class="container">
+      <div class="trust-content reveal">
+        <div class="trust-rating">
+          <div class="trust-stars">★★★★★</div>
+          <span class="trust-rating-text">
+            <strong>{reviews.ratingValue}/5</strong> · {reviews.reviewCount} Bewertung{reviews.reviewCount !== 1 ? 'en' : ''}
+          </span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-num">10+</span>
+          <span class="trust-label">Jahre Erfahrung</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-num">{company.languages.length}</span>
+          <span class="trust-label">Sprachen</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-num">27</span>
+          <span class="trust-label">Orte bedient</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Services -->
   <section class="section" id="leistungen">
@@ -185,6 +214,61 @@ const homeFAQ = [
           <div class="process-num">4</div>
           <h4>Prüfung bestehen</h4>
           <p>Du bist bereit. Mit lokaler Routenkenntnis und Selbstvertrauen zur praktischen Prüfung.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Car Showcase -->
+  <section class="section car-showcase">
+    <div class="container">
+      <div class="car-showcase-grid">
+        <div class="reveal">
+          <p class="eyebrow">Dein Fahrlehrer</p>
+          <h2 style="margin-bottom: var(--sp-5);">
+            Antonio Marino<br>bringt dich sicher ans Ziel
+          </h2>
+          <p style="font-size: var(--fs-lg); margin-bottom: var(--sp-4); line-height: var(--lh-relaxed);">
+            Mit über 10 Jahren Erfahrung als Fahrlehrer kennt Antonio die Strassen, die Prüfungsrouten und die typischen Herausforderungen in der Region genau. Er weiss, welche Kreuzungen tricky sind, wo du besonders aufmerksam sein musst und wie du in der Prüfung souverän bleibst.
+          </p>
+          <p style="color: var(--c-text-muted); margin-bottom: var(--sp-6);">
+            Sein Ansatz ist einfach: individueller Unterricht, der dich wirklich weiterbringt. Kein Frontalunterricht, kein Scheme-F. Dafür echtes Lernen in deinem Tempo, in deiner Sprache und mit einem Fahrlehrer, der dich nicht nur auf die Prüfung, sondern aufs Leben vorbereitet.
+          </p>
+          <div style="display: flex; gap: var(--sp-3); flex-wrap: wrap;">
+            <a href="/ueber-uns" class="btn btn-ghost">Mehr über Antonio</a>
+            <a href="/kontakt" class="btn btn-primary">Termin vereinbaren</a>
+          </div>
+        </div>
+        <div class="car-illustration-wrapper reveal reveal-delay-1">
+          <img src="/car-illustration.svg" alt="Fahrschule Antonio Marino — modernes Fahrschulauto" width="600" height="250" loading="lazy" />
+          <div class="car-glow"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Local SEO Content -->
+  <section class="section local-seo-section">
+    <div class="container">
+      <div class="reveal">
+        <h2 style="margin-bottom: var(--sp-5); text-align: center;">
+          Fahrschule in der Region Lachen, Zürich und Rapperswil-Jona
+        </h2>
+        <p style="color: var(--c-text-muted); max-width: 800px; margin-inline: auto; text-align: center; margin-bottom: var(--sp-6); line-height: var(--lh-relaxed);">
+          Die Fahrschule Antonio Marino ist deine Adresse für Fahrstunden, Verkehrskundeunterricht und Nothelferkurse im Kanton Schwyz, St. Gallen, Glarus und Zürich. Mit 6 Hauptstandorten in Lachen, Buttikon, Ziegelbrücke, Zürich, Uznach und Rapperswil-Jona sowie über 20 weiteren bedienten Orten sind wir immer in deiner Nähe. Ob du in Lachen SZ, Pfäffikon SZ, Wollerau, Siebnen, Schmerikon, Uznach, Benken, Kaltbrunn, Altendorf, Freienbach, Hurden oder Tuggen wohnst – wir holen dich ab und bringen dich sicher zum Führerschein. Auch im Kanton Zürich, in Dübendorf, Uster, Wetzikon oder Rüti, sowie im Glarnerland in Glarus, Niederurnen, Netstal oder Mollis sind wir für dich da. Unser Fahrlehrer Antonio Marino unterrichtet in 5 Sprachen: Deutsch, Italienisch, Englisch, Französisch und Spanisch. Wir kennen die Prüfungsrouten beim Strassenverkehrsamt in Lachen und die Besonderheiten der Straßen im Zürcher Oberland, im Linthgebiet und am Zürichsee. Melde dich an und starte noch heute mit deiner ersten Fahrstunde.
+        </p>
+        <div class="seo-location-chips">
+          <a href="/fahrschule-lachen">Fahrschule Lachen</a>
+          <a href="/fahrschule-zuerich">Fahrschule Zürich</a>
+          <a href="/fahrschule-rapperswil-jona">Fahrschule Rapperswil-Jona</a>
+          <a href="/fahrschule-buttikon">Fahrschule Buttikon</a>
+          <a href="/fahrschule-uznach">Fahrschule Uznach</a>
+          <a href="/fahrschule-ziegelbruecke">Fahrschule Ziegelbrücke</a>
+          <a href="/fahrschule-pfaeffikon-sz">Fahrschule Pfäffikon SZ</a>
+          <a href="/fahrschule-wollerau">Fahrschule Wollerau</a>
+          <a href="/fahrschule-siebnen">Fahrschule Siebnen</a>
+          <a href="/fahrschule-glarus">Fahrschule Glarus</a>
+          <a href="/standorte" class="seo-more">Alle 27 Standorte →</a>
         </div>
       </div>
     </div>
@@ -371,6 +455,154 @@ const homeFAQ = [
     gap: var(--sp-8);
   }
   .process-steps::before {
+    display: none;
+  }
+}
+
+/* Trust Bar */
+.trust-bar {
+  padding-block: var(--sp-5);
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg-elevated);
+}
+
+.trust-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+}
+
+.trust-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.trust-stars {
+  color: var(--c-accent);
+  font-size: var(--fs-lg);
+  letter-spacing: 2px;
+}
+
+.trust-rating-text {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+
+.trust-rating-text strong {
+  color: var(--c-text);
+}
+
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.trust-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--c-accent);
+}
+
+.trust-label {
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+}
+
+.trust-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--c-border-strong);
+}
+
+/* Car Showcase */
+.car-showcase {
+  overflow: hidden;
+}
+
+.car-showcase-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-10);
+  align-items: center;
+}
+
+.car-illustration-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.car-illustration-wrapper img {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));
+}
+
+.car-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 60%;
+  background: radial-gradient(ellipse at center, var(--c-accent-dim), transparent 70%);
+  filter: blur(40px);
+  z-index: -1;
+}
+
+/* Local SEO Section */
+.local-seo-section {
+  background: var(--c-bg-elevated);
+  border-block: 1px solid var(--c-border);
+}
+
+.seo-location-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  justify-content: center;
+  max-width: 800px;
+  margin-inline: auto;
+}
+
+.seo-location-chips a {
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  transition: all var(--t-fast);
+}
+
+.seo-location-chips a:hover {
+  background: var(--c-accent-dim);
+  color: var(--c-accent);
+  border-color: var(--c-accent);
+}
+
+.seo-more {
+  color: var(--c-accent) !important;
+  font-weight: var(--fw-semibold) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+@media (max-width: 768px) {
+  .car-showcase-grid {
+    grid-template-columns: 1fr;
+  }
+  .trust-content {
+    gap: var(--sp-4);
+  }
+  .trust-divider {
     display: none;
   }
 }

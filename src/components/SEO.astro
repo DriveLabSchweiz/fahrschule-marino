@@ -1,5 +1,5 @@
 ---
-import { company } from '@data/site';
+import { company, priceList, reviews } from '@data/site';
 
 interface Props {
   title: string;
@@ -61,6 +61,28 @@ const orgSchema = {
     opens: '07:00',
     closes: '21:00',
   }],
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: reviews.ratingValue,
+    reviewCount: reviews.reviewCount,
+    bestRating: '5',
+    worstRating: '1',
+  },
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Fahrschule Leistungen',
+    itemListElement: priceList.map(item => ({
+      '@type': 'Offer',
+      itemOffered: {
+        '@type': 'Service',
+        name: item.name,
+        description: item.description,
+      },
+      priceCurrency: 'CHF',
+      availability: 'https://schema.org/InStock',
+      seller: { '@id': `${siteUrl}/#organization` },
+    })),
+  },
 };
 
 const allSchemas = [baseSchema, orgSchema];
