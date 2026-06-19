@@ -39,11 +39,11 @@ const faqItems = [
   <!-- Hero -->
   <section class="section hero-sm">
     <div class="container">
-      <p class="eyebrow" data-animate="fade-up">Leistungen & Preise</p>
-      <h1 data-animate="fade-up" style="margin-bottom: 1.5rem;">
+      <p class="eyebrow" data-anim="fade-up">Leistungen & Preise</p>
+      <h1 data-anim="fade-up" style="margin-bottom: 1.5rem;">
         Alles für deinen<br><span class="gradient-text">Führerschein.</span>
       </h1>
-      <p class="text-muted" data-animate="fade-up" style="font-size: 1.25rem; max-width: 600px;">
+      <p class="text-muted" data-anim="fade-up" style="font-size: 1.25rem; max-width: 600px;">
         Vom Nothelferkurs bis zur Prüfung — ein Ansprechpartner, faire Preise, keine versteckten Kosten.
       </p>
     </div>
@@ -52,9 +52,9 @@ const faqItems = [
   <!-- Services Grid -->
   <section class="section" style="padding-top: 0;">
     <div class="container">
-      <div class="services-grid" data-animate="stagger">
+      <div class="services-grid">
         {services.map((service) => (
-          <a href={`/${service.slug}`} class="service-card" data-stagger-item>
+          <a href={`/${service.slug}`} class="service-card" data-anim="fade-up">
             <div class="service-icon">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons[service.icon] || icons.car} />
             </div>
@@ -71,16 +71,16 @@ const faqItems = [
   <!-- Preise -->
   <section class="section pricing-section">
     <div class="container">
-      <p class="eyebrow" data-animate="fade-up">Preise</p>
-      <h2 data-animate="fade-up" style="margin-bottom: 1rem;">Transparente Preise</h2>
-      <p class="text-muted" data-animate="fade-up" style="font-size: 1.1rem; margin-bottom: 3rem; max-width: 600px;">
+      <p class="eyebrow" data-anim="fade-up">Preise</p>
+      <h2 data-anim="fade-up" style="margin-bottom: 1rem;">Transparente Preise</h2>
+      <p class="text-muted" data-anim="fade-up" style="font-size: 1.1rem; margin-bottom: 3rem; max-width: 600px;">
         Einzelne Fahrstunden oder Sparpakete — du entscheidest. Alle Preise inkl. Fahrlehrer, Fahrzeug und Abholservice.
       </p>
 
       <!-- Einzellesson cards -->
-      <div class="price-cards" data-animate="stagger">
+      <div class="price-cards">
         {priceList.filter(p => !p.priceOnRequest).map((item) => (
-          <div class="price-card" data-stagger-item>
+          <div class="price-card" data-anim="fade-up">
             <h4>{item.name}</h4>
             <p class="price-desc">{item.description}</p>
             <p class="price-value">{item.price}</p>
@@ -89,7 +89,7 @@ const faqItems = [
       </div>
 
       <!-- Auf Anfrage -->
-      <div class="on-request-section" data-animate="fade-up">
+      <div class="on-request-section" data-anim="fade-up">
         <h3 style="margin-bottom: 1.5rem;">Kurse auf Anfrage</h3>
         <div class="on-request-grid">
           {onRequestList.map((item) => (
@@ -102,7 +102,7 @@ const faqItems = [
         </div>
       </div>
 
-      <p class="price-note" data-animate="fade-up">
+      <p class="price-note" data-anim="fade-up">
         ⚠️ Einmalige Administrationsgebühr von CHF 130.- ab der 2. Buchung. Treffpunkt: Bahnhof Rapperswil oder nach Vereinbarung.
       </p>
     </div>
