@@ -38,10 +38,22 @@ const year = new Date().getFullYear();
           </a>
         </div>
 
-        <p class="footer-partner">
-          <span class="partner-badge" aria-hidden="true">★</span>
-          Offizieller <strong>{company.partner}</strong>-Partner — Google-Bewertung 4.9 / 5
-        </p>
+        <a
+          class="footer-partner"
+          href="https://drivelab.ch/instructor/fahrschule-marino/"
+          target="_blank"
+          rel="noopener"
+        >
+          <img
+            src="/drivelab-partner.jpg"
+            alt={`Offizieller ${company.partner}-Partner`}
+            width="176"
+            height="50"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="footer-partner-note">★ 4.9 / 5 · 63 Google-Bewertungen</span>
+        </a>
       </div>
 
       <!-- Services -->
@@ -229,28 +241,39 @@ const year = new Date().getFullYear();
   box-shadow: var(--sh-glow);
 }
 
-/* DriveLab-Partner / rating note */
+/* DriveLab-Partner logo (links to the DriveLab profile) */
 .footer-partner {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: var(--sp-2) var(--sp-3);
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+  text-decoration: none;
+}
+.footer-partner img {
+  display: block;
+  height: 34px;
+  width: auto;
+  background: #fff;
+  padding: 7px 11px;
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-md);
+  transition: transform var(--t-base), box-shadow var(--t-base);
+}
+.footer-partner:hover img {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-lg), 0 0 0 1px var(--c-border-gold);
+}
+.footer-partner-note {
   font-size: var(--fs-xs);
-  color: var(--c-text-muted);
-  background: var(--c-accent-dim);
-  border: 1px solid var(--c-border-gold);
-  border-radius: var(--r-full);
+  color: var(--c-text-dim);
+  white-space: nowrap;
 }
-
-.footer-partner strong {
-  color: var(--c-accent);
-  font-weight: var(--fw-semibold);
-}
-
-.partner-badge {
-  color: var(--c-accent);
-  font-size: 0.9em;
-  line-height: 1;
+@media (max-width: 480px) {
+  .footer-partner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
 }
 
 /* ── Columns ── */

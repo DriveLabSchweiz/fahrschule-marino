@@ -241,6 +241,18 @@ p { max-width: 65ch; }
 }
 
 /* ============================================================
+   NO-FOUC REVEAL GATE
+   motion.ts animates [data-anim] / .reveal in with gsap.fromTo
+   (opacity 0 → 1). Without hiding them up front they paint visible
+   first, then snap to 0 and fade — a flicker on scroll. Hide them
+   only when JS is active; motion.ts (incl. its reduced-motion path)
+   always sets the final visible state, and hero children use
+   [data-hero] so they are never caught by this gate.
+   ============================================================ */
+html.js [data-anim],
+html.js .reveal { opacity: 0; }
+
+/* ============================================================
    UNIVERSE-A COMPATIBILITY LAYER
    Hero.astro, motion.ts and the polished subpages were built
    against the --c-accent / --sp / --fs token system. This block

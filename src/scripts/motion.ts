@@ -339,17 +339,27 @@ export function initAnimatedFavicon(): void {
     ctx.lineTo(44, 50);
     ctx.stroke();
 
-    // Moving centre dashes (the "BALLERN" motion)
+    // Moving centre dashes — drawn explicitly so direction is unambiguous:
+    // each dash's y grows with the phase → the road markings travel DOWNWARD,
+    // toward the viewer (the forward-driving feel). No lineDashOffset guessing.
     ctx.strokeStyle = GOLD_BRIGHT;
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
-    ctx.setLineDash([6, 7]);
-    ctx.lineDashOffset = dash; // +dash → dashes rush DOWNWARD toward the viewer (driving forward)
-    ctx.beginPath();
-    ctx.moveTo(32, 50);
-    ctx.lineTo(32, 18);
-    ctx.stroke();
-    ctx.setLineDash([]);
+    const dTop = 18;
+    const dBottom = 50;
+    const dPeriod = 13; // dash + gap length
+    const dLen = 6; // visible dash length
+    const phase = dash % dPeriod; // grows each frame (dash counts up) → moves down
+    for (let y = dTop + phase - dPeriod; y < dBottom; y += dPeriod) {
+      const y0 = Math.max(y, dTop);
+      const y1 = Math.min(y + dLen, dBottom);
+      if (y1 > y0) {
+        ctx.beginPath();
+        ctx.moveTo(32, y0);
+        ctx.lineTo(32, y1);
+        ctx.stroke();
+      }
+    }
     ctx.restore();
 
     // Horizon accent dot (teal) at vanishing point

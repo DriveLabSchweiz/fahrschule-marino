@@ -1,0 +1,347 @@
+---
+/*
+  JourneyDrive — interactive "drive to the Führerschein".
+  A car follows a winding SVG road; the visitor clicks from junction to
+  junction, choosing the route at the fork. Progressive enhancement:
+  without JS every station card is shown as a static timeline.
+*/
+const stations = [
+  { key: 'start',       frac: 0,    badge: '🚦', title: 'Start',               text: 'Bereit? Steig ein — wir fahren gemeinsam los Richtung Führerschein.', href: null,                       cta: 'Losfahren' },
+  { key: 'nothelfer',   frac: 0.22, badge: '1',  title: 'Nothelferkurs',       text: '10 Stunden Erste Hilfe am Unfallort — Pflicht vor dem Lernfahrausweis.', href: '/nothelferkurs',          cta: 'Weiterfahren' },
+  { key: 'theorie',     frac: 0.45, badge: '2',  title: 'Theorie & VKU',       text: 'Theorieprüfung bestehen, dann 8 Stunden Verkehrskundeunterricht in kleinen Gruppen.', href: '/verkehrskundeunterricht', cta: 'Weiterfahren' },
+  { key: 'fahrstunden', frac: 0.66, badge: '3',  title: 'Fahrstunden',         text: 'Mit Antonio ans Steuer — in deinem Tempo, deiner Sprache, mit Abholservice. Welche Route zuerst?', href: '/fahrstunden',  cta: null, fork: true },
+  { key: 'pruefung',    frac: 0.86, badge: '4',  title: 'Praktische Prüfung',  text: 'Wir fahren die echten Prüfungsrouten und üben typische Manöver — bis du sicher bist.', href: '/fahrpruefung',      cta: 'Ans Ziel fahren' },
+  { key: 'ziel',        frac: 1,    badge: '🎉', title: 'Führerschein!',       text: 'Geschafft. Zeit für die Freiheit auf vier Rädern — wir freuen uns auf dich.', href: '/kontakt',                cta: 'Probelektion buchen' },
+];
+const roadPath = 'M 360 1030 C 250 940, 540 880, 470 750 C 410 640, 180 600, 270 470 C 340 360, 560 360, 450 230 C 405 175, 360 150, 360 80';
+---
+
+<section class="section journey-drive">
+  <div class="container">
+    <p class="eyebrow" data-anim="fade-up">Deine Reise</p>
+    <h2 data-anim="fade-up" style="margin-bottom: 0.75rem;">
+      Deine Fahrt zum <span class="gradient-text">Führerschein.</span>
+    </h2>
+    <p class="text-muted jd-lede" data-anim="fade-up">
+      Klick dich von Kreuzung zu Kreuzung — an der Gabelung entscheidest du, wo's langgeht.
+    </p>
+
+    <div class="jd-stage" data-anim="fade-up">
+      <!-- ROAD SCENE -->
+      <div class="jd-scene">
+        <svg class="jd-svg" viewBox="0 0 720 1080" role="img" aria-label="Animierte Strecke zum Führerschein" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="jd-glow" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="var(--c-accent)" stop-opacity="0.0"/>
+              <stop offset="100%" stop-color="var(--c-accent)" stop-opacity="1"/>
+            </linearGradient>
+            <filter id="jd-blur" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="7"/>
+            </filter>
+            <radialGradient id="jd-head" cx="50%" cy="0%" r="75%">
+              <stop offset="0%" stop-color="var(--c-accent-bright)" stop-opacity="0.85"/>
+              <stop offset="100%" stop-color="var(--c-accent-bright)" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+
+          <!-- base asphalt -->
+          <path d={roadPath} class="jd-road-base" pathLength="1"/>
+          <!-- gold glowing edges -->
+          <path d={roadPath} class="jd-road-edge" pathLength="1"/>
+          <!-- animated centre dashes -->
+          <path d={roadPath} class="jd-road-dash" pathLength="1"/>
+          <!-- traveled overlay (revealed up to the car) -->
+          <path d={roadPath} class="jd-road-travel" pathLength="1"/>
+
+          <!-- station nodes (positioned on the path by JS) -->
+          {stations.map((s) => (
+            <g class="jd-node" data-frac={s.frac} data-key={s.key}>
+              <circle class="jd-node-ring" r="22" filter="url(#jd-blur)"/>
+              <circle class="jd-node-dot" r="19"/>
+              <text class="jd-node-badge" text-anchor="middle" dominant-baseline="central">{s.badge}</text>
+            </g>
+          ))}
+
+          <!-- the car -->
+          <g class="jd-car" aria-hidden="true">
+            <ellipse class="jd-car-head" cx="0" cy="-46" rx="34" ry="52" fill="url(#jd-head)"/>
+            <g class="jd-car-body">
+              <rect x="-13" y="-20" width="26" height="40" rx="9" class="jd-car-shell"/>
+              <rect x="-9" y="-15" width="18" height="13" rx="4" class="jd-car-glass"/>
+              <circle cx="-7" cy="-18" r="2.3" class="jd-car-lamp"/>
+              <circle cx="7" cy="-18" r="2.3" class="jd-car-lamp"/>
+            </g>
+          </g>
+        </svg>
+        <span class="jd-speed" aria-hidden="true"></span>
+      </div>
+
+      <!-- CONTROL / INFO -->
+      <div class="jd-panel">
+        <ol class="jd-progress" aria-hidden="true">
+          {stations.map((s) => <li data-key={s.key}></li>)}
+        </ol>
+
+        {stations.map((s, i) => (
+          <article class={`jd-card ${i === 0 ? 'is-active' : ''}`} data-card={s.key}>
+            <span class="jd-card-step">{s.key === 'start' ? 'Bereit zur Abfahrt' : s.key === 'ziel' ? 'Ziel erreicht' : `Etappe ${s.badge} von 4`}</span>
+            <h3 class="jd-card-title">{s.title}</h3>
+            <p class="jd-card-text" data-default-text={s.text}>{s.text}</p>
+
+            {s.fork ? (
+              <div class="jd-actions">
+                <button type="button" class="btn btn-primary btn-magnetic jd-go" data-next data-flavor="Erst der Stadtverkehr: Kreisel, Spurwechsel, Tempo 50 — bis es sitzt.">🏙️ Stadt zuerst</button>
+                <button type="button" class="btn btn-ghost jd-go" data-next data-flavor="Erst raus auf die Überlandstrasse: Tempo 80, Überholen, vorausschauend fahren.">🛣️ Überland zuerst</button>
+              </div>
+            ) : s.cta && i < stations.length - 1 ? (
+              <div class="jd-actions">
+                <button type="button" class="btn btn-primary btn-magnetic jd-go" data-next>{s.cta} →</button>
+                {s.href && <a class="jd-card-link" href={s.href}>Mehr zu {s.title} →</a>}
+              </div>
+            ) : (
+              <div class="jd-actions">
+                <a class="btn btn-primary btn-lg btn-magnetic" href={s.href || '/kontakt'}>{s.cta || 'Termin buchen'} →</a>
+                <button type="button" class="jd-restart" data-restart>Nochmal fahren ↻</button>
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.journey-drive { position: relative; overflow: hidden; }
+.jd-lede { font-size: 1.1rem; max-width: 560px; margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+
+.jd-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+}
+
+/* ---------- SCENE ---------- */
+.jd-scene {
+  position: relative;
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(0,112,99,0.18), transparent 60%),
+    linear-gradient(180deg, var(--c-bg-2), var(--c-bg));
+  border: 1px solid var(--c-border);
+  overflow: hidden;
+}
+.jd-svg { display: block; width: 100%; height: auto; max-height: 70vh; }
+
+.jd-road-base { fill: none; stroke: #0c1413; stroke-width: 46; stroke-linecap: round; stroke-linejoin: round; }
+.jd-road-edge { fill: none; stroke: var(--c-accent); stroke-width: 48; stroke-linecap: round; stroke-linejoin: round; opacity: 0.16; }
+.jd-road-dash {
+  fill: none; stroke: rgba(255,255,255,0.32); stroke-width: 3.5; stroke-linecap: round;
+  stroke-dasharray: 0.012 0.02;
+  animation: jdDash 2.4s linear infinite;
+}
+@keyframes jdDash { to { stroke-dashoffset: -0.064; } }
+
+.jd-road-travel {
+  fill: none; stroke: url(#jd-glow); stroke-width: 12; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 10px var(--c-accent-glow));
+}
+
+/* ---------- NODES ---------- */
+.jd-node { cursor: pointer; }
+.jd-node-ring { fill: var(--c-accent); opacity: 0; transition: opacity 0.4s; }
+.jd-node-dot { fill: var(--c-surface); stroke: var(--c-border-strong); stroke-width: 2; transition: fill 0.35s, stroke 0.35s; }
+.jd-node-badge { font-family: var(--font-display); font-weight: 800; font-size: 18px; fill: var(--c-text-muted); transition: fill 0.35s; }
+.jd-node.is-reached .jd-node-dot { fill: var(--c-accent); stroke: var(--c-accent-bright); }
+.jd-node.is-reached .jd-node-badge { fill: #0b0f0e; }
+.jd-node.is-reached .jd-node-ring { opacity: 0.28; }
+.jd-node.is-current .jd-node-ring { opacity: 0.4; animation: jdPulse 1.8s ease-in-out infinite; }
+@keyframes jdPulse { 0%,100% { opacity: 0.18; } 50% { opacity: 0.5; } }
+
+/* ---------- CAR ---------- */
+.jd-car-shell { fill: var(--c-text); stroke: var(--c-accent); stroke-width: 1.5; }
+.jd-car-glass { fill: #0c2a26; }
+.jd-car-lamp { fill: var(--c-accent-bright); }
+.jd-car-head { opacity: 0; transition: opacity 0.4s; }
+.jd-car.is-driving .jd-car-head { opacity: 1; }
+
+/* speed lines flash while driving */
+.jd-speed {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 22px, rgba(255,174,53,0.10) 22px 26px);
+  mask-image: radial-gradient(60% 80% at 50% 50%, black, transparent 75%);
+  -webkit-mask-image: radial-gradient(60% 80% at 50% 50%, black, transparent 75%);
+  transition: opacity 0.3s;
+}
+.jd-stage.is-driving .jd-speed { opacity: 1; animation: jdSpeed 0.5s linear infinite; }
+@keyframes jdSpeed { to { background-position: 0 26px; } }
+
+/* ---------- PANEL ---------- */
+.jd-panel { position: relative; }
+.jd-progress { list-style: none; display: flex; gap: 8px; margin: 0 0 1.75rem; padding: 0; }
+.jd-progress li { height: 4px; flex: 1; border-radius: 99px; background: var(--c-border); transition: background 0.4s; }
+.jd-progress li.is-done { background: var(--c-accent); }
+
+.jd-card { display: none; animation: jdFade 0.5s var(--t-spring); }
+.jd-card.is-active { display: block; }
+@keyframes jdFade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.jd-card-step {
+  font-family: var(--font-mono, var(--font-display)); font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--c-accent);
+}
+.jd-card-title { font-size: clamp(1.6rem, 3vw, 2.3rem); margin: 0.5rem 0 0.85rem; }
+.jd-card-text { color: var(--c-text-muted); font-size: 1.08rem; line-height: 1.7; margin-bottom: 1.75rem; max-width: 46ch; }
+
+.jd-actions { display: flex; flex-wrap: wrap; gap: 0.85rem; align-items: center; }
+.jd-card-link { color: var(--c-accent); font-weight: 700; font-size: 0.92rem; }
+.jd-card-link:hover { opacity: 0.75; }
+.jd-restart { background: none; border: none; color: var(--c-text-dim); font-size: 0.9rem; cursor: pointer; }
+.jd-restart:hover { color: var(--c-accent); }
+
+/* no-JS / reduced fallback: show every card as a static timeline */
+html:not(.js) .jd-card { display: block; border-top: 1px solid var(--c-border); padding-top: 1.5rem; margin-top: 1.5rem; }
+html:not(.js) .jd-scene { display: none; }
+
+@media (max-width: 900px) {
+  .jd-stage { grid-template-columns: 1fr; }
+  .jd-scene { order: -1; max-width: 460px; margin-inline: auto; }
+  .jd-svg { max-height: 56vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jd-road-dash, .jd-stage.is-driving .jd-speed { animation: none; }
+  .jd-card { animation: none; }
+}
+</style>
+
+<script>
+  function initJourneyDrive(): void {
+    const section = document.querySelector<HTMLElement>('.journey-drive');
+    if (!section) return;
+    const svg = section.querySelector<SVGSVGElement>('.jd-svg');
+    const road = section.querySelector<SVGPathElement>('.jd-road-base');
+    const travel = section.querySelector<SVGPathElement>('.jd-road-travel');
+    const car = section.querySelector<SVGGElement>('.jd-car');
+    const stage = section.querySelector<HTMLElement>('.jd-stage');
+    if (!svg || !road || !travel || !car || !stage) return;
+
+    const order = ['start', 'nothelfer', 'theorie', 'fahrstunden', 'pruefung', 'ziel'];
+    const nodes = Array.from(section.querySelectorAll<SVGGElement>('.jd-node'));
+    const cards = Array.from(section.querySelectorAll<HTMLElement>('.jd-card'));
+    const dots = Array.from(section.querySelectorAll<HTMLElement>('.jd-progress li'));
+    const fracOf = (key: string): number =>
+      parseFloat(nodes.find((n) => n.dataset.key === key)?.dataset.frac || '0');
+
+    let len = road.getTotalLength();
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const pointAt = (f: number): DOMPoint => road.getPointAtLength(Math.max(0, Math.min(1, f)) * len);
+
+    const placeCar = (f: number): void => {
+      const p = pointAt(f);
+      const p2 = pointAt(Math.min(1, f + 0.005));
+      const ang = (Math.atan2(p2.y - p.y, p2.x - p.x) * 180) / Math.PI + 90;
+      car.setAttribute('transform', `translate(${p.x.toFixed(2)},${p.y.toFixed(2)}) rotate(${ang.toFixed(2)})`);
+      travel.style.strokeDashoffset = String(1 - f);
+    };
+
+    const placeNodes = (): void => {
+      len = road.getTotalLength();
+      nodes.forEach((n) => {
+        const p = pointAt(parseFloat(n.dataset.frac || '0'));
+        n.setAttribute('transform', `translate(${p.x.toFixed(2)},${p.y.toFixed(2)})`);
+      });
+      placeCar(state.frac);
+    };
+
+    const state = { frac: 0 };
+    let current = 0; // index into order
+
+    const setActiveCard = (key: string): void => {
+      cards.forEach((c) => c.classList.toggle('is-active', c.dataset.card === key));
+    };
+
+    const paint = (): void => {
+      nodes.forEach((n, i) => {
+        n.classList.toggle('is-reached', i <= current);
+        n.classList.toggle('is-current', i === current);
+      });
+      dots.forEach((d, i) => d.classList.toggle('is-done', i <= current && current > 0));
+    };
+
+    const goTo = (idx: number): void => {
+      idx = Math.max(0, Math.min(order.length - 1, idx));
+      if (idx === current) return;
+      const target = fracOf(order[idx]);
+      car.classList.add('is-driving');
+      stage.classList.add('is-driving');
+      const finish = (): void => {
+        current = idx;
+        paint();
+        setActiveCard(order[idx]);
+        car.classList.remove('is-driving');
+        stage.classList.remove('is-driving');
+      };
+      const from = state.frac;
+      const dur = (0.7 + Math.abs(target - from) * 3.4) * 1000; // ms
+      // Jump instantly when motion is unwanted or rAF won't fire (hidden tab),
+      // so the journey never hangs; visible users get the smooth drive below.
+      if (reduce || document.hidden || dur < 30) { state.frac = target; placeCar(target); finish(); return; }
+      // easeInOutQuad, driven by requestAnimationFrame (no gsap dependency)
+      const ease = (x: number): number => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
+      const t0 = performance.now();
+      const frame = (now: number): void => {
+        const p = Math.min(1, (now - t0) / dur);
+        state.frac = from + (target - from) * ease(p);
+        placeCar(state.frac);
+        if (p < 1) requestAnimationFrame(frame);
+        else { state.frac = target; placeCar(target); finish(); }
+      };
+      requestAnimationFrame(frame);
+    };
+
+    // wire buttons
+    section.querySelectorAll<HTMLButtonElement>('[data-next]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        // a fork choice rewrites the CURRENT card to the chosen route — visible
+        // while the car drives on to the next station
+        const flavor = btn.dataset.flavor;
+        if (flavor) {
+          const t = section.querySelector<HTMLElement>('.jd-card.is-active .jd-card-text');
+          if (t) t.textContent = flavor;
+        }
+        goTo(current + 1);
+      });
+    });
+    section.querySelectorAll<HTMLButtonElement>('[data-restart]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        // reset any flavor-swapped text
+        cards.forEach((c) => {
+          const t = c.querySelector<HTMLElement>('.jd-card-text');
+          if (t && t.dataset.defaultText) t.textContent = t.dataset.defaultText;
+        });
+        goTo(0);
+        setActiveCard('start');
+      });
+    });
+    // clicking a node jumps there (only ones already reachable next, or any reached)
+    nodes.forEach((n, i) => {
+      n.addEventListener('click', () => { if (i <= current + 1) goTo(i); });
+    });
+
+    placeNodes();
+    paint();
+    window.addEventListener('resize', placeNodes, { passive: true });
+    window.addEventListener('load', placeNodes);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initJourneyDrive);
+  } else {
+    initJourneyDrive();
+  }
+</script>
