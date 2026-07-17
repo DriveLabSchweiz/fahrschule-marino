@@ -1,0 +1,42 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { company } from '@data/site';
+---
+
+<BaseLayout
+  title="Allgemeine Geschäftsbedingungen"
+  description={`Allgemeine Geschäftsbedingungen der ${company.name}.`}
+  noindex={true}
+>
+  <section class="section">
+    <div class="container container-narrow">
+      <p class="eyebrow">Rechtliches</p>
+      <h1 style="margin-bottom: var(--sp-8);">Allgemeine Geschäftsbedingungen</h1>
+
+      <div class="legal-content">
+        <h2>Prüfungsanmeldung und Prüfungsreife</h2>
+        <p>
+          Die Fahrschule meldet Fahrschülerinnen und Fahrschüler grundsätzlich erst bei Erreichen der Prüfungsreife zur praktischen Führerprüfung an.
+        </p>
+        <p>
+          Wünscht eine Fahrschülerin oder ein Fahrschüler eine Anmeldung vor Erreichen der Prüfungsreife, übernimmt sie oder er dafür die volle Verantwortung. Die Fahrschule kann in diesem Fall die Prüfungsbegleitung ablehnen. Die Fahrschülerin oder der Fahrschüler ist dann selbst dafür verantwortlich, ein geeignetes und zugelassenes Fahrzeug für die Prüfung zu organisieren.
+        </p>
+        <p>
+          Eine Prüfungsanmeldung setzt eine regelmässige Teilnahme am Fahrunterricht voraus. Dies gilt insbesondere für die drei Wochen unmittelbar vor der Prüfung.
+        </p>
+        <p>
+          Damit stellen wir sicher, dass die Kandidatinnen und Kandidaten eine gute Chance haben, die Prüfung zu bestehen, und dass die Verkehrssicherheit gewährleistet ist.
+        </p>
+
+        <p class="legal-meta">Stand: Juli 2026</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+.legal-content { line-height: var(--lh-relaxed); }
+.legal-content h2 { font-size: var(--fs-xl); margin-top: var(--sp-6); margin-bottom: var(--sp-3); }
+.legal-content p { color: var(--c-text-muted); margin-bottom: var(--sp-3); }
+.legal-meta { margin-top: var(--sp-8); font-size: var(--fs-sm); }
+</style>

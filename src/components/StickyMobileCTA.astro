@@ -1,7 +1,7 @@
 ---
 import { company } from '@data/site';
 const phoneLink = company.phone.replace(/\s/g, '');
-const whatsappLink = `https://wa.me/41${phoneLink.replace('+41', '')}?text=Hallo%20Antonio,%20ich%20möchte%20Fahrstunden%20buchen.`;
+const whatsappLink = `https://wa.me/${company.phoneRaw.replace(/\D/g, '')}?text=Hallo%20Antonio,%20ich%20möchte%20Fahrstunden%20buchen.`;
 ---
 
 <div class="sticky-mobile-cta">

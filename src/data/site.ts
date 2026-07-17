@@ -45,7 +45,7 @@ export const company = {
   },
   partner: 'DriveLab',
   priceRange: '€€',
-  established: '2013',
+  established: '2001',
 } as const;
 
 // 6 physische Standorte

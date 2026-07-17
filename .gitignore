@@ -3,7 +3,10 @@ node_modules/
 
 # Build output
 dist/
+dist-cloudflare-*/
 .output/
+build.out
+astro.config.sandbox.mjs
 
 # Environment variables
 .env

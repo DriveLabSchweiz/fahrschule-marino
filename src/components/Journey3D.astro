@@ -1,0 +1,702 @@
+---
+/*
+  Journey3D — scroll-driven 3D night journey to the Führerschein.
+  =============================================================
+  A tall scroll container with a sticky full-viewport WebGL canvas
+  (src/journey/JourneyScene.js). ScrollTrigger scrubs scene.setProgress().
+  HTML overlay caption cards fade/slide in per station; a fork lets the
+  visitor pick Motorrad or Auto. Progressive enhancement: prefers-reduced-
+  motion and no-JS fall back to a static, stacked station timeline.
+*/
+
+// Station beats — global-t centres must match JourneyScene.STATIONS windows.
+const mainBeats = [
+  { id: 'start',            center: 0.02, step: 'Etappe 1',    title: 'Steig ein',         text: 'Deine Reise zum Führerschein beginnt hier. Steig in den Bus — wir fahren gemeinsam los durch die Nacht.', href: '/kontakt', cta: 'Beratung anfragen' },
+  { id: 'nothelfer',        center: 0.11, step: 'Etappe 2',    title: 'Nothelferkurs',     text: 'Zehn Stunden Erste Hilfe am Unfallort — der Pflichtkurs, bevor du den Lernfahrausweis lösen kannst.', href: '/nothelferkurs', cta: 'Zum Nothelferkurs' },
+  { id: 'sehtest',          center: 0.20, step: 'Etappe 3',    title: 'Sehtest',           text: 'Kurzer Halt beim Optiker: Der Sehtest bestätigt, dass du fürs Steuer bereit bist. In fünf Minuten erledigt.', href: '/kontakt', cta: 'Fragen? Kontaktiere uns' },
+  { id: 'theorie',          center: 0.30, step: 'Etappe 4',    title: 'Theorie lernen',    text: 'Verkehrsregeln büffeln mit der Theorie-App — Fragenkataloge üben, bis alles sitzt. So bereitest du dich gezielt auf die Theorieprüfung vor.', href: '/kontakt', cta: 'Beratung anfragen' },
+  { id: 'pruefung-theorie', center: 0.40, step: 'Etappe 5',    title: 'Theorieprüfung',    text: 'Beim Strassenverkehrsamt zeigst du dein Wissen am Computer. Bestanden? Dann fehlt nur noch der VKU vor dem Fahren.', href: '/kontakt', cta: 'Beratung anfragen' },
+  { id: 'vku',              center: 0.49, step: 'Etappe 6',    title: 'Verkehrskunde (VKU)', text: 'Acht Stunden Verkehrskundeunterricht in kleinen Gruppen — Pflicht vor der praktischen Prüfung. Wir machen dich fit für den Verkehr.', href: '/verkehrskundeunterricht', cta: 'Zum VKU' },
+];
+
+const branchBeats = {
+  moto: [
+    { id: 'moto-1', center: 0.72, step: 'Motorrad · Etappe 7', title: 'Motorrad-Grundkurs', text: 'Auf abgesperrtem Gelände lernst du Balance, Bremsen und Kurventechnik. Pflicht für alle Töfffahrerinnen und Töfffahrer.', href: '/motorradgrundkurs', cta: 'Zum Grundkurs' },
+    { id: 'moto-2', center: 0.82, step: 'Motorrad · Etappe 8', title: 'Fahrstunden',        text: 'Raus in den echten Verkehr — Antonio begleitet dich sicher durch Stadt und Überland.', href: '/fahrstunden', cta: 'Zu den Fahrstunden' },
+    { id: 'moto-3', center: 0.92, step: 'Motorrad · Etappe 9', title: 'Praktische Prüfung', text: 'Wir üben die Prüfungsrouten und typischen Manöver, bis du sie im Schlaf beherrschst.', href: '/fahrpruefung', cta: 'Prüfung vorbereiten' },
+  ],
+  car: [
+    { id: 'car-1', center: 0.74, step: 'Auto · Etappe 7', title: 'Fahrstunden mit Antonio', text: 'Ans Steuer im modernen Fahrschulauto — in deinem Tempo, deiner Sprache, mit Abholservice.', href: '/fahrstunden', cta: 'Zu den Fahrstunden' },
+    { id: 'car-2', center: 0.88, step: 'Auto · Etappe 8', title: 'Praktische Prüfung',      text: 'Wir kennen die Prüfungsrouten der Region und bereiten dich gezielt vor — bis du sicher bist.', href: '/fahrpruefung', cta: 'Prüfung vorbereiten' },
+  ],
+};
+
+const zielBeat = { id: 'ziel', center: 0.985, step: 'Ziel erreicht', title: 'Führerschein!', text: 'Geschafft — der Führerschein gehört dir. Zeit für die Freiheit auf der Strasse. Wir freuen uns auf dich.', href: '/kontakt', cta: 'Probelektion buchen' };
+
+// Stepper dots (label + fill centre)
+const steps = [
+  { label: 'Start',     c: 0.02 },
+  { label: 'Nothelfer', c: 0.11 },
+  { label: 'Sehtest',   c: 0.20 },
+  { label: 'Theorie',   c: 0.30 },
+  { label: 'Prüfung',   c: 0.40 },
+  { label: 'VKU',       c: 0.49 },
+  { label: 'Gabelung',  c: 0.60 },
+  { label: 'Fahren',    c: 0.82 },
+  { label: 'Ziel',      c: 0.985 },
+];
+
+// All overlay cards (branch cards carry data-branch, hidden until chosen).
+const overlayCards = [
+  ...mainBeats.map((b) => ({ ...b, branch: '' })),
+  ...branchBeats.moto.map((b) => ({ ...b, branch: 'moto' })),
+  ...branchBeats.car.map((b) => ({ ...b, branch: 'car' })),
+  { ...zielBeat, branch: '' },
+];
+
+const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+---
+
+<section class="journey3d" aria-label="Interaktive 3D-Reise zum Führerschein">
+  <!-- ============ LIVE (WebGL) EXPERIENCE ============ -->
+  <div class="j3d-live">
+    <div class="j3d-scroll" data-j3d-scroll>
+      <div class="j3d-sticky">
+        <canvas class="j3d-canvas" data-j3d-canvas
+          aria-label="3D-Fahrt durch eine nächtliche Stadt: vom Bus über Nothelferkurs, Sehtest, Theorie und Prüfung bis zur Wahl zwischen Motorrad und Auto und zum Führerschein."></canvas>
+
+        <div class="j3d-vignette" aria-hidden="true"></div>
+
+        <!-- ============ CINEMATIC BOARDING PRELOADER ============ -->
+        <div class="j3d-preloader" data-j3d-preloader>
+          <div class="j3d-pl-road" aria-hidden="true"></div>
+          <div class="j3d-pl-center">
+            <p class="j3d-pl-eyebrow">Fahrschule Antonio Marino</p>
+            <h1 class="j3d-pl-title" data-j3d-pl-title>
+              {'Steig ein — Antonio bringt dich zur Autoprüfung.'.split(' ').map((w) => (
+                <span class="j3d-pl-w"><span>{w}</span></span>
+              ))}
+            </h1>
+            <div class="j3d-pl-bar" data-j3d-pl-bar aria-hidden="true"><i data-j3d-pl-fill></i></div>
+          </div>
+          <button type="button" class="j3d-pl-skip" data-j3d-pl-skip hidden>
+            Überspringen<span set:html={arrow} />
+          </button>
+        </div>
+        <div class="j3d-flash" data-j3d-flash aria-hidden="true"></div>
+
+        <!-- scroll hint (start only) -->
+        <div class="j3d-hint" data-j3d-hint aria-hidden="true">
+          <span>Scroll um einzusteigen</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+
+        <!-- vertical stepper -->
+        <ol class="j3d-stepper" data-j3d-stepper aria-hidden="true">
+          {steps.map((s) => (
+            <li data-c={s.c}><span class="j3d-dot"></span><span class="j3d-step-label">{s.label}</span></li>
+          ))}
+        </ol>
+
+        <!-- caption cards -->
+        <div class="j3d-cards" data-j3d-cards>
+          {overlayCards.map((b) => (
+            <article class="j3d-card" data-beat={b.id} data-center={b.center} data-branch={b.branch}>
+              <span class="j3d-card-step">{b.step}</span>
+              <h3 class="j3d-card-title">{b.title}</h3>
+              <p class="j3d-card-text">{b.text}</p>
+              <a class="btn btn-amber j3d-card-cta" href={b.href}>{b.cta}<span set:html={arrow} /></a>
+            </article>
+          ))}
+        </div>
+
+        <!-- fork choice panel -->
+        <div class="j3d-fork" data-j3d-fork aria-hidden="true">
+          <p class="j3d-fork-title">Gabelung erreicht — wie möchtest du weiterfahren?</p>
+          <div class="j3d-fork-btns">
+            <button type="button" class="j3d-choice" data-branch-choice="moto">
+              <span class="j3d-choice-emoji">🏍️</span>
+              <span class="j3d-choice-main">Motorrad</span>
+              <span class="j3d-choice-sub">mit Grundkurs</span>
+            </button>
+            <button type="button" class="j3d-choice" data-branch-choice="car">
+              <span class="j3d-choice-emoji">🚗</span>
+              <span class="j3d-choice-main">Auto</span>
+              <span class="j3d-choice-sub">mit Antonio im Auto</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- persistent branch toggle (after the fork) -->
+        <div class="j3d-toggle" data-j3d-toggle aria-hidden="true">
+          <span class="j3d-toggle-label">Route</span>
+          <button type="button" data-branch-choice="moto" title="Motorrad-Route">🏍️</button>
+          <button type="button" data-branch-choice="car" title="Auto-Route">🚗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ STATIC FALLBACK (no-JS / reduced motion) ============ -->
+  <div class="j3d-fallback">
+    <div class="container">
+      <p class="eyebrow">Deine Reise</p>
+      <h2 style="margin-bottom: 0.75rem;">Deine Fahrt zum <span class="gradient-text">Führerschein.</span></h2>
+      <p class="text-muted" style="font-size:1.1rem;max-width:600px;margin-bottom:3rem;">
+        Von der ersten Etappe bis zum Ziel — Schritt für Schritt begleiten wir dich. An der Gabelung entscheidest du: Motorrad oder Auto.
+      </p>
+      <ol class="j3d-fb-list">
+        {mainBeats.map((b, i) => (
+          <li class="j3d-fb-card">
+            <span class="j3d-fb-num">{i + 1}</span>
+            <div>
+              <h3>{b.title}</h3>
+              <p>{b.text}</p>
+              <a class="j3d-fb-link" href={b.href}>{b.cta} →</a>
+            </div>
+          </li>
+        ))}
+        <li class="j3d-fb-card j3d-fb-fork">
+          <span class="j3d-fb-num">⑂</span>
+          <div>
+            <h3>Gabelung: Motorrad oder Auto?</h3>
+            <div class="j3d-fb-branches">
+              <div>
+                <h4>🏍️ Motorrad</h4>
+                {branchBeats.moto.map((b) => (<p><a href={b.href}><strong>{b.title}:</strong> {b.text}</a></p>))}
+              </div>
+              <div>
+                <h4>🚗 Auto</h4>
+                {branchBeats.car.map((b) => (<p><a href={b.href}><strong>{b.title}:</strong> {b.text}</a></p>))}
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="j3d-fb-card j3d-fb-ziel">
+          <span class="j3d-fb-num">🎉</span>
+          <div>
+            <h3>{zielBeat.title}</h3>
+            <p>{zielBeat.text}</p>
+            <a class="btn btn-primary btn-lg" href={zielBeat.href}>{zielBeat.cta} →</a>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+.journey3d { position: relative; background: var(--c-bg); }
+
+/* ---------- LIVE ---------- */
+.j3d-scroll { position: relative; height: 720vh; }
+.j3d-sticky {
+  position: sticky; top: 0; height: 100vh; width: 100%;
+  overflow: hidden; background: var(--c-bg);
+}
+.j3d-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.j3d-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% 40%, transparent 55%, rgba(6,8,16,0.55) 100%),
+    linear-gradient(180deg, rgba(6,8,16,0.35) 0%, transparent 22%, transparent 60%, rgba(6,8,16,0.7) 100%);
+}
+
+/* ============ CINEMATIC BOARDING PRELOADER ============ */
+.j3d-preloader {
+  position: fixed; inset: 0; z-index: 2000;           /* above header + mobile nav */
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-bg);
+  transition: background 1.1s ease;
+}
+.j3d-preloader.is-arrival { background: rgba(6, 8, 16, 0); pointer-events: none; }
+.j3d-preloader.is-gone { display: none; }
+.j3d-pl-center { position: relative; text-align: center; padding: 1.5rem; max-width: 900px; }
+.j3d-pl-eyebrow {
+  font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--c-red-bright); margin-bottom: 1.4rem;
+}
+.j3d-pl-title {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1.7rem, 4.6vw, 3.4rem); line-height: 1.14;
+  color: var(--c-text); margin: 0 0 2.2rem; text-wrap: balance;
+}
+.j3d-pl-w { display: inline-block; overflow: hidden; vertical-align: bottom; margin-right: 0.28em; }
+.j3d-pl-w > span { display: inline-block; transform: translateY(110%); }
+.j3d-pl-bar {
+  width: min(320px, 60vw); height: 2px; margin: 0 auto;
+  background: rgba(255, 255, 255, 0.08); border-radius: 2px; overflow: hidden;
+}
+.j3d-pl-bar i {
+  display: block; height: 100%; width: 100%;
+  background: linear-gradient(90deg, var(--c-amber), var(--c-amber-bright));
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 0.4s ease; box-shadow: 0 0 12px var(--c-amber-glow);
+}
+/* faint road dashes running behind the text */
+.j3d-pl-road {
+  position: absolute; left: 0; right: 0; top: 58%; height: 2px; opacity: 0.35;
+  background-image: linear-gradient(90deg, var(--c-amber) 0 34px, transparent 34px 90px);
+  background-size: 90px 2px; background-repeat: repeat-x;
+  animation: j3dPlRoad 1.6s linear infinite;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent);
+}
+@keyframes j3dPlRoad { to { background-position: -90px 0; } }
+.j3d-preloader.is-arrival .j3d-pl-road { opacity: 0; }
+.j3d-pl-skip {
+  position: absolute; right: clamp(16px, 4vw, 44px); bottom: clamp(16px, 5vh, 44px);
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(6, 8, 16, 0.45); border: 1px solid var(--c-border-bright);
+  color: var(--c-text-muted); font-family: var(--font-mono); font-size: 0.8rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.65rem 1.1rem; border-radius: 999px; cursor: pointer;
+  backdrop-filter: blur(6px); pointer-events: auto;
+  transition: color 0.25s ease, border-color 0.25s ease, opacity 0.4s ease;
+}
+.j3d-pl-skip:hover { color: var(--c-amber); border-color: var(--c-amber); }
+/* threshold flash */
+.j3d-flash {
+  position: fixed; inset: 0; z-index: 2010; pointer-events: none; opacity: 0;
+  background: radial-gradient(90% 90% at 50% 55%, #fff7e0 0%, var(--c-amber-bright) 45%, rgba(255, 182, 39, 0.9) 100%);
+}
+
+/* scroll hint */
+.j3d-hint {
+  position: absolute; left: 50%; bottom: 3.5vh; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--c-amber);
+  transition: opacity 0.5s ease; opacity: 1;
+}
+.j3d-hint svg { animation: j3dBob 1.6s ease-in-out infinite; }
+@keyframes j3dBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+.j3d-hint.is-hidden { opacity: 0; }
+
+/* stepper */
+.j3d-stepper {
+  position: absolute; right: clamp(12px, 3vw, 34px); top: 50%;
+  transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px;
+  z-index: 4;
+}
+.j3d-stepper li { display: flex; align-items: center; gap: 10px; flex-direction: row-reverse; }
+.j3d-dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: transparent; border: 2px solid var(--c-text-dim);
+  transition: all 0.35s ease;
+}
+.j3d-step-label {
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em;
+  color: var(--c-text-dim); opacity: 0; transform: translateX(8px);
+  transition: all 0.35s ease; white-space: nowrap;
+}
+.j3d-stepper li.is-done .j3d-dot { border-color: var(--c-amber); background: var(--c-amber); }
+.j3d-stepper li.is-current .j3d-dot {
+  border-color: var(--c-amber-bright); background: var(--c-amber-bright);
+  box-shadow: 0 0 14px var(--c-amber-glow); transform: scale(1.35);
+}
+.j3d-stepper li.is-current .j3d-step-label { opacity: 1; transform: translateX(0); color: var(--c-amber); }
+
+/* cards */
+.j3d-cards {
+  position: absolute; left: clamp(16px, 5vw, 64px); bottom: clamp(48px, 9vh, 90px);
+  width: min(440px, 82vw); z-index: 5;
+}
+.j3d-card {
+  position: absolute; left: 0; bottom: 0; width: 100%;
+  background: rgba(13, 16, 32, 0.72);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--c-border-bright); border-radius: var(--r-lg);
+  padding: clamp(1.4rem, 3vw, 2rem);
+  box-shadow: var(--sh-card);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(24px);
+}
+.j3d-card.is-active { opacity: 1; visibility: visible; pointer-events: auto; }
+.j3d-card-step {
+  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--c-amber);
+}
+.j3d-card-title { font-size: clamp(1.5rem, 3.5vw, 2.1rem); margin: 0.4rem 0 0.7rem; }
+.j3d-card-text { color: var(--c-text-muted); font-size: 1rem; line-height: 1.65; margin-bottom: 1.3rem; }
+.j3d-card-cta { gap: 8px; }
+
+/* fork panel */
+.j3d-fork {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(620px, 92vw); text-align: center; z-index: 6;
+  opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.4s ease;
+}
+.j3d-fork.is-visible { opacity: 1; visibility: visible; pointer-events: auto; }
+.j3d-fork-title {
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(1.2rem, 3vw, 1.7rem);
+  margin: 0 auto 1.6rem; max-width: 30ch; color: var(--c-text);
+  text-shadow: 0 2px 30px rgba(0,0,0,0.8);
+}
+.j3d-fork-btns { display: flex; gap: clamp(0.8rem, 3vw, 1.6rem); justify-content: center; flex-wrap: wrap; }
+.j3d-choice {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  width: clamp(160px, 40vw, 220px); padding: 1.4rem 1rem;
+  background: rgba(13, 16, 32, 0.82); border: 2px solid var(--c-border-bright);
+  border-radius: var(--r-lg); color: var(--c-text); cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.j3d-choice:hover { transform: translateY(-4px); border-color: var(--c-amber); box-shadow: var(--sh-glow-amber); }
+.j3d-choice.is-active { border-color: var(--c-amber); box-shadow: var(--sh-glow-amber); }
+.j3d-choice-emoji { font-size: 2.2rem; line-height: 1; }
+.j3d-choice-main { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; }
+.j3d-choice-sub { font-size: 0.82rem; color: var(--c-text-muted); }
+
+/* branch toggle */
+.j3d-toggle {
+  position: absolute; left: clamp(16px, 5vw, 64px); top: clamp(80px, 12vh, 110px);
+  display: flex; align-items: center; gap: 6px; z-index: 5;
+  background: rgba(13,16,32,0.72); backdrop-filter: blur(10px);
+  border: 1px solid var(--c-border-bright); border-radius: var(--r-full);
+  padding: 5px 8px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease;
+}
+.j3d-toggle.is-visible { opacity: 1; visibility: visible; }
+.j3d-toggle-label { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--c-text-dim); padding-left: 4px; }
+.j3d-toggle button {
+  width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem; line-height: 1;
+  border: 1px solid transparent; transition: all 0.25s ease;
+}
+.j3d-toggle button.is-active { background: var(--c-amber); border-color: var(--c-amber); }
+
+/* ---------- FALLBACK ---------- */
+.j3d-fallback { display: none; padding-block: clamp(4rem, 10vw, 8rem); }
+.j3d-fb-list { display: flex; flex-direction: column; gap: 1.2rem; }
+.j3d-fb-card {
+  display: flex; gap: 1.5rem; background: var(--c-surface);
+  border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: 1.8rem;
+}
+.j3d-fb-num {
+  flex-shrink: 0; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+  background: var(--c-bg); border: 2px solid var(--c-amber); border-radius: 50%;
+  font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; color: var(--c-amber);
+}
+.j3d-fb-card h3 { font-size: 1.35rem; margin-bottom: 0.5rem; }
+.j3d-fb-card p { color: var(--c-text-muted); margin-bottom: 0.75rem; }
+.j3d-fb-link { color: var(--c-amber); font-weight: 700; }
+.j3d-fb-branches { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 0.5rem; }
+.j3d-fb-branches h4 { margin-bottom: 0.5rem; color: var(--c-text); }
+.j3d-fb-branches a { color: var(--c-text-muted); }
+.j3d-fb-branches a:hover { color: var(--c-amber); }
+
+/* stepper hidden until the intro hands over */
+.journey3d:not(.is-ready) .j3d-stepper { opacity: 0; }
+.j3d-stepper { transition: opacity 0.6s ease; }
+
+/* fallback switches */
+html:not(.js) .j3d-live { display: none; }
+html:not(.js) .j3d-fallback { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .j3d-live { display: none; }
+  .j3d-fallback { display: block; }
+}
+
+@media (max-width: 640px) {
+  .j3d-step-label { display: none; }
+  .j3d-fb-branches { grid-template-columns: 1fr; }
+  .j3d-fb-card { flex-direction: column; gap: 1rem; }
+}
+</style>
+
+<style is:global>
+/* scroll lock while the boarding cinematic runs */
+html.j3d-lock, html.j3d-lock body { overflow: hidden !important; overscroll-behavior: none; }
+</style>
+
+<script>
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { loadModel } from '../journey/loadModel.js';
+
+gsap.registerPlugin(ScrollTrigger);
+
+type SceneLike = {
+  setProgress: (t: number) => void;
+  setBranch: (b: 'moto' | 'car') => void;
+  getBranch: () => string;
+  start: () => void;
+  stop: () => void;
+  resize: () => void;
+  dispose: () => void;
+  renderOnce: () => void;
+  T_FORK: number;
+};
+
+function initJourney3D(): void {
+  const section = document.querySelector<HTMLElement>('.journey3d');
+  if (!section) return;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return; // static fallback via CSS
+
+  const canvas = section.querySelector<HTMLCanvasElement>('[data-j3d-canvas]');
+  const scrollEl = section.querySelector<HTMLElement>('[data-j3d-scroll]');
+  const cards = Array.from(section.querySelectorAll<HTMLElement>('.j3d-card'));
+  const forkPanel = section.querySelector<HTMLElement>('[data-j3d-fork]');
+  const toggle = section.querySelector<HTMLElement>('[data-j3d-toggle]');
+  const hint = section.querySelector<HTMLElement>('[data-j3d-hint]');
+  const stepEls = Array.from(section.querySelectorAll<HTMLElement>('[data-j3d-stepper] li'));
+  const choiceBtns = Array.from(section.querySelectorAll<HTMLButtonElement>('[data-branch-choice]'));
+  const preEl = section.querySelector<HTMLElement>('[data-j3d-preloader]');
+  const fillEl = section.querySelector<HTMLElement>('[data-j3d-pl-fill]');
+  const skipBtn = section.querySelector<HTMLButtonElement>('[data-j3d-pl-skip]');
+  const flashEl = section.querySelector<HTMLElement>('[data-j3d-flash]');
+  const plCenter = section.querySelector<HTMLElement>('.j3d-pl-center');
+  if (!canvas || !scrollEl) return;
+
+  let scene: SceneLike | null = null;
+  let pendingProgress = 0;
+  let branch: 'moto' | 'car' = 'car';
+  let disposed = false;
+  let introDone = false;
+
+  // =====================================================================
+  // CINEMATIC BOARDING PRELOADER
+  // Phase A: opaque overlay + headline + real asset progress.
+  // Phase B–D: boardingIntro.js drives bus/camera/door; overlay goes
+  // transparent, skip appears, flash covers the cut to the follow cam.
+  // =====================================================================
+  const MODEL_URLS = ['/models/bus.glb', '/models/nothelfer.glb', '/models/optiker.glb',
+    '/models/amt.glb', '/models/phone.glb', '/models/vku.glb', '/models/cupra-born-marino.glb'];
+  const MIN_DWELL = 1400; // ms — the headline never just flashes by
+  const t0 = performance.now();
+  let loadedUnits = 0;
+  const totalUnits = MODEL_URLS.length + 1; // + scene init
+  let introCtl: { finish: (instant?: boolean) => void; isFinished: () => boolean } | null = null;
+  let wantSkip = false;
+
+  const lockScroll = (on: boolean): void => {
+    document.documentElement.classList.toggle('j3d-lock', on);
+    document.body.classList.toggle('j3d-lock', on);
+  };
+
+  function bumpProgress(): void {
+    loadedUnits += 1;
+    if (fillEl) fillEl.style.transform = `scaleX(${Math.min(1, loadedUnits / totalUnits)})`;
+  }
+
+  function finishIntro(): void {
+    if (introDone) return;
+    introDone = true;
+    lockScroll(false);
+    if (flashEl) flashEl.style.opacity = '0';
+    if (preEl) preEl.classList.add('is-gone');
+    if (skipBtn) skipBtn.hidden = true;
+    if (hint) hint.classList.remove('is-hidden');
+    window.removeEventListener('wheel', skipIntent);
+    window.removeEventListener('touchmove', skipIntent);
+    window.removeEventListener('keydown', skipKey);
+    ScrollTrigger.refresh();
+    updateOverlay(pendingProgress);
+  }
+
+  function skipIntent(): void {
+    if (introCtl && !introCtl.isFinished()) introCtl.finish();
+    else if (!introCtl) wantSkip = true; // still loading: fast-cut once ready
+  }
+  function skipKey(e: KeyboardEvent): void {
+    if (['ArrowDown', 'PageDown', ' ', 'Enter', 'Escape'].includes(e.key)) skipIntent();
+  }
+
+  async function startCinematic(): Promise<void> {
+    lockScroll(true);
+
+    // headline words rise in
+    gsap.to('.j3d-pl-w > span', {
+      y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.07, delay: 0.15,
+    });
+
+    // real progress: warm the GLB cache (scene swaps hit the same URLs)
+    const preloads = MODEL_URLS.map((u) => loadModel(u).then(bumpProgress));
+    const sceneReady = createScene().then(bumpProgress);
+    await Promise.all([...preloads, sceneReady,
+      new Promise((r) => setTimeout(r, MIN_DWELL))]);
+    if (disposed || introDone) return;
+
+    if (!scene) { finishIntro(); return; } // WebGL failed — degrade gracefully
+    scene.start();
+
+    const sceneAny = scene as unknown as Record<string, any>;
+    const { runBoardingIntro } = await import('../journey/boardingIntro.js');
+    if (disposed || introDone) return;
+
+    introCtl = runBoardingIntro(sceneAny, {
+      mobile: window.matchMedia('(max-width: 768px)').matches,
+      onFlash: (v: number) => { if (flashEl) flashEl.style.opacity = String(Math.min(1, v * 1.15)); },
+      onPhase: (ph: string) => {
+        if (ph === 'arrival') {
+          // overlay goes transparent — the film starts behind the type
+          if (preEl) preEl.classList.add('is-arrival');
+          if (skipBtn) skipBtn.hidden = false;
+          if (plCenter) {
+            gsap.to(plCenter, { opacity: 0, y: -28, duration: 0.9, delay: 1.05, ease: 'power2.in' });
+          }
+        }
+      },
+      onFinish: finishIntro,
+    });
+
+    if (wantSkip) introCtl.finish();
+  }
+
+  skipBtn?.addEventListener('click', skipIntent);
+  window.addEventListener('wheel', skipIntent, { passive: true });
+  window.addEventListener('touchmove', skipIntent, { passive: true });
+  window.addEventListener('keydown', skipKey);
+
+  // ---- overlay state machine (independent of the WebGL scene) ----
+  let activeCardId = '';
+  function updateOverlay(p: number): void {
+    // during the cinematic intro the film owns the screen — no UI chrome
+    if (!introDone) {
+      if (hint) hint.classList.add('is-hidden');
+      return;
+    }
+    section.classList.add('is-ready');
+    // scroll hint: fades once the ride starts
+    if (hint) hint.classList.toggle('is-hidden', p > 0.05);
+
+    // fork panel window
+    const inFork = p > 0.565 && p < 0.65;
+    if (forkPanel) forkPanel.classList.toggle('is-visible', inFork);
+
+    // branch toggle appears after the fork
+    if (toggle) toggle.classList.toggle('is-visible', p > 0.645);
+
+    // stepper fill
+    stepEls.forEach((li) => {
+      const c = parseFloat(li.dataset.c || '0');
+      li.classList.toggle('is-done', p >= c - 0.005);
+    });
+    // mark the closest step as current
+    let curIdx = 0, best = Infinity;
+    stepEls.forEach((li, i) => {
+      const d = Math.abs(parseFloat(li.dataset.c || '0') - p);
+      if (d < best) { best = d; curIdx = i; }
+    });
+    stepEls.forEach((li, i) => li.classList.toggle('is-current', i === curIdx));
+
+    // caption card: nearest matching beat (suppressed during the fork)
+    let target: HTMLElement | null = null;
+    if (!inFork) {
+      let bestD = Infinity;
+      cards.forEach((card) => {
+        const b = card.dataset.branch || '';
+        if (b && b !== branch) return;
+        const d = Math.abs(parseFloat(card.dataset.center || '0') - p);
+        if (d < bestD) { bestD = d; target = card; }
+      });
+    }
+    const targetId = target ? (target as HTMLElement).dataset.beat || '' : '';
+    if (targetId !== activeCardId) {
+      activeCardId = targetId;
+      cards.forEach((card) => {
+        const on = card === target;
+        if (on) {
+          card.classList.add('is-active');
+          gsap.fromTo(card, { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', overwrite: true });
+        } else if (card.classList.contains('is-active')) {
+          gsap.to(card, {
+            y: -18, opacity: 0, duration: 0.35, ease: 'power2.in', overwrite: true,
+            onComplete: () => card.classList.remove('is-active'),
+          });
+        }
+      });
+    }
+  }
+
+  function setBranch(b: 'moto' | 'car'): void {
+    branch = b;
+    if (scene) scene.setBranch(b);
+    choiceBtns.forEach((btn) => btn.classList.toggle('is-active', btn.dataset.branchChoice === b));
+    // force overlay to re-evaluate branch cards
+    activeCardId = '__force__';
+    updateOverlay(pendingProgress);
+  }
+
+  choiceBtns.forEach((btn) => {
+    btn.addEventListener('click', () => setBranch((btn.dataset.branchChoice as 'moto' | 'car')));
+  });
+
+  // ---- ScrollTrigger scrub drives progress (works with or without Lenis) ----
+  ScrollTrigger.create({
+    trigger: scrollEl,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: true,
+    onUpdate: (self) => {
+      pendingProgress = self.progress;
+      // any scroll that slips through during the intro fast-forwards it
+      if (!introDone) { if (self.progress > 0.002) skipIntent(); return; }
+      if (scene) scene.setProgress(self.progress);
+      updateOverlay(self.progress);
+    },
+  });
+
+  // ---- lazy-init the Three scene when the section approaches the viewport ----
+  let created = false;
+  async function createScene(): Promise<void> {
+    if (created || disposed) return;
+    created = true;
+    try {
+      const mod = await import('../journey/JourneyScene.js');
+      if (disposed) return;
+      scene = new mod.JourneyScene(canvas, { branch }) as unknown as SceneLike;
+      (window as any).__j3d = scene; // debug handle
+      scene.setBranch(branch);
+      scene.setProgress(pendingProgress);
+      scene.resize();
+      scene.renderOnce();
+    } catch (err) {
+      console.error('[Journey3D] scene init failed', err);
+    }
+  }
+
+  // start/stop the render loop based on visibility of the sticky stage
+  const sticky = section.querySelector<HTMLElement>('.j3d-sticky');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        createScene().then(() => scene && scene.start());
+      } else if (scene) {
+        scene.stop();
+      }
+    });
+  }, { rootMargin: '200px 0px', threshold: 0.01 });
+  if (sticky) io.observe(sticky);
+
+  // initialise overlay + branch default, then roll film
+  setBranch('car');
+  updateOverlay(0);
+  startCinematic();
+
+  // resize
+  let rT: number;
+  window.addEventListener('resize', () => {
+    clearTimeout(rT);
+    rT = window.setTimeout(() => scene && scene.resize(), 200);
+  });
+
+  // dispose on view-transition swap (if ever enabled)
+  document.addEventListener('astro:before-swap', () => {
+    disposed = true;
+    io.disconnect();
+    if (scene) scene.dispose();
+    scene = null;
+  }, { once: true });
+
+  ScrollTrigger.refresh();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initJourney3D);
+} else {
+  initJourney3D();
+}
+</script>

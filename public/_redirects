@@ -7,17 +7,19 @@
 /elementor-779/              /blog                  301
 /hallo-welt/                /blog                  301
 
-# Alte Standortseiten — entferne trailing slash
-/fahrschule-buttikon/       /fahrschule-buttikon       301
-/fahrschule-glarus/         /fahrschule-glarus         301
-/fahrschule-lachen/         /fahrschule-lachen         301
-/fahrschule-pfaeffikon-sz/  /fahrschule-pfaeffikon-sz  301
-/fahrschule-rapperswil-jona/ /fahrschule-rapperswil-jona 301
-/fahrschule-siebnen/        /fahrschule-siebnen        301
-/fahrschule-uznach/         /fahrschule-uznach         301
-/fahrschule-wollerau/       /fahrschule-wollerau       301
-/fahrschule-ziegelbruecke/  /fahrschule-ziegelbruecke  301
-/kontakt/                    /kontakt                    301
+# Cloudflare Pages bedient diese Verzeichnisse nativ mit trailing slash.
+# Die alten Regeln bleiben zur Dokumentation erhalten, sind aber deaktiviert,
+# weil sie zusammen mit dem automatischen Pages-Redirect Schleifen erzeugen.
+# preserved (inactive): /fahrschule-buttikon/       /fahrschule-buttikon       301
+# preserved (inactive): /fahrschule-glarus/         /fahrschule-glarus         301
+# preserved (inactive): /fahrschule-lachen/         /fahrschule-lachen         301
+# preserved (inactive): /fahrschule-pfaeffikon-sz/  /fahrschule-pfaeffikon-sz  301
+# preserved (inactive): /fahrschule-rapperswil-jona/ /fahrschule-rapperswil-jona 301
+# preserved (inactive): /fahrschule-siebnen/        /fahrschule-siebnen        301
+# preserved (inactive): /fahrschule-uznach/         /fahrschule-uznach         301
+# preserved (inactive): /fahrschule-wollerau/       /fahrschule-wollerau       301
+# preserved (inactive): /fahrschule-ziegelbruecke/  /fahrschule-ziegelbruecke  301
+# preserved (inactive): /kontakt/                    /kontakt                    301
 
 # Alte WordPress-Standardseiten
 /wp-admin                    /              301
