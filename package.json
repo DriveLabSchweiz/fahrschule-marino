@@ -9,11 +9,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.0.0",
+    "@astrojs/sitemap": "^3.7.4",
     "@gsap/react": "^2.1.2",
     "@studio-freight/lenis": "^1.0.42",
-    "astro": "^5.0.0",
+    "astro": "^7.4.2",
     "gsap": "^3.15.0",
     "three": "^0.185.1"
+  },
+  "engines": {
+    "node": ">=22.23.4"
   }
 }
